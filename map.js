@@ -93,7 +93,6 @@ $(function() {
 
     if(!$elem.parent().hasClass("tilePaletteOption") && (this.name == "wallBottomRight" || this.name == "wallBottomLeft" || this.name == "wallTopRight" || this.name == "wallTopLeft")) {
         $elem.css('background-image', "")
-        console.log(tile);
     }
     if (tile && tile.quadrantElems) {
       if (this.isWall()) {
