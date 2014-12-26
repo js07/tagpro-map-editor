@@ -80,13 +80,20 @@ $(function() {
       $elem.css('background-color', styleBgColor);
       $elem.styleBgColor = styleBgColor;
     }
+
     if (styleBackgroundSize != $elem.styleBackgroundSize) {
-      //$elem.css('background-size', styleBackgroundSize);
+      $elem.css('background-size', styleBackgroundSize);      
       $elem.styleBackgroundSize = styleBackgroundSize;
     }
+
     if (styleUrl != $elem.styleUrl) {
-      $elem.css('background-image', styleUrl)
-      $elem.styleUrl = styleUrl;
+        $elem.css('background-image', styleUrl)
+        $elem.styleUrl = styleUrl;
+    }
+
+    if(!$elem.parent().hasClass("tilePaletteOption") && (this.name == "wallBottomRight" || this.name == "wallBottomLeft" || this.name == "wallTopRight" || this.name == "wallTopLeft")) {
+        $elem.css('background-image', "")
+        console.log(tile);
     }
     if (tile && tile.quadrantElems) {
       if (this.isWall()) {
@@ -1313,7 +1320,7 @@ $(function() {
         $rowDiv.append($("<div style='width:40px;display:inline-block;'></div>"));
         return;
       }
-      var $button = $("<div class='tileBackground tilePaletteOption' title = '" + type.toolTipText + "'><div class='tile'><div class='tileTypeSelectionIndicator'></div></div></div>");
+      var $button = $("<div class='tileBackground tilePaletteOption "+type.toolTipText.split(" ").join("_")+"' title = '" + type.toolTipText + "'><div class='tile'><div class='tileTypeSelectionIndicator'></div></div></div>");
       $button.data('tileType', type);
       type.drawOn($button.find('.tile'));
       $button.click('click', function() {
@@ -1559,12 +1566,15 @@ $(function() {
   });
   
   function showZoom() {
+    console.log("We're in the showzoom function")
     tileSize = [10,20,30,40][zoom];
     var sizeCss = tileSize + 'px';
     var quadrantSizeCss = tileSize/2 + 'px';
     var singleTileBackgroundSize = sizeCss + ' ' + sizeCss;
     var tileSheetBackgroundSize = (tileSize*tileSheetWidth) + 'px ' + (tileSize*tileSheetHeight) + 'px';
-    
+    console.log(tileSheetBackgroundSize);
+    console.log(tileSize);
+    console.log(singleTileBackgroundSize);
     function applySize(e) {
       e.style.width = e.style.height = sizeCss;
     }
@@ -1610,6 +1620,17 @@ $(function() {
   $("div.tileBackground").css("background-position", "-520px -160px");
 
 
+  $(".Wall_BL").children().css({"background-size":""})
+  $(".Wall_BL").css({"background-image":""})
+  $(".Wall_BR").children().css({"background-size":""})
+  $(".Wall_BR").css({"background-image":""})
+  $(".Wall_TL").children().css({"background-size":""})
+  $(".Wall_TL").css({"background-image":""})
+  $(".Wall_TR").children().css({"background-size":""})
+  $(".Wall_TR").css({"background-image":""})
+  $(".Wall").css({"background-image":""})
+  $(".Wall").children().css({"background-size":""})
+  $(".nestedSquare").css({"background-image":""});
   
   function enableZoomButtons() {
     enable($('#zoomIn'), zoom<maxZoom);
