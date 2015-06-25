@@ -81,3 +81,16 @@ a.selectedTool {
 #resizeWidth, #resizeHeight {
     padding-right: 0px;
 }
+label {
+    display: block;
+}
+input[type="radio"] {
+    display: inline-block;
+    width: 5%;
+    height: auto;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+span.radioSpan {
+    margin: 0% 10% 0% 2%;
+}
