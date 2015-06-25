@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>TagPro Map Editor</title>
-		<script src="generatepng.js"></script>
-		<script src="webtoolkit.base64.js"></script>
-		<script src="jquery-2.1.0.min.js"></script>
-		<script src="jquery-ui-1.10.4.custom.min.js"></script>
+  <head>
+    <meta charset="utf-8">
+    <title>TagPro Map Editor</title>
+    <script src="generatepng.js"></script>
+    <script src="webtoolkit.base64.js"></script>
+    <script src="jquery-2.1.0.min.js"></script>
+    <script src="jquery-ui-1.10.4.custom.min.js"></script>
     <script src="bootstrap.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.10.4.custom.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 
 <body>
@@ -146,6 +146,12 @@
               <a id="import" class="btn btn-default" title="Import map"><span class="glyphicon glyphicon-import"></span> Import</a>
               <a id="export" class="btn btn-default" title="Export map"><span class="glyphicon glyphicon-export"></span> Export</a>
             </div>
+          </div>
+          <div class="form-group">
+            <label for="gameMode">Game Mode</label>
+            <input type="radio" name="gameMode" class="form-control" id="normalMode" value="normal" checked><span class="radioSpan">Normal</span></input>
+            <input type="radio" name="gameMode" class="form-control" id="gravityMode" value="gravity"><span class="radioSpan">Gravity</span></input>
+            <input type="radio" name="gameMode" class="form-control" id="gravityCTFMode" value="gravityCTF"><span class="radioSpan">GravityCTF</span></input>
           </div>
           <div class="form-group">
             <label for="mapName">Map Name</label>
