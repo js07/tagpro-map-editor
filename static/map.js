@@ -8,8 +8,8 @@ $(function() {
   var tileSheetWidth = 16;
   var tileSheetHeight = 11;
   
-  function positionCss(x, y) {
-    return -x*tileSize + 'px ' + -y*tileSize + 'px';
+  function positionCss(x, y, mult) {
+    return (mult ? -x*tileSize*mult : -x*tileSize) + 'px ' + (mult ? -y*tileSize*mult : -y*tileSize) + 'px';
   }
   function TileType(name, sheetX, sheetY, r,g,b, toolTipText, extra) {
     this.name = name;
@@ -21,6 +21,7 @@ $(function() {
     this.image = extra&&extra.image;
     this.imageTileWidth = extra&&extra.imageTileWidth||5;
     this.imageTileHeight = extra&&extra.imageTileHeight||1;
+    this.multiplier = extra&&extra.multiplier||1;
     this.wallSolids = (extra&&extra.wallSolids)|0;
     this.rgb = r | (g<<8) | (b<<16);
     this.opposite = this; // What it switches to when mirrored
@@ -32,27 +33,37 @@ $(function() {
     return !!this.wallSolids;
   }
   TileType.prototype.positionCss = function() {
-    return positionCss(this.sheetX, this.sheetY)
+    return positionCss(this.sheetX, this.sheetY, this.multiplier)
   }
-  TileType.prototype.drawOn = function($elem, tile) {
+  TileType.prototype.drawOn = function($elem, tile, onTop, offTop) {
     var styleBgColor = '';
     var styleUrl = 'url("' + (this.image || 'default-skin-v2') + '.png")';
-    var styleBackgroundSize = this.image ? (this.imageTileWidth*tileSize+'px ' + this.imageTileHeight*tileSize + 'px') : (tileSheetWidth*tileSize + 'px ' + tileSheetHeight*tileSize + 'px');
+    var styleBackgroundSize = this.image ? (this.imageTileWidth*tileSize+'px ' + this.imageTileHeight*tileSize + 'px') : (tileSheetWidth*tileSize*this.multiplier + 'px ' + tileSheetHeight*tileSize*this.multiplier + 'px');
     if (this.name == 'empty') {
       styleBgColor = 'black';
       styleUrl = '';
     }
     if (styleBgColor != $elem.styleBgColor) {
-      $elem.css('background-color', styleBgColor);
+      if(onTop)
+        $(tile.topSquare).css('background-color', styleBackgroundColor);
+      else
+        $elem.css('background-color', styleBgColor);
       $elem.styleBgColor = styleBgColor;
     }
-    if (styleBackgroundSize != $elem.styleBackgroundSize) {
-      $elem.css('background-size', styleBackgroundSize);
+    if (onTop || styleBackgroundSize != $elem.styleBackgroundSize) {
+      if(onTop)
+        $(tile.topSquare).css('background-size', styleBackgroundSize);
+      else
+        $elem.css('background-size', styleBackgroundSize);
       $elem.styleBackgroundSize = styleBackgroundSize;
     }
-    if (styleUrl != $elem.styleUrl) {
-      $elem.css('background-image', styleUrl)
+    if (!onTop && styleUrl != $elem.styleUrl) {
+      $elem.css('background-image', styleUrl);
       $elem.styleUrl = styleUrl;
+    }
+    if (onTop && styleUrl != $elem.topStyleUrl) {
+      $(tile.topSquare).css('background-image', styleUrl);
+      $elem.topStyleUrl = styleUrl;
     }
     if (tile && tile.quadrantElems) {
       if (this.isWall()) {
@@ -69,10 +80,10 @@ $(function() {
             var cornerY = y + ((((q+1)&2)==0) ? 0 : 1);
             // Figure out the filled/unfilledness of the 8 spots around this corner
             var aroundCorner = 
-               (wallSolidsAt(cornerX,cornerY)&0xc0)|
-               (wallSolidsAt(cornerX-1, cornerY)&0x03)| 
-               (wallSolidsAt(cornerX-1, cornerY-1)&0x0c)| 
-               (wallSolidsAt(cornerX, cornerY-1)&0x30);
+            (wallSolidsAt(cornerX,cornerY)&0xc0)|
+            (wallSolidsAt(cornerX-1, cornerY)&0x03)| 
+            (wallSolidsAt(cornerX-1, cornerY-1)&0x0c)| 
+            (wallSolidsAt(cornerX, cornerY-1)&0x30);
             aroundCorner = aroundCorner|(aroundCorner<<8);
             var startDirection = q*2 + 1; // start pointing through the middle of our own quadrant
             // See how far we can rotate clockwise without falling off the wall
@@ -126,7 +137,8 @@ $(function() {
           [7,4], // LUD
           [0,4], // RUD
           [4,4]  // LRUD
-        ][idx];*/
+          ][idx];*/
+        
         $elem.css('background-position', floorType.positionCss())
       } else {
         if (tile && tile.quadrantElems) {
@@ -134,14 +146,25 @@ $(function() {
             tile.quadrantElems[q].style.display='none';
           }
         }
-        $elem.css('background-position', this.positionCss())
+        if(onTop)
+          $(tile.topSquare).css('background-position', this.positionCss());
+        else
+          $elem.css('background-position', this.positionCss());
       }
     } else {
-      $elem.css('background-position', this.positionCss())
+        if(onTop)
+          $(tile.topSquare).css('background-position', this.positionCss());
+        else
+          $elem.css('background-position', this.positionCss());
     }
+
+    if(onTop)
+      $(tile.topSquare).css({'position': 'absolute', 'display': 'inline-block'});
+    if(offTop)
+      $(tile.topSquare).css('display','none');
     
   }
-
+    
 
   function Tool(fns) {
     this.type = fns.type || '';
@@ -539,11 +562,20 @@ $(function() {
     if (a.x != b.x) return a.x - b.x;
     return a.y - b.y;
   }
+  var marsBallCount = 0;
   function TileState(source, changes) {
     changes = changes || {};
     this.x = changes.x || source.x 
     this.y = changes.y || source.y;
-    this.type = changes.type || source.type;
+    var onTop = (changes.type == marsBallType || changes.type == redSpawnType || changes.type == blueSpawnType
+      || source.topType == marsBallType || source.topType == redSpawnType || source.topType == blueSpawnType)
+    if(onTop)
+    {
+      this.topType = changes.type || source.topType;
+      this.type = source.type;
+    }
+    else
+      this.type = changes.type || source.type;
     this.affected = [];
     var affectedMap = changes.affected || source.affected || {};
     for (var key in affectedMap) {
@@ -559,6 +591,7 @@ $(function() {
     if (this.x!=other.x
       || this.y!=other.y
       || this.type!=other.type
+      || this.topType!=other.topType
       || Point.cmp(this.destination, other.destination)
       || this.affected.length != other.affected.length
       || (''+this.cooldown) != (''+other.cooldown)
@@ -568,8 +601,45 @@ $(function() {
     }
     return true;
   }
-  TileState.prototype.restoreInto = function(tile) {
-    tile.setType(this.type);
+  TileState.prototype.restoreInto = function(tile, mousemove) {
+    if(this.topType)
+      this.type = this.topType;
+    var onTop = this.type == marsBallType || this.type == redSpawnType || this.type == blueSpawnType;
+    var offTop = false;
+    if(onTop)
+    {
+      if(mousemove && mouseIn[tile.x+','+tile.y]) return;
+      mouseIn[tile.x+','+tile.y] = true;
+      offTop = (this.topType == tile.topType) || (this.type == tile.topType);
+    }
+    if(tile.topType && !this.topType)
+      offTop = true;
+    if(this.type == marsBallType) {
+      if(offTop)
+        marsBallCount--;
+      else
+      {
+        marsBallCount++;
+        if(marsBallCount>2)
+        {
+          marsBallCount--;
+          mouseDown = false;
+          alert('Too many mars balls, only 2 are allowed per map. Remove a mars ball before placing a new one.');
+          return;
+        }
+      }
+    } else if(onTop) {
+      if(tile.type != floorType && tile.type != redFloorType && tile.type != blueFloorType)
+      {
+        mouseDown = false;
+        alert('Spawns can only be placed on red, blue, or neutral floor tiles');
+        return;
+      }
+    } else if((tile.topType == redSpawnType || tile.topType == blueSpawnType) && !(this.type == floorType || this.type == redFloorType || this.type == blueFloorType)) {
+      offTop = true;
+    }
+    
+    tile.setType(this.type, false, onTop, offTop);
     tile.affected = {};
     for (var i=0; i<this.affected.length; i++) {
       var a = this.affected[i];
@@ -607,7 +677,7 @@ $(function() {
       dirtyStates = {}
       return new UndoStep(changes, size);
     }
-
+    //console.log('before: ',changes);
     for (var key in dirtyStates) {
       var newState = new TileState(dirtyStates[key]);
       if (!newState.equals(backingStates[newState.x][newState.y])) {
@@ -615,7 +685,8 @@ $(function() {
         backingStates[newState.x][newState.y] = newState;
       }
     }
-    dirtyStates = {}
+    //console.log('after: ',changes);
+    dirtyStates = {};
     if (!changes.length) return null;
     return new UndoStep(changes, null);
   }
@@ -630,7 +701,7 @@ $(function() {
     }
   }
   
-  function applyStep(step) {
+  function applyStep(step, mousemove) {
     var tileChanges = step.states;
     if (step.size) {
       var types = [];
@@ -643,14 +714,14 @@ $(function() {
       buildTilesWith(types);
       for (var x=0; x<backingStates.length && x<tiles.length; x++) {
         for (var y=0; y<backingStates[x].length && y<tiles[0].length; y++) {
-          backingStates[x][y].restoreInto(tiles[x][y]);
+          backingStates[x][y].restoreInto(tiles[x][y], mousemove);
         }
       }
     }
 
     for (var i=0; i<tileChanges.length; i++) {
       var change = tileChanges[i];
-      change.restoreInto(tiles[change.x][change.y]);
+      change.restoreInto(tiles[change.x][change.y], mousemove);
     }
     cleanDirtyWalls();
     if (selectedTool) selectedTool.stateChange();
@@ -660,6 +731,7 @@ $(function() {
     if (!fromSteps.length) return;
 
     var step = fromSteps.splice(fromSteps.length-1, 1)[0];
+    console.log(step);
     applyStep(step);
     
     var step = recordStep();
@@ -710,6 +782,8 @@ $(function() {
   
   var defaultPortalCooldown = 0;
   var defaultButtonTimer = 0;
+  var defaultSpawnRadius = 5;
+  var defaultSpawnWeight = 1;
 
   function exportSwitch(logic, tile) {
     var toggles = [];
@@ -735,6 +809,16 @@ $(function() {
         cooldown: (tile.cooldown>=0) ? tile.cooldown : defaultPortalCooldown
       };
   }
+  function exportMarsBall(logic, tile) {
+    logic.marsballs.push({y: tile.y,x: tile.x});
+  }
+  function exportSpawn(logic, tile) {
+    var color = (tile.topType == redSpawnType) ? 'red' : 'blue';
+    logic.spawnPoints[color].push({x: tile.x, y: tile.y,
+      radius: tile.radius || defaultSpawnRadius,
+      weight: tile.weight || defaultSpawnWeight
+    });
+  }
 
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
@@ -745,7 +829,6 @@ $(function() {
   
   var tileTypes = [
     emptyType = new TileType('empty', 13,5, 0,0,0, "Background"),
-    floorType = new TileType('floor',13,4, 212,212,212, "Tile"),
     wallType = new TileType('wall', 15,6, 120,120,120, "Wall", {wallSolids: 0xff}), // encoding: bit 0 is noon, goes clockwise
     wallBottomLeftType = new TileType('wallBottomLeft', 15,7, 128,112,64, "Wall BL", {wallSolids: 0xb4}),
     wallTopLeftType = new TileType('wallTopLeft', 15,9, 64,128,80, "Wall TL", {wallSolids: 0xd2}),
@@ -767,12 +850,14 @@ $(function() {
     portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Link two portals using the wire tool.", {image: 'portal', logicFn: exportPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
-    redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile."),
-    blueSpawnType = new TileType('blueSpawn', 15,0, 0,0,155, "Blue Spawn Tile - Blue balls will spawn within a certain radius of this tile."),
+    redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
+    blueSpawnType = new TileType('blueSpawn', 15,0, 0,0,155, "Blue Spawn Tile - Blue balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
     yellowFlagType = new TileType('yellowFlag', 13,1, 128,128,0, "Yellow Flag - Bring this neutral flag to your zone to score."),
     redEndzoneType = new TileType('redEndzone', 14,5, 185,0,0, "Red Endzone - Bring a neutral (yellow) flag to this zone to score."),
     blueEndzoneType = new TileType('blueEndzone', 15,5, 25,0,148, "Blue Endzone - Bring a neutral (yellow) flag to this zone to score."),
-    gravityWellType = new TileType('gravityWell', 0, 0, 32, 32, 32, "Gravity Well - Pulls nearby balls to their splat.", {image: 'gravitywell', imageTileWidth: 1, imageTileHeight: 1})
+    gravityWellType = new TileType('gravityWell', 0, 0, 32,32,32, "Gravity Well - Pulls nearby balls to their splat.", {image: 'gravitywell', imageTileWidth: 1, imageTileHeight: 1}),
+    marsBallType = new TileType('marsBall', 12,9, 212,212,212, "Mars Ball - Push it onto the opponent's flag to win.", {logicFn: exportMarsBall, multiplier: 0.5}),
+    floorType = new TileType('floor',13,4, 212,212,212, "Tile"),
   ];
 
   function areOpposites(t1, t2) {
@@ -803,15 +888,17 @@ $(function() {
     this.set(options);
     if (elem) {
       this.elem = elem;
-      this.setType(options.type, true);
-      this.background = elem.parent();
       
       var domElem = elem[0];
       // clockwise from noon: TR, BR, BL, TL
       this.quadrantElems = [domElem.children[0], domElem.children[1], domElem.children[2],domElem.children[3]];
       
-      this.selectionIndicator = domElem.children[4];
-      this.affectedIndicator = domElem.children[5];
+      this.topSquare = domElem.children[4];
+      this.selectionIndicator = domElem.children[5];
+      this.affectedIndicator = domElem.children[6];
+      
+      this.setType(options.type, true, false, true);
+      this.background = elem.parent();
     }
   }
   Tile.prototype.set = function(options) {
@@ -824,10 +911,15 @@ $(function() {
     }
     this.destination = options.destination;
   }
-  Tile.prototype.setType = function(type, force) {
-    if  (this.type==type && !force) return;
-    this.type = type;
-    type.drawOn(this.elem, this);
+  Tile.prototype.setType = function(type, force, onTop, offTop) {
+    if  (this.type==type && !force && !onTop && !offTop) return;
+    if(offTop)
+      delete this.topType;
+    else if(onTop)
+      this.topType = type;
+    else
+      this.type = type;
+    type.drawOn(this.elem, this, onTop, offTop);
     if (type.postPlaceFn) {
       type.postPlaceFn.call(type, this.x, this.y);
     }
@@ -880,6 +972,7 @@ $(function() {
   var width;
   var $tiles;
   var tiles;
+  var tileOverlay;
 
   function buildTilesWith(types) {
     width = types.length;
@@ -895,7 +988,11 @@ $(function() {
         "<div class='tileQuadrant nestedSquareBR'></div>" +
         "<div class='tileQuadrant nestedSquareBL'></div>" +
         "<div class='tileQuadrant nestedSquareTL'></div>" +
-        "<div class='selectionIndicator nestedSquare'></div><div class='potentialHighlight nestedSquare'></div></div></div>";
+        "<div class='topSquare'></div>" +
+        "<div class='selectionIndicator nestedSquare'></div>" +
+        "<div class='potentialHighlight nestedSquare'></div></div></div>";
+        //"<div class='tile topSquare'>" +
+        //"<div class='selectionIndicator nestedSquare'></div><div class='potentialHighlight nestedSquare'></div></div></div>";
     }
     row += "</div>"
     for (var y=0; y<height; y++) {
@@ -905,7 +1002,6 @@ $(function() {
 
     $tiles = $map.find('.tile');
     tiles = [];
-
     for (var x=0; x<width; x++) {
       tiles[x] = [];
       for (var y=0; y<height; y++) {
@@ -1051,6 +1147,7 @@ $(function() {
   var lineAnchor = null;
 
   var mouseDown = false;
+  var mouseIn = {};
   $map.on('mouseenter', '.tile', function(e) {
 
     var x = $(this).data('x');
@@ -1080,8 +1177,8 @@ $(function() {
         var y = $(this).data('y');
         if (!controlDown) {
           mouseDown = true;
-
-          selectedTool.down(x,y)
+          mouseIn = {};
+          selectedTool.down(x,y);
           var change = selectedTool.speculateDrag(x,y);
           if (change) {
             applySymmetry(change);
@@ -1108,7 +1205,7 @@ $(function() {
         } else if (tiles[x][y].type == switchType) {
           var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
           if (!timer) return;
-          
+      
           var change = new UndoStep([
             new TileState(tiles[x][y], {timer:timer})
           ]);
@@ -1124,7 +1221,7 @@ $(function() {
         var change = selectedTool.speculateDrag && selectedTool.speculateDrag(x,y);
         if (change) {
           applySymmetry(change);
-          applyStep(change);
+          applyStep(change,true);
         } else if (selectedTool.speculateUp) {
           var st = selectedTool.getState();
           change = selectedTool.speculateUp(x,y);
@@ -1152,6 +1249,7 @@ $(function() {
           savePoint();
         }
         mouseDown = false;
+        mouseIn = {};
         cleanDirtyWalls();
       }
     });
@@ -1173,17 +1271,25 @@ $(function() {
     var logic = {
       info: {
         name: $('#mapName').val(),
-        author: $('#author').val()
+        author: $('#author').val(),
+        gameMode: $('input[name="gameMode"]:checked').val()
       },
       switches: {},
       fields: {},
-      portals: {}
+      portals: {},
+      marsballs: [],
+      spawnPoints: {red: [], blue: []}
     };
 
     for (var x=0; x<width; x++) {
       for (var y=0; y<height; y++) {
         var fn = tiles[x][y].type.logicFn;
-        if (fn) fn(logic, tiles[x][y])
+        if (fn) fn(logic, tiles[x][y]);
+        if(tiles[x][y].topType)
+        {
+          fn = tiles[x][y].topType.logicFn;
+          if (fn) fn(logic, tiles[x][y])
+        }
       }
     }
     return logic;
@@ -1294,7 +1400,7 @@ $(function() {
     [spikeType, powerupType, portalType, gravityWellType],
     [redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType, yellowFlagType, ],
     [speedpadType, redSpeedPadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
-    [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
+    [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, bombType, marsBallType]
   ]
 
   var brushTileType = paletteRows[0][0];
@@ -1329,7 +1435,7 @@ $(function() {
               for(var y = 0;y < tiles[x].length;y++)
               {
                 if(tiles[x][y].type == portalType)
-                states.push(new TileState(tiles[x][y], {cooldown:cooldown}));
+                  states.push(new TileState(tiles[x][y], {cooldown:cooldown}));
               }
             }
             if(states.length)
@@ -1490,7 +1596,7 @@ $(function() {
       $('#mapName').val(info.name || 'Untitled');
       $('#author').val(info.author || 'Anonymous');
       $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
-        $(pngDropArea).attr('download',$('#mapName').val()+'.png');
+      $(pngDropArea).attr('download',$('#mapName').val()+'.png');
 
       var portals = json.portals || {};
       for (var key in portals) {
@@ -1632,13 +1738,14 @@ $(function() {
           var row = bg.parentNode;
           row.style.height = sizeCss;
         }
+        applySize(tile.topSquare);
         applySize(tile.affectedIndicator);
         applySize(tile.selectionIndicator);
         tile.selectionIndicator.style.backgroundSize = singleTileBackgroundSize;
         applySize(tile.elem[0]);
         applySize(tile.background[0]);
         for (var q=0;q<4; q++) {
-          applyQuadrantSize(tile.quadrantElems[q], q&2, (q+1)&2)
+          applyQuadrantSize(tile.quadrantElems[q], q&2, (q+1)&2);
         }
         
         tile.type.drawOn(tile.elem, tile);
