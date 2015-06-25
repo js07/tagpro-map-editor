@@ -552,13 +552,15 @@ $(function() {
     this.affected.sort(Point.cmp);
     var destTile = changes.destination || source.destination;
     this.destination = destTile && new Point(destTile);
+    this.cooldown = 'cooldown' in changes ? changes.cooldown : source.cooldown;
   }
   TileState.prototype.equals = function(other) {
     if (this.x!=other.x
       || this.y!=other.y
       || this.type!=other.type
       || Point.cmp(this.destination, other.destination)
-      || this.affected.length != other.affected.length) return false;
+      || this.affected.length != other.affected.length
+      || (''+this.cooldown) != (''+other.cooldown)) return false;
     for (var i=0; i<this.affected.length; i++) {
       if (Point.cmp(this.affected[i], other.affected[i])) return false;
     }
@@ -572,6 +574,7 @@ $(function() {
       tile.affected[xy(a)] = tiles[a.x][a.y];
     }
     tile.destination = this.destination && tiles[this.destination.x][this.destination.y];
+    tile.cooldown = this.cooldown;
     mayHaveChanged(tile);
   }
 
@@ -715,7 +718,10 @@ $(function() {
   }
   function exportPortal(logic, tile) {
     var dest = tile.destination || tile;
-    logic.portals[tile.x + ',' + tile.y] = {destination: {x: dest.x, y: dest.y}};
+    logic.portals[tile.x + ',' + tile.y] = {
+      destination: {x: dest.x, y: dest.y},
+      cooldown: tile.cooldown
+    };
   }
 
   var floorType, emptyType, 
@@ -1054,6 +1060,7 @@ $(function() {
 //      console.log('mouse left ', $(this).data('x'), $(this).data('y'));
     })
     .on('mousedown', '.tile', function(e) {
+      e.preventDefault();
       if (e.which==1) {
         var x = $(this).data('x');
         var y = $(this).data('y');
@@ -1069,6 +1076,21 @@ $(function() {
           }
           
           e.preventDefault();
+        }
+      } else if (e.which==3) {
+        e.preventDefault();
+        var x = $(this).data('x');
+        var y = $(this).data('y');
+        
+        if (tiles[x][y].type == portalType) {
+          var cooldown = parseFloat(prompt("Cooldown time (in milliseconds):", tiles[x][y].cooldown || 0));
+          if (!(cooldown>=0)) return;
+          
+          var change = new UndoStep([
+            new TileState(tiles[x][y], {cooldown:cooldown})
+          ]);
+          applySymmetry(change);
+          applyStep(change);
         }
       }
     })
@@ -1187,13 +1209,13 @@ $(function() {
   $('#export').click(function() {
     $('.dropArea').removeClass('hasImportable');
     $('.dropArea').addClass('hasExportable');
-    $(jsonDropArea).attr('href', 'data:application/json;base64,' + Base64.encode(JSON.stringify(makeLogic())));
+    $(jsonDropArea).attr('href', 'data:application/json;base64,' + Base64.encode(makeLogicString()));
     $(pngDropArea).attr('href', getPngBase64Url());
   });
 
   $('#save').click(function() {
     localStorage.setItem('png', getPngBase64Url());
-    localStorage.setItem('json', JSON.stringify(makeLogic()));
+    localStorage.setItem('json', makeLogicString());
   });
 
   function isValidMapStr() {
@@ -1312,7 +1334,7 @@ $(function() {
 
   jsonDropArea.addEventListener("dragstart",function(evt){
     evt.dataTransfer.setData("DownloadURL",
-      'data:application/json;base64,' + Base64.encode(JSON.stringify(makeLogic())));
+      'data:application/json;base64,' + Base64.encode(makeLogicString()));
     return false;
   },false);
 
@@ -1406,6 +1428,7 @@ $(function() {
         if (tile && tile.type==portalType) {
           var dest = portals[key].destination||{};
           tile.destination = (tiles[dest.x]||[])[dest.y];
+          tile.cooldown = portals[key].cooldown;
         }
       }
 
@@ -1445,9 +1468,13 @@ $(function() {
     }
   });
 
+  function makeLogicString() {
+    return JSON.stringify(makeLogic(), null, 2);
+  }
+  
   function resizeTo(width, height, deltaX, deltaY) {
     var png = getPngBase64Url();
-    var json = JSON.stringify(makeLogic());
+    var json = makeLogicString();
 
     restoreFromPngAndJson(png, json, {width: width, height: height, deltaX: deltaX, deltaY: deltaY});
   }
