@@ -594,13 +594,17 @@ $(function() {
     this.affected.sort(Point.cmp);
     var destTile = changes.destination || source.destination;
     this.destination = destTile && new Point(destTile);
+    this.cooldown = 'cooldown' in changes ? changes.cooldown : source.cooldown;
+		this.timer = 'timer' in changes ? changes.timer : source.timer;
   }
   TileState.prototype.equals = function(other) {
     if (this.x!=other.x
       || this.y!=other.y
       || this.type!=other.type
       || Point.cmp(this.destination, other.destination)
-      || this.affected.length != other.affected.length) return false;
+			|| this.affected.length != other.affected.length
+			|| (''+this.cooldown) != (''+other.cooldown)
+			|| (''+this.timer) != (''+other.timer)) return false;
     for (var i=0; i<this.affected.length; i++) {
       if (Point.cmp(this.affected[i], other.affected[i])) return false;
     }
@@ -613,7 +617,9 @@ $(function() {
       var a = this.affected[i];
       tile.affected[xy(a)] = tiles[a.x][a.y];
     }
-    tile.destination = this.destination && tiles[this.destination.x][this.destination.y];
+		tile.destination = this.destination && tiles[this.destination.x][this.destination.y];
+		tile.cooldown = this.cooldown || undefined;
+		tile.timer = this.timer || undefined;
     mayHaveChanged(tile);
   }
 
@@ -743,22 +749,34 @@ $(function() {
       logic.fields[tile.x + ',' + tile.y] = {defaultState: defaultState};
     }
   }
+  
+  var defaultPortalCooldown = 0;
+  var defaultButtonTimer = 0;
 
   function exportSwitch(logic, tile) {
     var toggles = [];
     for (var key in tile.affected) {
-      var affectedTile = tile.affected[key];
-      var t = affectedTile.type;
-      if (t==bombType || t==onFieldType || t==offFieldType || t==redFieldType || t==blueFieldType) {
-        toggles.push({pos: {x: affectedTile.x, y: affectedTile.y}});
-      }
-    }
-    logic.switches[tile.x + ',' + tile.y] = {toggle: toggles};
+			var affectedTile = tile.affected[key];
+			var t = affectedTile.type;
+			if (t==bombType || t==onFieldType || t==offFieldType || t==redFieldType || t==blueFieldType) {
+				toggles.push({pos: {x: affectedTile.x, y: affectedTile.y}});
+			}
+		}
+		logic.switches[tile.x + ',' + tile.y] = {
+			toggle: toggles,
+			timer: (!!tile.timer) ? tile.timer : defaultButtonTimer
+		};
   }
-  function exportPortal(logic, tile) {
-    var dest = tile.destination || tile;
-    logic.portals[tile.x + ',' + tile.y] = {destination: {x: dest.x, y: dest.y}};
-  }
+	function exportPortal(logic, tile) {
+		var dest = tile.destination || tile;
+		if(tile.x===dest.x && tile.y===dest.y)
+			logic.portals[tile.x + ',' + tile.y] = {};
+		else
+		logic.portals[tile.x + ',' + tile.y] = {
+			destination: {x: dest.x, y: dest.y},
+			cooldown: (tile.cooldown>=0) ? tile.cooldown : defaultPortalCooldown
+		};
+	}
 
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
@@ -897,8 +915,8 @@ $(function() {
     dirtyWalls = {};
   }
 
-  var $map = $('#map');
-  var $palette = $('#palette');
+  var $map = $('#map').attr('oncontextmenu','return false;');
+  var $palette = $('#palette').attr('oncontextmenu','return false;');
 
   var height;
   var width;
@@ -1095,6 +1113,7 @@ $(function() {
 //      console.log('mouse left ', $(this).data('x'), $(this).data('y'));
     })
     .on('mousedown', '.tile', function(e) {
+			e.preventDefault()
       if (e.which==1) {
         var x = $(this).data('x');
         var y = $(this).data('y');
@@ -1110,8 +1129,32 @@ $(function() {
           }
           
           e.preventDefault();
-        }
-      }
+				}
+			} else if (e.which==3) {
+				e.preventDefault();
+				var x = $(this).data('x');
+				var y = $(this).data('y');
+        
+				if (tiles[x][y].type == portalType) {
+					var cooldown = parseFloat(prompt("Cooldown time (in milliseconds):", (tiles[x][y].cooldown>=0) ? tiles[x][y].cooldown : defaultPortalCooldown));
+					if (!(cooldown>=0)) return;
+          
+					var change = new UndoStep([
+						new TileState(tiles[x][y], {cooldown:cooldown})
+					]);
+					applySymmetry(change);
+					applyStep(change);
+				} else if (tiles[x][y].type == switchType) {
+					var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
+					if (!timer) return;
+			
+					var change = new UndoStep([
+						new TileState(tiles[x][y], {timer:timer})
+					]);
+					applySymmetry(change);
+					applyStep(change);
+				}
+			}
     })
     .on('mousemove', '.tile', function() {
       var x = $(this).data('x');
@@ -1326,13 +1369,60 @@ $(function() {
       var $button = $("<div class='tileBackground tilePaletteOption "+type.toolTipText.split(" ").join("_")+"' title = '" + type.toolTipText + "'><div class='tile'><div class='tileTypeSelectionIndicator'></div></div></div>");
       $button.data('tileType', type);
       type.drawOn($button.find('.tile'));
-      $button.click('click', function() {
-        if (selectedTool == wire) {
-          $('#toolPencil').trigger('click');
-        }
-        setBrushTileType(type);
-      });
-      $rowDiv.append($button);
+			$button.click('click', function() {
+				if (selectedTool == wire) {
+					$('#toolPencil').trigger('click');
+				}
+				setBrushTileType(type);
+			}).mousedown(function(e) {
+				if(e.which==3)
+				{
+					if (type == portalType) {
+						var cooldown = parseFloat(prompt("Change all portals to new default cooldown time (in milliseconds):", defaultPortalCooldown));
+						if (!(cooldown>=0)) return;
+						
+						defaultPortalCooldown = cooldown;
+						//comment out below to not change existing portals that have non-default cooldowns
+						var states = [];
+						for(var x = 0;x < tiles.length;x++)
+						{
+							for(var y = 0;y < tiles[x].length;y++)
+							{
+								if(tiles[x][y].type == portalType)
+									states.push(new TileState(tiles[x][y], {cooldown:cooldown}));
+							}
+						}
+						if(states.length)
+						{
+							var change = new UndoStep(states);
+							//applySymmetry(change);
+							applyStep(change);
+						}
+					} else if (type == switchType) {
+						var timer = parseFloat(prompt("Change all buttons to new default button timer time (in seconds). Input a negative value for permanent buttons:", defaultButtonTimer));
+						if (!timer) return;
+						
+						defaultButtonTimer = timer;
+						//comment out below to not change existing buttons that have non-default timers
+						var states = [];
+						for(var x = 0;x < tiles.length;x++)
+						{
+							for(var y = 0;y < tiles[x].length;y++)
+							{
+								if(tiles[x][y].type == switchType)
+									states.push(new TileState(tiles[x][y], {timer:timer}));
+							}
+						}
+						if(states.length)
+						{
+							var change = new UndoStep(states);
+							//applySymmetry(change);
+							applyStep(change);
+						}
+					}
+				}
+			});
+			$rowDiv.append($button);
     });
     $palette.append($rowDiv);
   })
@@ -1467,6 +1557,7 @@ $(function() {
         if (tile && tile.type==portalType) {
           var dest = portals[key].destination||{};
           tile.destination = (tiles[dest.x]||[])[dest.y];
+					tile.cooldown = portals[key].cooldown || undefined;
         }
       }
 
@@ -1482,6 +1573,7 @@ $(function() {
             var affectedTile = (tiles[pos.x]||[])[pos.y];
             if (affectedTile) tile.affected[pos.x + ',' + pos.y] = (affectedTile);
           });
+					tile.timer = switches[key].timer || undefined;
         }
       }
 
