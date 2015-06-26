@@ -6,8 +6,8 @@
     <script src="generatepng.js"></script>
     <script src="webtoolkit.base64.js"></script>
     <script src="jquery-2.1.0.min.js"></script>
-    <script src="jquery-ui-1.10.4.custom.min.js"></script>
     <script src="bootstrap.min.js"></script>
+    <script src="jquery-ui-1.10.4.custom.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.10.4.custom.min.css">
@@ -17,6 +17,13 @@
 <body>
 
   <div style="position:fixed;left:0;top:0;bottom:0;width:320px;overflow-y:scroll;overflow-x:hidden;padding:10px;">
+    <div class="form-group">
+      <div class="btn-group btn-group-justified">
+        <div>
+          <button class="btn btn-default btn-block" data-target="#instructions" data-toggle="modal">Instructions</button>
+        </div>
+      </div>
+    </div>
     <div class="form-group">
       <div class="btn-group btn-group-justified">
         <div class="btn-group">
@@ -119,7 +126,7 @@
   </div>
 
   <canvas width="200" height="200" id='importCanvas' style='display:none'></canvas>
-
+  
   <div class="modal fade" id="importExport" tabindex="-1" role="dialog" aria-labelledby="importExportLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -149,9 +156,15 @@
           </div>
           <div class="form-group">
             <label for="gameMode">Game Mode</label>
-            <input type="radio" name="gameMode" class="form-control" id="normalMode" value="normal" checked><span class="radioSpan">Normal</span></input>
-            <input type="radio" name="gameMode" class="form-control" id="gravityMode" value="gravity"><span class="radioSpan">Gravity</span></input>
-            <input type="radio" name="gameMode" class="form-control" id="gravityCTFMode" value="gravityCTF"><span class="radioSpan">GravityCTF</span></input>
+            <label class="radioLabel">
+              <input type="radio" name="gameMode" class="form-control" id="normalMode" value="normal" checked /><span class="radioSpan">Normal</span>
+            </label>
+            <label class="radioLabel">
+              <input type="radio" name="gameMode" class="form-control" id="gravityMode" value="gravity"><span class="radioSpan">Gravity</span>
+            </label>
+            <label class="radioLabel">
+              <input type="radio" name="gameMode" class="form-control" id="gravityCTFMode" value="gravityCTF"><span class="radioSpan">GravityCTF</spawn>
+            </label>
           </div>
           <div class="form-group">
             <label for="mapName">Map Name</label>
@@ -163,6 +176,53 @@
           </div>
         </div>
 
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="instructions" tabindex="-1" role="dialog" aria-labelledby="instructionsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="instructionsLabel">Instructions</h4>
+        </div>
+        <div class="modal-body">
+          <p>Select a tile type from the palette on the left to draw it on the map. You can click and drag on the map to for faster drawing. Different tools are available for drawing multiple tiles at once including a line and square shape tool. Mouseover the buttons below to see additional information about each tool. Furthermore, mirrored tiles can be drawn across multiple planes of symmetry from the drop-down menu.</p>
+          <div class="form-group" style="margin-left: 12.5%;">
+            <div role="toolbar">
+              <div class="col-lg-9">
+                <div class="btn-group btn-group-justified">
+                  <a class="btn btn-default btn-sm" title="Pencil - paint a single pixel."><span class="glyphicon glyphicon-pencil"></span></a>
+                  <a class="btn btn-default btn-sm" title="Brush - paint a 3x3 area."><span class="glyphicon glyphicon-th-large"></span></a>
+                  <a class="btn btn-default btn-sm" title="Line - click and drag to draw a line."><span class="glyphicon glyphicon-minus"></span></a>
+                  <a class="btn btn-default btn-sm" title="Filled rectangle - draw a filled rectangle"><span class="glyphicon glyphicon-stop"></span></a>
+                  <a class="btn btn-default btn-sm" title="Outlined rectange - draw an outlined rectangle"><span class="glyphicon glyphicon-unchecked"></span></a>
+                  <a class="btn btn-default btn-sm" title="Filled circle - draw a filled circle"><span class="glyphicon glyphicon-record"></span></a>
+                  <a class="btn btn-default btn-sm" title="Outlined circle - draw an outlined circle"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                  <a class="btn btn-default btn-sm" title="Fill - fill an entire area"><span class="glyphicon glyphicon-tint"></span></a>
+                  <a class="btn btn-default btn-sm" title="Wire - select an emitter (buttons, portals) and then click on the receiver(s) (gates, bombs, portals) to complete the link"><span class="glyphicon glyphicon-wrench"></span></a>
+                </div>
+              </div>
+            </div>
+          </div><br><br>
+          <p>Portals and buttons can link to other map elements. To create a link, select the wire tool (wrench icon) and select the entry portal or button. Then select the other portal end or the bomb and gate elements to be activated by the button.</p>
+          <p>Spawn points and mars balls are placed on top of other map elements. Spawn points can only be placed on floor tiles or team tiles, but mars balls can be placed on top of any other tile type.</p>
+          <p>Additionally, portals, buttons, and spawn points have extra settings. To modify a portals's cooldown time, a button's timer, or a spawn point's radius and weight, shift+click the map tile. You can modify all extra settings of a tile type at once by shift+clicking the map element in the palette. The default portal cooldown and button timer is 0 seconds and the default spawn radius and weight is 5 tiles and 1, respectively.</p>
+          <p>Lastly, you can undo/redo changes to your map by either pressing the undo/redo buttons (shown below) or pressing z to undo and y to redo. You can also quickly change the selected tile type by ctrl+clicking an existing map element.</p>
+          <div class="form-group" style="margin-left: 33.3333%;">
+            <div class="col-sm-4">
+              <div class="btn-group btn-group-justified" role="toolbar">
+                <a class="btn btn-default" title="Undo"><span class="glyphicon glyphicon-share-alt" style="-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); -ms-transform: scale(-1, 1); transform: scale(-1, 1);"></span></a>
+                <a class="btn btn-default" title="Redo"><span class="glyphicon glyphicon-share-alt"></span></a>
+              </div>
+            </div>
+          </div><br><br>
+          <p>Happy map making!</p>
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
         </div>
@@ -193,9 +253,54 @@
         </td>
         <td></td>
       </tr>
-    </table>
+    </table><br>
     <div>
       Width: <input type='text' id='resizeWidthTo' style='width:4em' /> Height: <input type='text' id='resizeHeightTo' style='width:4em' />
+    </div>
+  </div>
+
+  <div id="spawnOptions" title="Spawn Point" style='display:none'>
+    <div>
+      Spawn Radius: <input type='text' id='spawnRadius' style='width:4em' />
+    </div><br>
+    <div>
+      Spawn Weight: <input type='text' id='spawnWeight' style='width:4em' />
+    </div><br>
+    <div id="spawnAll">
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="spawnType" value="all" checked/>  Change all spawn points<br>
+      </label>
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="spawnType" value="default"/>  Change only unmodified spawn points
+      </label>
+    </div>
+  </div>
+  
+  <div id="portalOptions" title="Portal" style='display:none'>
+    <div>
+      Cooldown: <input type='text' id='portalCooldown' style='width:4em' />
+    </div><br>
+    <div id="portalAll">
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="portalType" value="all" checked/>  Change all portals<br>
+      </label>
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="portalType" value="default"/>  Change only unmodified portals
+      </label>
+    </div>
+  </div>
+  
+  <div id="switchOptions" title="Button" style='display:none'>
+    <div>
+      Timer: <input type='text' id='switchTimer' style='width:4em' />
+    </div><br>
+    <div id="switchAll">
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="switchType" value="all" checked/>  Change all buttons<br>
+      </label>
+      <label class="radioLabel" style="width: auto">
+        <input type='radio' name="switchType" value="default"/>  Change only unmodified buttons
+      </label>
     </div>
   </div>
   
