@@ -20,7 +20,7 @@
     <div class="form-group">
       <div class="btn-group btn-group-justified">
         <div>
-          <button class="btn btn-default btn-block" data-target="#instructions" data-toggle="modal">Instructions</button>
+          <button class="btn btn-default btn-block" data-target="#instructions" data-toggle="modal"><span class="glyphicon glyphicon-info-sign"></span> Instructions</button>
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@
       <div class="row">
         <div class="col-xs-4">
           <div id="undoRedo" class="btn-group btn-group-justified" role="toolbar">
-            <a id="undo" class="btn btn-default" title="Undo"><span class="glyphicon glyphicon-share-alt" style="-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); -ms-transform: scale(-1, 1); transform: scale(-1, 1);"></span></a>
+            <a id="undo" class="btn btn-default" title="Undo"><span class="glyphicon glyphicon-flipped glyphicon-share-alt"></span></a>
             <a id="redo" class="btn btn-default" title="Redo"><span class="glyphicon glyphicon-share-alt"></span></a>
           </div>
         </div>
@@ -77,6 +77,30 @@
             <span class="glyphicon glyphicon-resize-full"></span>
           </button>
         </span>
+      </div>
+    </div>
+		
+    <div class="form-group">
+      <div class="row">
+        <div class="col-xs-4">
+          <div id="rotate" class="btn-group btn-group-justified" role="toolbar">
+            <a id="rotateLeft" class="btn btn-default" title="Rotate Left"><span class="glyphicon glyphicon-flipped glyphicon-retweet"></span></a>
+            <a id="rotateRight" class="btn btn-default" title="Rotate Right"><span class="glyphicon glyphicon-retweet"></span></a>
+          </div>
+        </div>
+
+        <div class="col-xs-4">
+          <div id="flip" class="btn-group btn-group-justified" role="toolbar">
+            <a id="flipVertical" class="btn btn-default" title="Flip Vertical"><span class="glyphicon glyphicon-sort"></span></a>
+            <a id="flipHorizontal" class="btn btn-default" title="Flip Horizontal"><span class="glyphicon glyphicon-rotate-right glyphicon-sort"></span></a>
+          </div>
+        </div>
+
+        <div class="col-xs-4">
+          <div id="mirrorMap" class="btn-group btn-group-justified" role="toolbar">
+            <a id="mirror" class="btn btn-default" title="Mirror Map"><span class="glyphicon glyphicon-rotate-right glyphicon-sound-stereo"></span> / <span class="glyphicon glyphicon-sound-stereo"></span></a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -212,15 +236,37 @@
           <p>Portals and buttons can link to other map elements. To create a link, select the wire tool (wrench icon) and select the entry portal or button. Then select the other portal end or the bomb and gate elements to be activated by the button.</p>
           <p>Spawn points and mars balls are placed on top of other map elements. Spawn points can only be placed on floor tiles or team tiles, but mars balls can be placed on top of any other tile type.</p>
           <p>Additionally, portals, buttons, and spawn points have extra settings. To modify a portals's cooldown time, a button's timer, or a spawn point's radius and weight, shift+click the map tile. You can modify all extra settings of a tile type at once by shift+clicking the map element in the palette. The default portal cooldown and button timer is 0 seconds and the default spawn radius and weight is 5 tiles and 1, respectively.</p>
-          <p>Lastly, you can undo/redo changes to your map by either pressing the undo/redo buttons (shown below) or pressing z to undo and y to redo. You can also quickly change the selected tile type by ctrl+clicking an existing map element.</p>
-          <div class="form-group" style="margin-left: 33.3333%;">
-            <div class="col-sm-4">
-              <div class="btn-group btn-group-justified" role="toolbar">
-                <a class="btn btn-default" title="Undo"><span class="glyphicon glyphicon-share-alt" style="-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); -ms-transform: scale(-1, 1); transform: scale(-1, 1);"></span></a>
-                <a class="btn btn-default" title="Redo"><span class="glyphicon glyphicon-share-alt"></span></a>
+          <p>Lastly, you can resize, rotate, flip, and mirror your map at any point. You can also undo/redo changes or quickly switch between tile types. You can undo/redo by either pressing the undo/redo buttons or pressing z to undo and y to redo and you can quickly change the selected tile type by ctrl+clicking an existing map element.</p>
+          <div class="form-group">
+            <div class="row">
+              <div class="col-xs-3">
+                <div class="btn-group btn-group-justified" role="toolbar">
+                  <a class="btn btn-default" title="Undo"><span class="glyphicon glyphicon-flipped glyphicon-share-alt"></span></a>
+                  <a class="btn btn-default" title="Redo"><span class="glyphicon glyphicon-share-alt"></span></a>
+                </div>
+              </div>
+              
+              <div class="col-xs-3">
+                <div class="btn-group btn-group-justified" role="toolbar">
+                  <a class="btn btn-default" title="Rotate Left"><span class="glyphicon glyphicon-flipped glyphicon-retweet"></span></a>
+                  <a class="btn btn-default" title="Rotate Right"><span class="glyphicon glyphicon-retweet"></span></a>
+                </div>
+              </div>
+
+              <div class="col-xs-3">
+                <div class="btn-group btn-group-justified" role="toolbar">
+                  <a class="btn btn-default" title="Flip Vertical"><span class="glyphicon glyphicon-sort"></span></a>
+                  <a class="btn btn-default" title="Flip Horizontal"><span class="glyphicon glyphicon-rotate-right glyphicon-sort"></span></a>
+                </div>
+              </div>
+
+              <div class="col-xs-3">
+                <div class="btn-group btn-group-justified" role="toolbar">
+                  <a class="btn btn-default" title="Mirror Map"><span class="glyphicon glyphicon-rotate-right glyphicon-sound-stereo"></span> / <span class="glyphicon glyphicon-sound-stereo"></span></a>
+                </div>
               </div>
             </div>
-          </div><br><br>
+          </div>
           <p>Happy map making!</p>
         </div>
         <div class="modal-footer">
@@ -235,21 +281,29 @@
       <tr>
         <td></td>
         <td style='text-align:center'>
-          <input type='checkbox' id='resizeAnchorTop'/>
+          <!--<input type='checkbox' id='resizeAnchorTop'/>!-->
+          <a id="resizeAnchorTop" class="btn btn-xs btn-default" title="Extend Left"><span class="glyphicon glyphicon-arrow-up"></span></a>
         </td>
         <td></td>
       </tr>
       <tr>
-        <td><input type='checkbox' id='resizeAnchorLeft'/></td>
+        <td>
+          <!--<input type='checkbox' id='resizeAnchorLeft'/>!-->
+          <a id="resizeAnchorLeft" class="btn btn-xs btn-default" title="Extend Left"><span class="glyphicon glyphicon-arrow-left"></span></a>
+        </td>
         <td style='text-align:center'>
           
         </td>
-        <td><input type='checkbox' id='resizeAnchorRight'/></td>
+        <td>
+          <!--<input type='checkbox' id='resizeAnchorRight'/>!-->
+          <a id="resizeAnchorRight" class="btn btn-xs btn-default" title="Extend Left"><span class="glyphicon glyphicon-arrow-right"></span></a>
+        </td>
       </tr>
       <tr>
         <td></td>
         <td style='text-align:center'>
-          <input type='checkbox' id='resizeAnchorBottom'/>
+          <!--<input type='checkbox' id='resizeAnchorBottom'/>!-->
+          <a id="resizeAnchorBottom" class="btn btn-xs btn-default" title="Extend Left"><span class="glyphicon glyphicon-arrow-down"></span></a>
         </td>
         <td></td>
       </tr>
@@ -258,7 +312,7 @@
       Width: <input type='text' id='resizeWidthTo' style='width:4em' /> Height: <input type='text' id='resizeHeightTo' style='width:4em' />
     </div>
   </div>
-
+  
   <div id="spawnOptions" title="Spawn Point" style='display:none'>
     <div>
       Spawn Radius: <input type='text' id='spawnRadius' style='width:4em' />
@@ -302,6 +356,36 @@
         <input type='radio' name="switchType" value="default"/>  Change only unmodified buttons
       </label>
     </div>
+  </div>
+  
+  <div id="mirrorOptions" title="Mirror Map" style='display:none'>
+    <table>
+      <tr>
+        <td></td>
+        <td style='text-align:center'>
+          <a id="mirrorAnchorTop" class="btn btn-xs btn-default" title="Mirror Up" value="[0,-1]"><span class="glyphicon glyphicon-arrow-up"></span></a>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <a id="mirrorAnchorLeft" class="btn btn-xs btn-default" title="Mirror Left" value="[-1,0]"><span class="glyphicon glyphicon-arrow-left"></span></a>
+        </td>
+        <td style='text-align:center'>
+          
+        </td>
+        <td>
+          <a id="mirrorAnchorRight" class="btn btn-xs btn-default" title="Mirror Right" value="[-2,0]"><span class="glyphicon glyphicon-arrow-right"></span></a>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td style='text-align:center'>
+          <a id="mirrorAnchorBottom" class="btn btn-xs btn-default" title="Mirror Down" value="[0,-2]"><span class="glyphicon glyphicon-arrow-down"></span></a>
+        </td>
+        <td></td>
+      </tr>
+    </table>
   </div>
   
   <script type="text/javascript" src="map.js"></script>

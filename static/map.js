@@ -27,6 +27,8 @@ $(function() {
     this.opposite = this; // What it switches to when mirrored
     this.verticalMirror = this;
     this.horizontalMirror = this;
+    this.plusNinetyRotator = this;
+    this.minusNinetyRotator = this;
     this.toolTipText = toolTipText;
   }
   TileType.prototype.isWall = function() {
@@ -159,7 +161,6 @@ $(function() {
 
     if(onTop)
       $(tile.topSquare).css({'position': 'absolute', 'display': 'inline-block'});
-    
   }
     
 
@@ -577,7 +578,7 @@ $(function() {
     else
     {
       this.type = changes.type || source.type;
-      if(source.topType && ('radius' in changes || 'weight' in changes))
+      if(source.topType && (changes.mirror || 'radius' in changes || 'weight' in changes))
         this.topType = source.topType;
     }
     this.affected = [];
@@ -650,10 +651,10 @@ $(function() {
       tile.affected[xy(a)] = tiles[a.x][a.y];
     }
     tile.destination = this.destination && tiles[this.destination.x][this.destination.y];
-    tile.cooldown = (this.cooldown!=undefined) ? this.cooldown : undefined;
-    tile.timer = (this.timer!=undefined) ? this.timer : undefined;
-    tile.radius = (this.radius!=undefined) ? this.radius :  undefined;
-    tile.weight = (this.weight!=undefined) ? this.weight : undefined;
+    tile.cooldown = this.cooldown;
+    tile.timer = this.timer;
+    tile.radius = this.radius;
+    tile.weight = this.weight;
     mayHaveChanged(tile);
   }
 
@@ -895,6 +896,12 @@ $(function() {
     t1.horizontalMirror = t2;
     t2.horizontalMirror = t1;
   }
+  function isPlusNinetyRotator(t1, t2) {
+    t1.plusNinetyRotator = t2;
+  }
+  function isMinusNinetyRotator(t1, t2) {
+    t1.minusNinetyRotator = t2;
+  }
   areOpposites(redSpeedPadType, blueSpeedpadType);
   areOpposites(redFloorType, blueFloorType);
   areOpposites(redFieldType, blueFieldType);
@@ -905,7 +912,14 @@ $(function() {
   areHorizontalMirrors(wallTopLeftType, wallTopRightType);
   areVerticalMirrors(wallBottomLeftType, wallTopLeftType);
   areVerticalMirrors(wallBottomRightType, wallTopRightType);
-  
+  isPlusNinetyRotator(wallBottomLeftType, wallTopLeftType);
+  isPlusNinetyRotator(wallTopLeftType, wallTopRightType);
+  isPlusNinetyRotator(wallTopRightType, wallBottomRightType);
+  isPlusNinetyRotator(wallBottomRightType, wallBottomLeftType);
+  isMinusNinetyRotator(wallTopLeftType, wallBottomLeftType);
+  isMinusNinetyRotator(wallTopRightType, wallTopLeftType);
+  isMinusNinetyRotator(wallBottomRightType, wallTopRightType);
+  isMinusNinetyRotator(wallBottomLeftType, wallBottomRightType);
 
   function Tile(options, elem) {
     this.set(options);
@@ -1090,7 +1104,7 @@ $(function() {
     if (pt.type && how[0]==-1) pt.type = pt.type.horizontalMirror;
     if (pt.topType && how[0]==-1) pt.topType = pt.topType.horizontalMirror;
     if (pt.type && how[2]==-1) pt.type = pt.type.verticalMirror;
-    if (pt.topType && how[0]==-1) pt.topType = pt.topType.verticalMirror;
+    if (pt.topType && how[2]==-1) pt.topType = pt.topType.verticalMirror;
   }
   
   var symmetryFns = {
@@ -1154,9 +1168,10 @@ $(function() {
     });
   }
   
-  /*$map.mouseleave(function(e) {
-    console.log('map left');
-  });*/
+  $map.mouseleave(function(e) {
+    mouseDown = false;
+    //console.log('map left');
+  });
 
   var controlDown = false;
   var shiftDown = false;
@@ -1228,94 +1243,94 @@ $(function() {
           
             e.preventDefault();
           }
-        }
-      } else {
-        e.preventDefault();
-        var x = $(this).data('x');
-        var y = $(this).data('y');
+        } else {
+          e.preventDefault();
+          var x = $(this).data('x');
+          var y = $(this).data('y');
         
-        if (tiles[x][y].type == portalType) {
-          /*var cooldown = parseFloat(prompt("Cooldown time (in seconds):", (tiles[x][y].cooldown>=0) ? tiles[x][y].cooldown : defaultPortalCooldown));
-          if (!(cooldown>=0)) return;*/
+          if (tiles[x][y].type == portalType) {
+            /*var cooldown = parseFloat(prompt("Cooldown time (in seconds):", (tiles[x][y].cooldown>=0) ? tiles[x][y].cooldown : defaultPortalCooldown));
+            if (!(cooldown>=0)) return;*/
           
-          var cooldown = (tiles[x][y].cooldown!=undefined) ? tiles[x][y].cooldown : defaultPortalCooldown;
-          $('#portalCooldown').val('');
-          $('#portalCooldown').attr('placeholder',cooldown);
-          $('#portalAll').hide();
-          $( "#portalOptions" ).dialog({
-            modal: true,
-            title: 'Portal',
-            buttons: {
-              "Save": function() {
-                cooldown = parseFloat($('#portalCooldown').val());
-                $(this).dialog( "close" );
-                if(!(cooldown>=0)) return;
+            var cooldown = (tiles[x][y].cooldown!=undefined) ? tiles[x][y].cooldown : defaultPortalCooldown;
+            $('#portalCooldown').val('');
+            $('#portalCooldown').attr('placeholder',cooldown);
+            $('#portalAll').hide();
+            $( "#portalOptions" ).dialog({
+              modal: true,
+              title: 'Portal',
+              buttons: {
+                "Save": function() {
+                  cooldown = parseFloat($('#portalCooldown').val());
+                  $(this).dialog( "close" );
+                  if(!(cooldown>=0)) return;
                 
-                var change = new UndoStep([
-                  new TileState(tiles[x][y], {cooldown:cooldown})
-                ]);
-                applySymmetry(change);
-                applyStep(change);
+                  var change = new UndoStep([
+                    new TileState(tiles[x][y], {cooldown:cooldown})
+                  ]);
+                  applySymmetry(change);
+                  applyStep(change);
+                }
               }
-            }
-          });
-        } else if (tiles[x][y].type == switchType) {
-          /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
-          if (!timer) return;*/
+            });
+          } else if (tiles[x][y].type == switchType) {
+            /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
+            if (!timer) return;*/
           
-          var timer = (tiles[x][y].timer!=undefined) ? tiles[x][y].timer : defaultButtonTimer;
-          $('#switchTimer').val('');
-          $('#switchTimer').attr('placeholder',timer);
-          $('#switchAll').hide();
-          $( "#switchOptions" ).dialog({
-            modal: true,
-            title: 'Button',
-            buttons: {
-              "Save": function() {
-                timer = parseFloat($('#switchTimer').val());
-                $(this).dialog( "close" );
-                if(!timer) return;
+            var timer = (tiles[x][y].timer!=undefined) ? tiles[x][y].timer : defaultButtonTimer;
+            $('#switchTimer').val('');
+            $('#switchTimer').attr('placeholder',timer);
+            $('#switchAll').hide();
+            $( "#switchOptions" ).dialog({
+              modal: true,
+              title: 'Button',
+              buttons: {
+                "Save": function() {
+                  timer = parseFloat($('#switchTimer').val());
+                  $(this).dialog( "close" );
+                  if(!timer) return;
 
-                var change = new UndoStep([
-                  new TileState(tiles[x][y], {timer:timer})
-                ]);
-                applySymmetry(change);
-                applyStep(change);
+                  var change = new UndoStep([
+                    new TileState(tiles[x][y], {timer:timer})
+                  ]);
+                  applySymmetry(change);
+                  applyStep(change);
+                }
               }
-            }
-          });
-        } else if (tiles[x][y].topType == redSpawnType || tiles[x][y].topType == blueSpawnType) {
-          /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
-          if (!timer) return;*/
+            });
+          } else if (tiles[x][y].topType == redSpawnType || tiles[x][y].topType == blueSpawnType) {
+            /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
+            if (!timer) return;*/
           
-          var radius = (tiles[x][y].radius!=undefined) ? tiles[x][y].radius : defaultSpawnRadius;
-          var weight = (tiles[x][y].weight!=undefined) ? tiles[x][y].weight : defaultSpawnWeight;
-          $('#spawnRadius').val('');
-          $('#spawnRadius').attr('placeholder',radius);
-          $('#spawnWeight').val('');
-          $('#spawnWeight').attr('placeholder',weight);
-          $('#spawnAll').hide();
-          $( "#spawnOptions" ).dialog({
-            modal: true,
-            title: 'Spawn Point',
-            buttons: {
-              "Save": function() {
-                radius = parseFloat($('#spawnRadius').val());
-                weight = parseFloat($('#spawnWeight').val());
-                $(this).dialog( "close" );
-                if(!(radius>=0) && !(weight>=1)) return;
-                var changes = {};
-                if(radius>=0) changes.radius = radius;
-                if(weight>=1) changes.weight = weight;
+            var radius = (tiles[x][y].radius!=undefined) ? tiles[x][y].radius : defaultSpawnRadius;
+            var weight = (tiles[x][y].weight!=undefined) ? tiles[x][y].weight : defaultSpawnWeight;
+            $('#spawnRadius').val('');
+            $('#spawnRadius').attr('placeholder',radius);
+            $('#spawnWeight').val('');
+            $('#spawnWeight').attr('placeholder',weight);
+            $('#spawnAll').hide();
+            $( "#spawnOptions" ).dialog({
+              modal: true,
+              title: 'Spawn Point',
+              buttons: {
+                "Save": function() {
+                  radius = parseFloat($('#spawnRadius').val());
+                  weight = parseFloat($('#spawnWeight').val());
+                  $(this).dialog( "close" );
+                  if(!(radius>=0) && !(weight>=1)) return;
+                  var changes = {};
+                  if(radius>=0) changes.radius = radius;
+                  if(weight>=1) changes.weight = weight;
                 
-                var change = new UndoStep([
-                  new TileState(tiles[x][y], changes)
-                ]);
-                applySymmetry(change);
-                applyStep(change);
+                  var change = new UndoStep([
+                    new TileState(tiles[x][y], changes)
+                  ]);
+                  applySymmetry(change);
+                  applyStep(change);
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
     })
@@ -1500,10 +1515,10 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [spikeType, powerupType, portalType, gravityWellType],
-    [redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType, yellowFlagType, ],
+    [spikeType, powerupType, portalType, gravityWellType, marsBallType],
+    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
     [speedpadType, redSpeedPadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
-    [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, bombType, marsBallType]
+    [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
   ];
 
   var brushTileType = paletteRows[0][0];
@@ -1686,7 +1701,7 @@ $(function() {
 
     return false;
   };
-  function restoreFromPngAndJson(pngBase64, jsonString, optResizeParams, doHistoryClear) {
+  function restoreFromPngAndJson(pngBase64, jsonString, optResizeParams, doHistoryClear, method) {
     var optWidth = optResizeParams && optResizeParams.width;
     var optHeight = optResizeParams && optResizeParams.height;
     var deltaX = (optResizeParams && optResizeParams.deltaX) || 0;
@@ -1789,14 +1804,16 @@ $(function() {
       var spawnpoints = json.spawnPoints || {};
       function addSpawnPoints(color)
       {
-        var spawn = spawnpoints[color] || {};
+        var spawn = spawnpoints[color] || [];
         for(var i = 0;i < spawn.length;i++) {
           var tile = tiles[parseInt(spawn[i].x)+deltaX][parseInt(spawn[i].y)+deltaY];
           if(tile && !tile.radius && !tile.weight && (tile.type == floorType || tile.type == redFloorType || tile.type == blueFloorType)) {
-            tile.topType = (color=='red') ? redSpawnType : blueSpawnType;
-            tile.radius = (spawn[i].radius!=undefined) ? spawn[i].radius : undefined;
-            tile.weight = (spawn[i].weight!=undefined) ? spawn[i].weight : undefined;
-            var state = new TileState(tile);
+            var changes = {
+              type: (color=='red') ? redSpawnType : blueSpawnType,
+              radius: (spawn[i].radius!=undefined) ? spawn[i].radius : undefined,
+              weight: (spawn[i].weight!=undefined) ? spawn[i].weight : undefined,
+            };
+            var state = new TileState(tile, changes);
             state.restoreInto(tile);
           }
         }
@@ -1807,16 +1824,48 @@ $(function() {
         addSpawnPoints('blue');
       }
       
+      marsBallCount = 0;
       var marsballs = json.marsballs || [];
       for(var i = 0;i < marsballs.length;i++) {
         var tile = tiles[parseInt(marsballs[i].x)+deltaX][parseInt(marsballs[i].y)+deltaY];
         if(tile) {
-          tile.topType = marsBallType;
-          var state = new TileState(tile);
+          var state = new TileState(tile, {type: marsBallType});
           state.restoreInto(tile);
         }
       }
 
+      if(method) {
+        if(method instanceof Array) {
+          for(var x = (method[1] || 0);x < (method[2] || tiles.length);x++) {
+            for(var y = (method[3] || 0);y < (method[4] || tiles[x].length);y++) {
+              var tile = tiles[x][y];
+              if(tile) {
+                var state = null;
+                if(tile.type != tile.type.horizontalMirror) {
+                  state = new TileState(tile, {type: (method[0]==1) ? tile.type.horizontalMirror : tile.type.verticalMirror, mirror: true});
+                } else if(method.length>1) {
+                  state = new TileState(tile, {type: tile.type.opposite, mirror: true});
+                }
+                if(state) {
+                  state.restoreInto(tile);
+                }
+              }
+            }
+          }
+        } else {
+          for(var x = 0;x < tiles.length;x++) {
+            for(var y = 0;y < tiles[x].length;y++) {
+              var tile = tiles[x][y];
+              if(tile) {
+                var state = new TileState(tile, {type: (method==90) ? tile.type.plusNinetyRotator : tile.type.minusNinetyRotator, mirror: true});
+                state.restoreInto(tile);
+              }
+            }
+          }
+        }
+      }
+      cleanDirtyWalls();
+      
       savePoint();
       if (doHistoryClear) clearHistory();
     }
@@ -1838,8 +1887,133 @@ $(function() {
     }
   });
 
-  function makeLogicString() {
-    return JSON.stringify(makeLogic(), null, 2);
+  function makeLogicString(json) {
+    return JSON.stringify(json || makeLogic(), null, 2);
+  }
+  
+  function transformLogic(json,tilemap,tilemap2) {
+    var fields = json.fields || {};
+    var newfields = {};
+    for (var key in fields) {
+      var xy = key.split(',');
+      var newloc = tilemap[xy[0]][xy[1]];
+      newfields[newloc.x+','+newloc.y] = fields[key];
+      if(tilemap2) {
+        newloc = tilemap2[xy[0]][xy[1]];
+        newfields[newloc.x+','+newloc.y] = fields[key];
+      }
+    }
+    json.fields = newfields;
+    
+    var portals = json.portals || {};
+    var newportals = {};
+    for (var key in portals) {
+      var xy = key.split(',');
+      var newloc = tilemap[xy[0]][xy[1]];
+      var tile = (tiles[xy[0]]||[])[xy[1]];
+      if(tile && tile.cooldown==undefined) {
+        delete portals[key].cooldown;
+      }
+      var newloc2;
+      newportals[newloc.x+','+newloc.y] = $.extend(true, {}, portals[key]);
+      if(tilemap2) {
+        newloc2 = tilemap2[xy[0]][xy[1]];
+        newportals[newloc2.x+','+newloc2.y] = $.extend(true, {}, portals[key]);
+      }
+      var dest = portals[key].destination || {};
+      if(!$.isEmptyObject(dest)) {
+        var newdest = tilemap[dest.x][dest.y];
+        newportals[newloc.x+','+newloc.y].destination = newdest;
+        if(newloc2) {
+          newportals[newloc2.x+','+newloc2.y].destination = tilemap2[dest.x][dest.y];
+        }
+      }
+    }
+    json.portals = newportals;
+    
+    var switches = json.switches || {};
+    var newswitches = {};
+    for (var key in switches) {
+      var xy = key.split(',');
+      var tile = (tiles[xy[0]]||[])[xy[1]];
+      if(tile && tile.timer==undefined) {
+        delete switches[key].timer;
+      }
+      var newloc = tilemap[xy[0]][xy[1]];
+      var newloc2;
+      newswitches[newloc.x+','+newloc.y] = $.extend(true, {}, switches[key]);
+      newswitches[newloc.x+','+newloc.y].toggle = [];
+      if(tilemap2) {
+        newloc2 = tilemap2[xy[0]][xy[1]];
+        newswitches[newloc2.x+','+newloc2.y] = $.extend(true, {}, switches[key]);
+        newswitches[newloc2.x+','+newloc2.y].toggle = [];
+      }
+      for(var i = 0;i < switches[key].toggle.length;i++) {
+        var dest = switches[key].toggle[i].pos;
+        var newdest = tilemap[dest.x][dest.y];
+        newswitches[newloc.x+','+newloc.y].toggle.push({pos: newdest});
+        if(newloc2) {
+          newswitches[newloc2.x+','+newloc2.y].toggle.push({pos: tilemap2[dest.x][dest.y]});
+        }
+      }
+    }
+    json.switches = newswitches;
+    
+    var spawnpoints = json.spawnPoints || {};
+    var newspawnpoints = {};
+    function addSpawnPoints(color,other)
+    {
+      var spawn = spawnpoints[color] || [];
+      var newspawn = [];
+      var otherspawn = [];
+      for(var i = 0;i < spawn.length;i++) {
+        var tile = tiles[spawn[i].x][spawn[i].y];
+        if(tile) {
+          if(tile.radius==undefined) delete spawn[i].radius;
+          if(tile.weight==undefined) delete spawn[i].weight;
+        }
+        var newloc = tilemap[spawn[i].x][spawn[i].y];
+        var toreplace = $.extend(true, {}, spawn[i]);
+        toreplace.x = newloc.x;
+        toreplace.y = newloc.y;
+        newspawn.push(toreplace);
+        if(tilemap2) {
+          newloc = tilemap2[spawn[i].x][spawn[i].y];
+          var toreplace = $.extend(true, {}, spawn[i]);
+          toreplace.x = newloc.x;
+          toreplace.y = newloc.y;
+          otherspawn.push(toreplace);
+        }
+      }
+      newspawnpoints[color] = newspawnpoints[color].concat(newspawn);
+      newspawnpoints[other] = newspawnpoints[other].concat(otherspawn);
+    }
+    if(!$.isEmptyObject(spawnpoints))
+    {
+      newspawnpoints['red'] = newspawnpoints['blue'] = [];
+      addSpawnPoints('red','blue');
+      addSpawnPoints('blue','red');
+    }
+    json.spawnPoints = newspawnpoints;
+
+
+    var countMarsBalls = 0;
+    var marsballs = json.marsballs || [];
+    var newmarsballs = [];
+    for (var i = 0;i < marsballs.length;i++) {
+      var newloc = tilemap[marsballs[i].x][marsballs[i].y];
+      newmarsballs.push(newloc);
+      countMarsBalls++;
+      if(countMarsBalls<2 && tilemap2) {
+        newloc = tilemap2[marsballs[i].x][marsballs[i].y];
+        newmarsballs.push(newloc);
+        countMarsBalls++;
+      }
+      if(countMarsBalls>=2) break;
+    }
+    json.marsballs = newmarsballs;
+    
+    return json;
   }
   
   function resizeTo(width, height, deltaX, deltaY) {
@@ -1856,11 +2030,15 @@ $(function() {
   var $resizeAnchorTop = $('#resizeAnchorTop');
   var $resizeAnchorBottom = $('#resizeAnchorBottom');
   
+  $('#resizeDialog a').click(function() {
+    $(this).toggleClass('active');
+  });
   $('#resize').click(function(e) {
     $resizeWidthTo.val('');
     $resizeWidthTo.attr('placeholder',tiles.length);
     $resizeHeightTo.val('');
     $resizeHeightTo.attr('placeholder',tiles[0].length);
+    $('#resizeDialog a').removeClass('active');
     
     $( "#resizeDialog" ).dialog({
       height: 300,
@@ -1884,8 +2062,8 @@ $(function() {
               return Math.round((newSize-oldSize)/2);
             }
           }
-          var deltaX = getDelta(oldWidth, width, $resizeAnchorLeft.is(":checked"), $resizeAnchorRight.is(":checked"))
-          var deltaY = getDelta(oldHeight, height, $resizeAnchorTop.is(":checked"), $resizeAnchorBottom.is(":checked"))
+          var deltaX = getDelta(oldWidth, width, $resizeAnchorLeft.hasClass('active'), $resizeAnchorRight.hasClass('active'));
+          var deltaY = getDelta(oldHeight, height, $resizeAnchorTop.hasClass('active'), $resizeAnchorBottom.hasClass('active'));
           if (width * height > 3600) {
             if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
               $('#resizeWidth').val(tiles.length);
@@ -1899,8 +2077,8 @@ $(function() {
             height = Math.max(1, height);
           }
           resizeTo(width, height, deltaX,deltaY);
-          console.log('resizing to',width,height)
-          $( this ).dialog( "close" );
+          console.log('resizing to',width,height);
+          $(this).dialog( "close" );
         }
       }
     });
@@ -1909,20 +2087,28 @@ $(function() {
   });
   
   $('#resizeDialog input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER)
+    if(e.keyCode == $.ui.keyCode.ENTER){
+      e.preventDefault();
       $(this).parents('div').last().find('button:last').click();
+    }
   });
   $('#portalOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER)
+    if(e.keyCode == $.ui.keyCode.ENTER){
+      e.preventDefault();
       $(this).parents('div').last().find('button:last').click();
+    }
   });
   $('#switchOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER)
+    if(e.keyCode == $.ui.keyCode.ENTER){
+      e.preventDefault();
       $(this).parents('div').last().find('button:last').click();
+    }
   });
   $('#spawnOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER)
+    if(e.keyCode == $.ui.keyCode.ENTER){
+      e.preventDefault();
       $(this).parents('div').last().find('button:last').click();
+    }
   });
   
   function showZoom() {
@@ -1990,6 +2176,177 @@ $(function() {
     enableZoomButtons();
   });
   enableZoomButtons();
+  
+  function rotateMap(degrees) {
+    var canvas = document.createElement('canvas');
+    canvas.height = tiles.length;
+    canvas.width = tiles[0].length;
+    var ctx = canvas.getContext('2d');
+    
+    var rowlength = tiles.length;
+    var tilemap = [[]];
+    for(var x = 0;x < rowlength;x++) {
+      var collength = tiles[x].length;
+      for(var y = 0;y < collength;y++) {
+        var i, j;
+        if(degrees==90) {
+          i = collength-y-1;
+          j = x;
+        } else if(degrees==-90) {
+          i = y;
+          j = rowlength-x-1;
+        }
+        if(!tilemap[x]) tilemap[x] = [];
+        tilemap[x][y] = {x: i, y: j};
+      }
+    }
+    
+    var json = transformLogic(makeLogic(),tilemap);
+
+    var png = getPngBase64Url();
+    var image = new Image();
+    image.src = png;
+    image.onload = function() {
+      ctx.translate(canvas.width/2,canvas.height/2);
+      ctx.rotate(degrees * Math.PI / 180);
+      ctx.drawImage(image,-canvas.height/2,-canvas.width/2)
+      png = canvas.toDataURL();
+      restoreFromPngAndJson(png, makeLogicString(json), false, false, degrees);
+    };
+  }
+  $('#rotateLeft').click(function() {
+    rotateMap(-90);
+  });
+  $('#rotateRight').click(function() {
+    rotateMap(90);
+  });
+  
+  function flipMap(type) {
+    var canvas = document.createElement('canvas');
+    canvas.height = tiles[0].length;
+    canvas.width = tiles.length;
+    var ctx = canvas.getContext('2d');
+    
+    var rowlength = tiles.length;
+    var tilemap = [[]];
+    for(var x = 0;x < rowlength;x++) {
+      var collength = tiles[x].length;
+      for(var y = 0;y < collength;y++) {
+        var i, j;
+        if(type[0]==-1) {
+          i = rowlength-x-1;
+        }
+        if(type[1]==-1) {
+          j = collength-y-1;
+        }
+        if(!tilemap[x]) tilemap[x] = [];
+        tilemap[x][y] = {x: (i!=undefined)?i:x, y: (j!=undefined)?j:y};
+      }
+    }
+    
+    var json = transformLogic(makeLogic(),tilemap);
+
+    var png = getPngBase64Url();
+    var image = new Image();
+    image.src = png;
+    image.onload = function() {
+      ctx.scale(type[0],type[1]);
+      ctx.drawImage(image,0,0,canvas.width*type[0],canvas.height*type[1]);
+      png = canvas.toDataURL();
+      restoreFromPngAndJson(png, makeLogicString(json), false, false, [type[0]==-1 ? 1 : 2]);
+    };
+  }
+  $('#flipVertical').click(function() {
+    flipMap([1,-1]);
+  });
+  $('#flipHorizontal').click(function() {
+    flipMap([-1,1]);
+  })
+  
+  function mirrorMap(type) {
+    var canvas = document.createElement('canvas');
+    canvas.height = tiles[0].length*(!!type[1]+1);
+    canvas.width = tiles.length*(!!type[0]+1);
+    var ctx = canvas.getContext('2d');
+    
+    var rowlength = tiles.length;
+    var tilemap = [[]];
+    var tilemap2 = [[]];
+    for(var x = 0;x < rowlength;x++) {
+      var collength = tiles[x].length;
+      for(var y = 0;y < collength;y++) {
+        var i, j, i2, j2;
+        if(type[0]) {
+          if(type[0]==-1) {
+            i = rowlength+x;
+          }
+          i2 = -(type[0]*rowlength+x+1);
+        }
+        if(type[1]) {
+          if(type[1]==-1) {
+            j = collength+y;
+          }
+          j2 = -(type[1]*collength+y+1);
+        }
+        if(!tilemap[x]) tilemap[x] = [];
+        tilemap[x][y] = {x: (i!=undefined)?i:x, y: (j!=undefined)?j:y};
+        if(!tilemap2[x]) tilemap2[x] = [];
+        tilemap2[x][y] = {x: (i2!=undefined)?i2:x, y: (j2!=undefined)?j2:y};
+      }
+    }
+    
+    var json = transformLogic(makeLogic(),tilemap,tilemap2);
+
+    var png = getPngBase64Url();
+    var image = new Image();
+    image.src = png;
+    image.onload = function() {
+      ctx.save();
+      ctx.scale(type[0] ? -1 : 1,type[1] ? -1 : 1);
+      ctx.drawImage(image,image.width*type[0],image.height*type[1],image.width,image.height);
+      ctx.restore();
+      ctx.drawImage(image,type[0] ? canvas.width/2*(type[0]+2) : 0,type[1] ? canvas.height/2*(type[1]+2) : 0,image.width,image.height);
+      png = canvas.toDataURL();
+      restoreFromPngAndJson(png, makeLogicString(json), false, false, [type[0] ? 1 : 2,
+        type[0] ? -(type[0]+1)*tiles.length : 0,
+        type[0] ? -(type[0]+1)*tiles.length+tiles.length : tiles.length,
+        type[1] ? -(type[1]+1)*tiles[0].length : 0,
+        type[1] ? -(type[1]+1)*tiles[0].length+tiles[0].length : tiles[0].length
+      ]);
+    };
+  }
+  $('#mirrorOptions a').click(function() {
+    $('#mirrorOptions a').removeClass('active');
+    $(this).toggleClass('active');
+  });
+  $('#mirror').click(function(e) {
+    $('#mirrorOptions a').removeClass('active');
+    $( "#mirrorOptions" ).dialog({
+      modal: true,
+      buttons: {
+        "Mirror": function() {
+          if(!$(this).find('a.active').length)
+          {
+            $(this).dialog('close');
+            return;
+          }
+          var type = JSON.parse($(this).find('a.active').attr('value')); //[-2,0] = mirror on right, [-1,0] = left, [0,-1] = up, [0,-2] = down
+          var width = tiles.length * (type[0] ? 2 : 1);
+          var height = tiles[0].length * (type[1] ? 2 : 1);
+          if (width * height > 3600) {
+            if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
+              e.preventDefault();
+              $(this).dialog('close');
+              return;
+            }
+          }
+          mirrorMap(type);
+          $(this).dialog('close');
+        }
+      }
+    });
+    e.preventDefault();
+  });
   
   $('#dropHelp').click(function() {
     alert("Importing Map:\n" +
