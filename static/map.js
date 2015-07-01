@@ -1612,7 +1612,7 @@ $(function() {
       $button.data('tileType', type);
       type.drawOn($button.find('.tile'));
       $button.click('click', function(e) {
-        if (selectedTool == wire) {
+        if (selectedTool == wire || selectedTool == clipboard) {
           $('#toolPencil').trigger('click');
         }
         setBrushTileType(type);
