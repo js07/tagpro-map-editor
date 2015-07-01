@@ -529,6 +529,82 @@ $(function() {
     }
   }
 
+  var clipboardReady = false;
+  var clipboardTiles = [];
+  var clipboardSource = [[]];
+  var clipboard = new Tool({
+    unselect: function() {
+      clipboardReady = false;
+      clipboardTiles = [];
+      clipbaordSource = [[]];
+      clearHighlights();
+    },
+    down: function(x,y) {
+      this.downX = x;
+      this.downY = y;
+    },
+    speculateDrag: function(x,y) {
+      if(clipboardReady) {
+        var size = clipboardTiles.length;
+        var center = {x: Math.floor((clipboardTiles[size-1].x+clipboardTiles[0].x)/2), y: Math.floor((clipboardTiles[size-1].y+clipboardTiles[0].y)/2)};
+        var changes = [];
+        var count = 0;
+        for(var ix = x-(center.x-clipboardTiles[0].x);ix <= x+(clipboardTiles[size-1].x-center.x);ix++) {
+          for(var iy = y-(center.y-clipboardTiles[0].y);iy <= y+(clipboardTiles[size-1].y-center.y);iy++) {
+            if (ix>=0 && iy>=0 && ix<width && iy<height) {
+              if(!clipboardSource[ix] || !clipboardSource[ix][iy]) {
+                var change = $.extend(true, {}, tiles[clipboardTiles[count].x][clipboardTiles[count].y]);
+                delete change.x;
+                delete change.y;
+                changes.push(new TileState(tiles[ix][iy], change));
+              }
+            }
+            count++;
+          }
+        }
+        return new UndoStep(changes);
+      }
+      
+      var coordinates = rectFn(this.downX===undefined?x:this.downX, this.downY===undefined?y:this.downY, x, y, true);
+      var calculatedTiles = [];
+      
+      clipboardTiles = [];
+      clipboardSource = [[]];
+      for (var i = 0; i < coordinates.length; i++) {
+        var ix = coordinates[i].x;
+        var iy = coordinates[i].y;
+        calculatedTiles.push(new TileState(tiles[ix][iy]));
+        clipboardTiles.push({x: ix, y: iy});
+        if(!clipboardSource[ix]) clipboardSource[ix] = [];
+        clipboardSource[ix][iy] = true;
+      }
+      return new UndoStep(calculatedTiles);
+    },
+    speculateUp: function(x,y) {
+      if(clipboardTiles.length>1) return false;
+      
+      var changes = [];
+      for(var i = 0;i < clipboardTiles.length;i++)
+      {
+        changes.push(new TileState(tiles[clipboardTiles[i].x][clipboardTiles[i].y]));
+      }
+      return new UndoStep(changes);
+    },
+    up: function(x,y) {
+      this.downX = undefined;
+      this.downY = undefined;
+      
+      if(clipboardTiles.length>1)
+      {
+        for(var i = 0;i < clipboardTiles.length;i++)
+        {
+          tiles[clipboardTiles[i].x][clipboardTiles[i].y].highlight(true);
+        }
+        clipboardReady = true;
+      }
+    }
+  })
+
   function clearHighlights() {
     $map.find('.selectionIndicator').css('display', 'none');
   }
@@ -563,7 +639,7 @@ $(function() {
   var marsBallCount = 0;
   function TileState(source, changes) {
     changes = changes || {};
-    this.x = changes.x || source.x 
+    this.x = changes.x || source.x; 
     this.y = changes.y || source.y;
     var onTop = (changes.type == marsBallType || changes.type == redSpawnType || changes.type == blueSpawnType)
       || ($.isEmptyObject(changes) && (source.topType == marsBallType || source.topType == redSpawnType || source.topType == blueSpawnType));
@@ -578,7 +654,9 @@ $(function() {
     else
     {
       this.type = changes.type || source.type;
-      if(source.topType && (changes.mirror || 'radius' in changes || 'weight' in changes))
+      if(changes.topType)
+        this.topType = changes.topType;
+      else if(source.topType && (changes.mirror || 'radius' in changes || 'weight' in changes))
         this.topType = source.topType;
     }
     this.affected = [];
@@ -1169,7 +1247,6 @@ $(function() {
   }
   
   $map.mouseleave(function(e) {
-    mouseDown = false;
     //console.log('map left');
   });
 
@@ -1334,7 +1411,8 @@ $(function() {
         }
       }
     })
-    .on('mousemove', '.tile', function() {
+    .on('mousemove', '.tile', function(e) {
+      if(e.buttons!=1) mouseDown = false; //can drag outside $map and back in, but mouseDown is not stuck if mouseup occurs outside $map
       var x = $(this).data('x');
       var y = $(this).data('y');
       if (selectedTool && mouseDown) {
@@ -1534,7 +1612,7 @@ $(function() {
       $button.data('tileType', type);
       type.drawOn($button.find('.tile'));
       $button.click('click', function(e) {
-        if (selectedTool == wire) {
+        if (selectedTool == wire || selectedTool == clipboard) {
           $('#toolPencil').trigger('click');
         }
         setBrushTileType(type);
@@ -1642,6 +1720,7 @@ $(function() {
   $('#toolCircleOutline').data('tool', circleOutline);
   $('#toolFill').data('tool', fill);
   $('#toolWire').data('tool', wire);
+  $('#toolClipboard').data('tool', clipboard);
   $('#tools .btn').click(function() {
     selectedTool.unselect.call(selectedTool);
     $('#tools .btn').removeClass('active');
@@ -1702,6 +1781,7 @@ $(function() {
     return false;
   };
   function restoreFromPngAndJson(pngBase64, jsonString, optResizeParams, doHistoryClear, method) {
+    $('body').css('cursor','wait');
     var optWidth = optResizeParams && optResizeParams.width;
     var optHeight = optResizeParams && optResizeParams.height;
     var deltaX = (optResizeParams && optResizeParams.deltaX) || 0;
@@ -1868,8 +1948,13 @@ $(function() {
       
       savePoint();
       if (doHistoryClear) clearHistory();
+      
+      $('body').css('cursor','auto');
     }
-    img.src = pngBase64;//'https://mdn.mozillademos.org/files/5397/rhino.jpg';
+    if(pngBase64)
+      img.src = pngBase64;//'https://mdn.mozillademos.org/files/5397/rhino.jpg';
+    else
+      $('body').css('cursor','auto');
   }
   
   function clearHistory() {
@@ -2207,6 +2292,7 @@ $(function() {
     var image = new Image();
     image.src = png;
     image.onload = function() {
+      $('body').css('cursor','wait');
       ctx.translate(canvas.width/2,canvas.height/2);
       ctx.rotate(degrees * Math.PI / 180);
       ctx.drawImage(image,-canvas.height/2,-canvas.width/2)
@@ -2250,6 +2336,7 @@ $(function() {
     var image = new Image();
     image.src = png;
     image.onload = function() {
+      $('body').css('cursor','wait');
       ctx.scale(type[0],type[1]);
       ctx.drawImage(image,0,0,canvas.width*type[0],canvas.height*type[1]);
       png = canvas.toDataURL();
@@ -2301,6 +2388,7 @@ $(function() {
     var image = new Image();
     image.src = png;
     image.onload = function() {
+      $('body').css('cursor','wait');
       ctx.save();
       ctx.scale(type[0] ? -1 : 1,type[1] ? -1 : 1);
       ctx.drawImage(image,image.width*type[0],image.height*type[1],image.width,image.height);

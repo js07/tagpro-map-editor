@@ -111,6 +111,9 @@ span.glyphicon-rotate-right {
     -o-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+span.off-center {
+    left: -1px;
+}
 span.radioSpan {
     margin: 0% 10% 0% 10%;
 }
