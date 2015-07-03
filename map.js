@@ -1612,8 +1612,8 @@ $(function() {
       $.each(row, function(tileIdx, tile) {
         if (tile.type.name == "redFlag") hasRedFlag = true;
         if (tile.type.name == "blueFlag") hasBlueFlag = true;
-        if (tile.type.name == "redSpawn") hasRedSpawn = true;
-        if (tile.type.name == "blueSpawn") hasBlueSpawn = true;
+        if (tile.type.name == "redSpawn" || tile.topType.name == "redSpawn") hasRedSpawn = true;
+        if (tile.type.name == "blueSpawn" || tile.topType.name == "blueSpawn") hasBlueSpawn = true;
       });
     });
     if (!(hasRedSpawn || hasRedFlag))
@@ -2325,8 +2325,8 @@ $(function() {
   $(".Wall_TR").css({"background-image":""})
   $(".Wall").css({"background-image":""})
   $(".Wall").children().css({"background-size":""})
-  $(".nestedSquare").css({"background-image":""});
-  $(".topSquare").css({"background-image":""});
+  /*$(".nestedSquare").css({"background-image":""});
+  $(".topSquare").css({"background-image":""});*/
   
   function enableZoomButtons() {
     enable($('#zoomIn'), zoom<maxZoom);
