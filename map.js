@@ -2325,8 +2325,8 @@ $(function() {
   $(".Wall_TR").css({"background-image":""})
   $(".Wall").css({"background-image":""})
   $(".Wall").children().css({"background-size":""})
-  $(".nestedSquare").css({"background-image":""});
-  $(".topSquare").css({"background-image":""});
+  /*$(".nestedSquare").css({"background-image":""});
+  $(".topSquare").css({"background-image":""});*/
   
   function enableZoomButtons() {
     enable($('#zoomIn'), zoom<maxZoom);
