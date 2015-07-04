@@ -1450,6 +1450,10 @@ $(function() {
     $('#author').val('Anonymous');
     $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
     $(pngDropArea).attr('download',$('#mapName').val()+'.png');
+    
+    $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
+    $("div.tileBackground").css("background-position", "-520px -160px");
+    $("div.tileQuadrant").css('background-image', $("#tiles").attr('url'));
   };
   clearMap();
 
