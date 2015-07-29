@@ -1,4 +1,240 @@
 $(function() {
+  $('[data-toggle="popover"]').popover();
+  var quadrantCoords = {
+    "132": [10.5, 7.5],
+    "232": [11, 7.5],
+    "332": [11, 8],
+    "032": [10.5, 8],
+    "132d": [0.5, 3.5],
+    "232d": [1, 3.5],
+    "032d": [0.5, 4],
+    "143": [4.5, 9.5],
+    "243": [5, 9.5],
+    "343": [5, 10],
+    "043": [4.5, 10],
+    "143d": [1.5, 2.5],
+    "243d": [2, 2.5],
+    "043d": [1.5, 3],
+    "154": [6.5, 9.5],
+    "254": [7, 9.5],
+    "354": [7, 10],
+    "054": [6.5, 10],
+    "154d": [9.5, 2.5],
+    "254d": [10, 2.5],
+    "354d": [10, 3],
+    "165": [0.5, 7.5],
+    "265": [1, 7.5],
+    "365": [1, 8],
+    "065": [0.5, 8],
+    "165d": [10.5, 3.5],
+    "265d": [11, 3.5],
+    "365d": [11, 4],
+    "176": [1.5, 6.5],
+    "276": [2, 6.5],
+    "376": [2, 7],
+    "076": [1.5, 7],
+    "276d": [9, 1.5],
+    "376d": [9, 2],
+    "076d": [8.5, 2],
+    "107": [6.5, 8.5],
+    "207": [7, 8.5],
+    "307": [7, 9],
+    "007": [6.5, 9],
+    "207d": [11, 1.5],
+    "307d": [11, 2],
+    "007d": [10.5, 2],
+    "110": [4.5, 8.5],
+    "210": [5, 8.5],
+    "310": [5, 9],
+    "010": [4.5, 9],
+    "110d": [0.5, 1.5],
+    "310d": [1, 2],
+    "010d": [0.5, 2],
+    "121": [9.5, 6.5],
+    "221": [10, 6.5],
+    "321": [10, 7],
+    "021": [9.5, 7],
+    "121d": [2.5, 1.5],
+    "321d": [3, 2],
+    "021d": [2.5, 2],
+    "142": [1.5, 7.5],
+    "242": [2, 7.5],
+    "042": [1.5, 8],
+    "142d": [10.5, 0.5],
+    "242d": [11, 0.5],
+    "042d": [10.5, 1],
+    "153": [5.5, 6.5],
+    "253": [6, 6.5],
+    "353": [6, 7],
+    "053": [5.5, 7],
+    "153d": [5.5, 0.5],
+    "253d": [6, 0.5],
+    "164": [9.5, 7.5],
+    "264": [10, 7.5],
+    "364": [10, 8],
+    "164d": [0.5, 0.5],
+    "264d": [1, 0.5],
+    "364d": [1, 1],
+    "175": [4.5, 5.5],
+    "275": [5, 5.5],
+    "375": [5, 6],
+    "075": [4.5, 6],
+    "275d": [7, 1.5],
+    "375d": [7, 2],
+    "206": [4, 9.5],
+    "306": [4, 10],
+    "006": [3.5, 10],
+    "206d": [2, 3.5],
+    "306d": [2, 4],
+    "006d": [1.5, 4],
+    "117": [5.5, 2.5],
+    "217": [6, 2.5],
+    "317": [6, 4],
+    "017": [5.5, 4],
+    "317d": [6, 3],
+    "017d": [5.5, 3],
+    "120": [7.5, 9.5],
+    "320": [8, 10],
+    "020": [7.5, 10],
+    "120d": [9.5, 3.5],
+    "320d": [10, 4],
+    "020d": [9.5, 4],
+    "131": [6.5, 5.5],
+    "231": [7, 5.5],
+    "331": [7, 6],
+    "031": [6.5, 6],
+    "131d": [4.5, 1.5],
+    "031d": [4.5, 2],
+    "141": [7.5, 8.5],
+    "241": [8, 8.5],
+    "323": [4, 5],
+    "041": [7.5, 9],
+    "141d": [8.5, 3.5],
+    "041d": [8.5, 4],
+    "152": [8.5, 7.5],
+    "252": [9, 7.5],
+    "334": [2, 0],
+    "052": [8.5, 8],
+    "152d": [3.5, 0.5],
+    "252d": [4, 0.5],
+    "163": [2.5, 7.5],
+    "263": [3, 7.5],
+    "363": [3, 8],
+    "045": [9.5, 0],
+    "163d": [7.5, 0.5],
+    "263d": [8, 0.5],
+    "174": [3.5, 8.5],
+    "274": [4, 8.5],
+    "374": [4, 9],
+    "056": [7.5, 5],
+    "274d": [3, 3.5],
+    "374d": [3, 4],
+    "167": [7.5, 6.5],
+    "205": [10, 8.5],
+    "305": [10, 9],
+    "005": [9.5, 9],
+    "205d": [2, 0.5],
+    "305d": [2, 1],
+    "170": [6.5, 7.5],
+    "216": [9, 9.5],
+    "316": [9, 10],
+    "016": [8.5, 10],
+    "316d": [10, 5],
+    "016d": [9.5, 5],
+    "127": [2.5, 9.5],
+    "201": [5, 7.5],
+    "327": [3, 10],
+    "027": [2.5, 10],
+    "327d": [2, 5],
+    "027d": [1.5, 5],
+    "130": [1.5, 8.5],
+    "212": [4, 6.5],
+    "330": [2, 9],
+    "030": [1.5, 9],
+    "130d": [9.5, 0.5],
+    "030d": [9.5, 1],
+    "151": [10.5, 9.5],
+    "251": [11, 9.5],
+    "324": [0, 7],
+    "051": [10.5, 10],
+    "151d": [10.5, 4.5],
+    "324d": [0, 0],
+    "162": [8.5, 10.5],
+    "262": [9, 10.5],
+    "335": [6, 8],
+    "035": [5.5, 8],
+    "162d": [3.5, 2.5],
+    "262d": [8, 2.5],
+    "173": [0.5, 9.5],
+    "273": [1, 9.5],
+    "373": [1, 10],
+    "046": [11.5, 7],
+    "046d": [11.5, 0],
+    "273d": [1, 4.5],
+    "157": [11.5, 8.5],
+    "204": [0, 5.5],
+    "304": [0, 5],
+    "057": [11.5, 9],
+    "204d": [0, 4.5],
+    "304d": [0, 6],
+    "160": [11.5, 7.5],
+    "215": [8, 6.5],
+    "315": [8, 7],
+    "015": [7.5, 7],
+    "160d": [2.5, 4.5],
+    "315d": [9, 3],
+    "171": [5.5, 10.5],
+    "271": [6, 10.5],
+    "326": [6, 5],
+    "026": [5.5, 5],
+    "326d": [7, 5],
+    "026d": [4.5, 5],
+    "137": [3.5, 6.5],
+    "202": [0, 7.5],
+    "337": [4, 7],
+    "037": [3.5, 7],
+    "202d": [9, 4.5],
+    "037d": [2.5, 3],
+    "140": [11.5, 5.5],
+    "213": [0, 8.5],
+    "313": [0, 9],
+    "040": [11.5, 5],
+    "140d": [11.5, 4.5],
+    "040d": [11.5, 6],
+    "161": [9.5, 10.5],
+    "261": [10, 10.5],
+    "325": [9, 6],
+    "025": [8.5, 6],
+    "161d": [3.5, 1.5],
+    "325d": [4, 1],
+    "172": [1.5, 10.5],
+    "272": [2, 10.5],
+    "336": [3, 6],
+    "036": [2.5, 6],
+    "036d": [7.5, 1],
+    "272d": [8, 1.5],
+    "147": [4.5, 7.5],
+    "203": [4, 3.5],
+    "303": [4, 4],
+    "047": [4.5, 8],
+    "047d": [8.5, 5],
+    "203d": [8, 4.5],
+    "150": [7.5, 3.5],
+    "214": [7, 7.5],
+    "314": [7, 8],
+    "050": [7.5, 4],
+    "150d": [3.5, 4.5],
+    "314d": [3, 5],
+    "100": [5.5, 5.5],
+    "200": [6, 5.5],
+    "300": [6, 6],
+    "000": [5.5, 6],
+    "100d": [5.5, 8.5],
+    "200d": [6, 8.5],
+    "300d": [6, 10],
+    "000d": [5.5, 10]
+  };
+  
   var importJson;
   var importPng;
 
@@ -80,12 +316,13 @@ $(function() {
             // This quadrant is next to some grid corner. We use some bit patterns to tell which.
             var cornerX = x + ((q&2)==0 ? 1 : 0); 
             var cornerY = y + ((((q+1)&2)==0) ? 0 : 1);
+            
             // Figure out the filled/unfilledness of the 8 spots around this corner
             var aroundCorner = 
-            (wallSolidsAt(cornerX,cornerY)&0xc0)|
-            (wallSolidsAt(cornerX-1, cornerY)&0x03)| 
-            (wallSolidsAt(cornerX-1, cornerY-1)&0x0c)| 
-            (wallSolidsAt(cornerX, cornerY-1)&0x30);
+            (wallSolidsAt(cornerX,cornerY,x==-1 && y==-1,x,y,this)&0xc0)|
+            (wallSolidsAt(cornerX-1, cornerY,x==-1 && y==-1,x,y,this)&0x03)| 
+            (wallSolidsAt(cornerX-1, cornerY-1,x==-1 && y==-1,x,y,this)&0x0c)| 
+            (wallSolidsAt(cornerX, cornerY-1,x==-1 && y==-1,x,y,this)&0x30);
             aroundCorner = aroundCorner|(aroundCorner<<8);
             var startDirection = q*2 + 1; // start pointing through the middle of our own quadrant
             // See how far we can rotate clockwise without falling off the wall
@@ -161,6 +398,7 @@ $(function() {
 
     if(onTop)
       $(tile.topSquare).css({'position': 'absolute', 'display': 'inline-block'});
+    
   }
     
 
@@ -176,6 +414,7 @@ $(function() {
     this.stateChange = fns.stateChange || function() {}; // arbitrary state change happened -- redraw tool state if necessary
     this.getState = fns.getState || function() {};
     this.setState = fns.setState || function() {};
+    this.override = fns.override; //needs to change when shift or ctrl key pressed
   }
   var pencil = new Tool({
     speculateDrag: function(x,y) {
@@ -309,6 +548,7 @@ $(function() {
   }
 
   var rectFill = new Tool({
+    override: true,
     down: function(x,y) {
       this.downX = x;
       this.downY = y;
@@ -329,6 +569,7 @@ $(function() {
   })
 
   var rectOutline = new Tool({
+    override: true,
     down: function(x,y) {
       this.downX = x;
       this.downY = y;
@@ -395,6 +636,7 @@ $(function() {
   }
 
   var circleFill = new Tool({
+    override: true,
     down: function(x,y) {
       this.downX = x;
       this.downY = y;
@@ -415,6 +657,7 @@ $(function() {
   })
 
   var circleOutline = new Tool({
+    override: true,
     down: function(x,y) {
       this.downX = x;
       this.downY = y;
@@ -435,6 +678,7 @@ $(function() {
   })
 
   var fill = new Tool({
+    override: true,
     speculateUp: function(x,y) {
       var targetType = tiles[x][y].type;
 
@@ -449,12 +693,14 @@ $(function() {
         toChange.forEach(function(tile) {
           for (var ix=tile.x-1; ix<=tile.x+1; ix++) {
             for (var iy=tile.y-1; iy<=tile.y+1; iy++) {
-              if (Math.abs(tile.x-ix) + Math.abs(tile.y-iy) == 1&& ix>=0 && iy>=0 && ix<width && iy<height) {
-                var test = tiles[ix][iy];
-                if (test.type == targetType && !inChanged[xy(test)]) {
-                  tempToChange.push(test);
-                  changed.push(new TileState(test, {type: brushTileType}));
-                  inChanged[xy(test)] = true;
+              if((shiftDown && (tile.x!=ix || tile.y!=iy)) || Math.abs(tile.x-ix) + Math.abs(tile.y-iy) == 1) {
+                if (ix>=0 && iy>=0 && ix<width && iy<height) {
+                  var test = tiles[ix][iy];
+                  if (test.type == targetType && !inChanged[xy(test)]) {
+                    tempToChange.push(test);
+                    changed.push(new TileState(test, {type: brushTileType}));
+                    inChanged[xy(test)] = true;
+                  }
                 }
               }
             }
@@ -466,22 +712,60 @@ $(function() {
     }
   })
 
+  var wireCalculatedAffected = {};
   var wire = new Tool({
     type: 'special',
     unselect: function() {
       clearHighlights();
       this.selectedSwitch = null;
     },
+    down: function(x,y) {
+      this.downX = x;
+      this.downY = y;
+      wireCalculatedAffected = {};
+    },
+    up: function(x,y) {
+      this.downX = undefined;
+      this.downY = undefined;
+    },
     stateChange: function() {
       this.refreshHighlights();
     },
     getState: function() {
-      console.log('storing state', this.selectedSwitch && xy(this.selectedSwitch))
+      //console.log('storing state', this.selectedSwitch && xy(this.selectedSwitch))
       return {selectedSwitch: this.selectedSwitch}
     },
     setState: function(state) {
       this.selectedSwitch = state.selectedSwitch;
-      console.log('restored state', this.selectedSwitch && xy(this.selectedSwitch))
+      //console.log('restored state', this.selectedSwitch && xy(this.selectedSwitch))
+    },
+    speculateDrag: function(x,y) {
+      if(this.selectedSwitch && this.selectedSwitch.type == switchType) {
+        var coordinates = rectFn(this.downX===undefined?x:this.downX, this.downY===undefined?y:this.downY, x, y, true);
+        var calculatedTiles = [];
+        
+        if(!this.selectedSwitch.affected) {
+          this.selectedSwitch.affected = {};
+        }
+        var affected = {};
+        for(var key in (this.selectedSwitch.affected||{})) {
+          affected[key] = this.selectedSwitch.affected[key];
+        }
+        
+        for (var i = 0; i < coordinates.length; i++) {
+          var x = coordinates[i].x;
+          var y = coordinates[i].y;
+          var tile = tiles[x][y];
+          if(tile.type == bombType || tile.type == onFieldType || tile.type == offFieldType || tile.type == redFieldType || tile.type == blueFieldType) {
+            var hitKey = xy(tile);          
+            if(affected[hitKey]) delete affected[hitKey];
+            else affected[hitKey] = tile;
+          }
+          calculatedTiles.push(new TileState(tile));
+        }
+        wireCalculatedAffected = affected;
+        return new UndoStep(calculatedTiles);
+      }
     },
     speculateUp: function(x,y) {
       var tile = tiles[x][y];
@@ -498,16 +782,16 @@ $(function() {
       } else if (tile.type == switchType) {
         this.selectedSwitch = tile;
       } else if (this.selectedSwitch && this.selectedSwitch.type == switchType) {
-        var affected = this.selectedSwitch.affected || ( this.selectedSwitch.affected={});
+        /*var affected = this.selectedSwitch.affected || ( this.selectedSwitch.affected={});
         var affected = {};
         for (var key in (this.selectedSwitch.affected||{})) {
-          affected[key] = this.selectedSwitch.affected[key];;
+          affected[key] = this.selectedSwitch.affected[key];
         }
         var hitKey = xy(tile);
         if (affected[hitKey]) delete affected[hitKey];
         else affected[hitKey] = tile;
-        
-        change = new TileState(this.selectedSwitch, {affected: affected});
+        */
+        change = new TileState(this.selectedSwitch, {affected: wireCalculatedAffected});
       }
       return new UndoStep(change ? [change] : []);
     }
@@ -533,24 +817,40 @@ $(function() {
   var clipboardTiles = [];
   var clipboardSource = [[]];
   var clipboard = new Tool({
+    override: true,
     unselect: function() {
       clipboardReady = false;
       clipboardTiles = [];
-      clipbaordSource = [[]];
+      clipboardSource = [[]];
       clearHighlights();
+      clearPotentialHighlights();
     },
     down: function(x,y) {
       this.downX = x;
       this.downY = y;
     },
     speculateDrag: function(x,y) {
-      if(clipboardReady) {
-        var size = clipboardTiles.length;
-        var center = {x: Math.floor((clipboardTiles[size-1].x+clipboardTiles[0].x)/2), y: Math.floor((clipboardTiles[size-1].y+clipboardTiles[0].y)/2)};
-        var changes = [];
-        var count = 0;
-        for(var ix = x-(center.x-clipboardTiles[0].x);ix <= x+(clipboardTiles[size-1].x-center.x);ix++) {
-          for(var iy = y-(center.y-clipboardTiles[0].y);iy <= y+(clipboardTiles[size-1].y-center.y);iy++) {
+      if(!clipboardReady) return false;
+      
+      var size = clipboardTiles.length;
+      var changes = [];
+      var count = 0;
+      if(shiftDown) {
+        var clipWidth = clipboardTiles[size-1].x-clipboardTiles[0].x+1;
+        var clipHeight = clipboardTiles[size-1].y-clipboardTiles[0].y+1;
+        var offset = x-(clipboardTiles[0].x%clipWidth);
+        if(offset<0) offset = clipWidth-Math.abs(offset%clipWidth);
+        else offset %= clipWidth;
+        if(offset>=clipWidth) offset = 0;
+        var left = x-offset;
+        offset = y-(clipboardTiles[0].y%clipHeight);
+        if(offset<0) offset = clipHeight-Math.abs(offset%clipHeight);
+        else offset %= clipHeight;
+        if(offset>=clipHeight) offset = 0;
+        var top = y-offset;
+        
+        for(var ix = left;ix < left+clipWidth;ix++) {
+          for(var iy = top;iy < top+clipHeight;iy++) {
             if (ix>=0 && iy>=0 && ix<width && iy<height) {
               if(!clipboardSource[ix] || !clipboardSource[ix][iy]) {
                 var change = $.extend(true, {}, tiles[clipboardTiles[count].x][clipboardTiles[count].y]);
@@ -563,7 +863,35 @@ $(function() {
           }
         }
         return new UndoStep(changes);
+          
+      } else {
+        if(controlDown) {
+          var center = {x: Math.floor((clipboardTiles[size-1].x+clipboardTiles[0].x)/2), y: Math.floor((clipboardTiles[size-1].y+clipboardTiles[0].y)/2)};
+          for(var i = clipboardTiles[0].x;i <= clipboardTiles[size-1].x;i++) {
+            for(var j = clipboardTiles[0].y;j <= clipboardTiles[size-1].y;j++) {
+              changes.push(new TileState(tiles[i][j], {type: emptyType, redHighlight: true}));
+            }
+          }
+        }
+        var center = {x: Math.floor((clipboardTiles[size-1].x+clipboardTiles[0].x)/2), y: Math.floor((clipboardTiles[size-1].y+clipboardTiles[0].y)/2)};
+        for(var ix = x-(center.x-clipboardTiles[0].x);ix <= x+(clipboardTiles[size-1].x-center.x);ix++) {
+          for(var iy = y-(center.y-clipboardTiles[0].y);iy <= y+(clipboardTiles[size-1].y-center.y);iy++) {
+            if (ix>=0 && iy>=0 && ix<width && iy<height) {
+              if(controlDown || !clipboardSource[ix] || !clipboardSource[ix][iy]) {
+                var change = $.extend(true, {}, tiles[clipboardTiles[count].x][clipboardTiles[count].y]);
+                delete change.x;
+                delete change.y;
+                changes.push(new TileState(tiles[ix][iy], change));
+              }
+            }
+            count++;
+          }
+        }
+        return new UndoStep(changes);
       }
+    },
+    speculateUp: function(x,y) {
+      if(clipboardReady) return false;
       
       var coordinates = rectFn(this.downX===undefined?x:this.downX, this.downY===undefined?y:this.downY, x, y, true);
       var calculatedTiles = [];
@@ -580,21 +908,12 @@ $(function() {
       }
       return new UndoStep(calculatedTiles);
     },
-    speculateUp: function(x,y) {
-      if(clipboardTiles.length>1) return false;
-      
-      var changes = [];
-      for(var i = 0;i < clipboardTiles.length;i++)
-      {
-        changes.push(new TileState(tiles[clipboardTiles[i].x][clipboardTiles[i].y]));
-      }
-      return new UndoStep(changes);
-    },
     up: function(x,y) {
       this.downX = undefined;
       this.downY = undefined;
       
-      if(clipboardTiles.length>1)
+      if(clipboardReady && controlDown && !shiftDown) selectedTool.unselect.call(selectedTool);
+      else if(clipboardTiles.length>1)
       {
         for(var i = 0;i < clipboardTiles.length;i++)
         {
@@ -603,7 +922,143 @@ $(function() {
         clipboardReady = true;
       }
     }
-  })
+  });
+  
+  var addWidth = new Tool({
+    override: true,
+    down: function(x,y) {
+      this.downX = x;
+      this.downY = y;
+    },
+    speculateDrag: function(x,y) {
+      var coordinates = [];
+      if(!this.downX) coordinates.push(x);
+      else {
+        for(var i = 0;i <= Math.abs(x-this.downX);i++) {
+          coordinates.push((x>this.downX) ? this.downX+i : x+i);
+        }
+      }
+      var calculatedTiles = [];
+      for (var i = 0; i < coordinates.length; i++) {
+        for(var j = 0; j < height; j++) {
+          calculatedTiles.push(new TileState(tiles[coordinates[i]][j], {mirror: true, redHighlight: controlDown?true:false}));
+        }
+      }
+      return new UndoStep(calculatedTiles);
+    },
+    up: function(x,y) {
+      var extra = Math.abs(x-this.downX)+1;
+      var start = Math.min(x,this.downX);
+      this.downX = undefined;
+      this.downY = undefined;
+      
+      var canvas = document.createElement('canvas');
+      canvas.height = tiles[0].length;
+      canvas.width = tiles.length+(controlDown?-extra:extra);
+      var ctx = canvas.getContext('2d');
+      
+      if(!controlDown && canvas.width*canvas.height > 3600)
+        addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',2000);
+    
+      var tilemap = [[]];
+      for(var x = 0;x < width;x++) {
+        for(var y = 0;y < height;y++) {
+          if(x<start) {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y};
+          }
+          else {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x+(controlDown?-extra:extra), y: y};
+          }
+        }
+      }
+      
+      var json = transformLogic(makeLogic(),tilemap);
+      var png = getPngBase64Url();
+      var image = new Image();
+      image.src = png;
+      image.onload = function() {
+        $('body').css('cursor','wait');
+        ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = ctx.msImageSmoothinEnabled = false;
+        ctx.drawImage(image,0,0,start,image.height,0,0,start,image.height);
+        ctx.drawImage(image,start+(controlDown?extra:0),0,image.width-start,image.height,start+(controlDown?0:extra),0,image.width-start,image.height);
+        png = canvas.toDataURL();
+        restoreFromPngAndJson(png, makeLogicString(json), false, false);
+      };
+      
+      $('#addWidth').removeClass('active').blur();
+      selectedTool = oldTool;
+    }
+  });
+  
+  var addHeight = new Tool({
+    override: true,
+    down: function(x,y) {
+      this.downX = x;
+      this.downY = y;
+    },
+    speculateDrag: function(x,y) {
+      var coordinates = [];
+      if(!this.downY) coordinates.push(y);
+      else {
+        for(var i = 0;i <= Math.abs(y-this.downY);i++) {
+          coordinates.push((y>this.downY) ? this.downY+i : y+i);
+        }
+      }
+      var calculatedTiles = [];
+      for (var i = 0; i < coordinates.length; i++) {
+        for(var j = 0; j < width; j++) {
+          calculatedTiles.push(new TileState(tiles[j][coordinates[i]], {mirror: true, redHighlight: controlDown?true:undefined}));
+        }
+      }
+      return new UndoStep(calculatedTiles);
+    },
+    up: function(x,y) {
+      var extra = Math.abs(y-this.downY)+1;
+      var start = Math.min(y,this.downY);
+      this.downX = undefined;
+      this.downY = undefined;
+      
+      var canvas = document.createElement('canvas');
+      canvas.height = tiles[0].length+(controlDown?-extra:extra);
+      canvas.width = tiles.length;
+      var ctx = canvas.getContext('2d');
+      
+      if(!controlDown && canvas.width*canvas.height > 3600)
+        addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',2000);
+      
+      var tilemap = [[]];
+      for(var x = 0;x < width;x++) {
+        for(var y = 0;y < height;y++) {
+          if(y<start) {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y};
+          }
+          else {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y+(controlDown?-extra:extra)};
+          }
+        }
+      }
+      
+      var json = transformLogic(makeLogic(),tilemap);
+      var png = getPngBase64Url();
+      var image = new Image();
+      image.src = png;
+      image.onload = function() {
+        $('body').css('cursor','wait');
+        ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = ctx.msImageSmoothinEnabled = false;
+        ctx.drawImage(image,0,0,image.width,start,0,0,image.width,start);
+        ctx.drawImage(image,0,start+(controlDown?extra:0),image.width,image.height-start,0,start+(controlDown?0:extra),image.width,image.height-start);
+        png = canvas.toDataURL();
+        restoreFromPngAndJson(png, makeLogicString(json), false, false);
+      };
+      
+      $('#addHeight').removeClass('active').blur();
+      selectedTool = oldTool;
+    }
+  });
 
   function clearHighlights() {
     $map.find('.selectionIndicator').css('display', 'none');
@@ -671,6 +1126,8 @@ $(function() {
     this.timer = 'timer' in changes ? changes.timer : source.timer;
     this.radius = 'radius' in changes ? changes.radius : source.radius;
     this.weight = 'weight' in changes ? changes.weight : source.weight;
+    this.noHighlight = changes.noHighlight;
+    this.redHighlight = changes.redHighlight;
   }
   TileState.prototype.equals = function(other) {
     if (this.x!=other.x
@@ -692,10 +1149,9 @@ $(function() {
     if(this.topType && this.topType != marsBallType)
     {
       if(this.type==tile.type && tile.type != floorType && tile.type != redFloorType && tile.type != blueFloorType) {
-        /*if(mouseDown)
-          alert('Spawns can only be placed on red, blue, or neutral floor tiles');
-        mouseDown = false;*/
-        delete this.topType;
+        addAlert('danger','Error: You cannot place a spawn tile on top of this type of tile',1500);
+        if(tile.topType) this.topType = tile.topType;
+        else delete this.topType;
       }
       if(tile.topType == marsBallType) {
         marsBallCount--;
@@ -708,10 +1164,9 @@ $(function() {
         if(marsBallCount>2)
         {
           marsBallCount--;
-          /*if(mouseDown)
-            alert('Too many mars balls, only 2 are allowed per map. Remove a mars ball before placing a new one.');
-          mouseDown = false;*/
-          delete this.topType;
+          addAlert('danger','Error: Only 2 mars balls are allowed per map',1500);
+        if(tile.topType) this.topType = tile.topType;
+        else delete this.topType;
         }
       }
     }
@@ -925,7 +1380,7 @@ $(function() {
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
     blueFlagType, redFlagType, switchType, bombType, onFieldType, offFieldType,
-    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedPadType, blueSpeedpadType, redFloorType, blueFloorType,
+    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType,
     spikeType, powerupType, speedpadType,
     yellowFlagType, redEndzoneType, blueEndzoneType;
   
@@ -943,7 +1398,7 @@ $(function() {
     powerupType = new TileType('powerup', 12,7, 0,255,0, "Powerup"),
     speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: 'speedpad'}),
     blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: 'speedpadblue'}),
-    redSpeedPadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'speedpadred'}),
+    redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'speedpadred'}),
     redFloorType = new TileType('redFloor', 14,4, 220,186,186, "Red Speed Tile - Increases speed for non-flag-carriers."),
     blueFloorType = new TileType('blueFloor', 15,4, 187,184,221, "Blue Speed Tile - Increases speed for non-flag-carriers."),
     offFieldType = new TileType('offField', 12,3, 0,117,0, "Gate - Default Off", {logicFn: setFieldFn('off')}),
@@ -980,7 +1435,7 @@ $(function() {
   function isMinusNinetyRotator(t1, t2) {
     t1.minusNinetyRotator = t2;
   }
-  areOpposites(redSpeedPadType, blueSpeedpadType);
+  areOpposites(redSpeedpadType, blueSpeedpadType);
   areOpposites(redFloorType, blueFloorType);
   areOpposites(redFieldType, blueFieldType);
   areOpposites(redFlagType, blueFlagType);
@@ -1008,12 +1463,14 @@ $(function() {
       // clockwise from noon: TR, BR, BL, TL
       this.quadrantElems = [domElem.children[0], domElem.children[1], domElem.children[2],domElem.children[3]];
       
-      this.topSquare = domElem.children[4];
-      this.selectionIndicator = domElem.children[5];
-      this.affectedIndicator = domElem.children[6];
+      if(this.x>=0 && this.y>=0) {
+        this.topSquare = domElem.children[4];
+        this.selectionIndicator = domElem.children[5];
+        this.affectedIndicator = domElem.children[6];
       
-      this.setType(options.type, true, false, true);
-      this.background = elem.parent();
+        this.setType(options.type, true, false, true);
+        this.background = elem.parent();
+      }
     }
   }
   Tile.prototype.set = function(options) {
@@ -1078,8 +1535,15 @@ $(function() {
   function isWall(x, y) {
     return tiles[x] && tiles[x][y] && tiles[x][y].type.isWall();
   }
-  function wallSolidsAt(x,y) {
-    var t = (tiles[x] && tiles[x][y] && tiles[x][y].type.wallSolids|0);
+  function wallSolidsAt(x,y,palette,initx,inity,type) {
+    var t = 0;
+    if(palette) {
+      if(x==initx && y==inity) {
+        t = type.wallSolids|0;
+      }
+    } else {
+      t = (tiles[x] && tiles[x][y] && tiles[x][y].type.wallSolids|0);
+    }
     return t|(t<<8);
   }
   function maybeIsDirtyWall(x, y) {
@@ -1097,13 +1561,14 @@ $(function() {
     dirtyWalls = {};
   }
 
-  var $map = $('#map');
+  var $map = $('#map').attr('oncontextmenu','return false;');
   var $palette = $('#palette');
 
   var height;
   var width;
   var $tiles;
   var tiles;
+  var currPos = {};
 
   function buildTilesWith(types) {
     width = types.length;
@@ -1141,8 +1606,8 @@ $(function() {
 
     cleanDirtyWalls();
 
-    $('#resizeWidth').val(width);
-    $('#resizeHeight').val(height);
+    $('#resizeWidth').text(width);
+    $('#resizeHeight').text(height);
     showZoom();
   }
 
@@ -1228,7 +1693,6 @@ $(function() {
       });
     }
     
-    
     step.states.forEach(function(state) {
       tileChangeMap[xy(state)] = state;
     });
@@ -1242,33 +1706,125 @@ $(function() {
   function setSpeculativeStep(step) {
     applySymmetry(step);
     $.each(step.states, function(idx, state) {
-      tiles[state.x][state.y].highlightWithPotential(true);
+      if(!state.noHighlight) {
+        var color = state.redHighlight ? '#F44A4A' : '#99FF99';
+        tiles[state.x][state.y].elem.find('.potentialHighlight').css('backgroundColor',color);
+        tiles[state.x][state.y].highlightWithPotential(true);
+      }
     });
   }
   
   $map.mouseleave(function(e) {
     //console.log('map left');
   });
+  
+  var clearables = [];
+  function addAlert(type,message,delay) {
+    if(clearables.length>=2) { //max out at 2 alerts on the screen at once
+      $('#alerts :first').remove();
+      clearTimeout(clearables[0]);
+      clearables = clearables.slice(1);
+    }
+    var alert = '<div id="'+(new Date()).getTime()+'"class="alert alert-'+type+'" role="alert" style="margin: auto;">'+message+
+    '<button type="button" class="close" data-dismiss="alert">'+
+    '&times;</button></div>';
+    $('#alerts').append(alert);
+    clearables.push(setTimeout(function() {
+      $('#alerts > :not(.removing):first').addClass('removing').fadeOut('fast',function(){$(this).remove();});
+      clearables = clearables.slice(1);
+    }, delay));
+  }
 
   var controlDown = false;
   var shiftDown = false;
-
+  var oldTitles = {};
+  var toolTips = {toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
+  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 's', 8: 'p', 12: 'n', 13: 'v', 14: 'b', 15: 'j', 16: 'k', 17: 'n', 18: 'm', 19: 'a', 20: 'u', 21: 'i', 22: 'g', 23: 'h', 24: 'l', 25: 'x', 26: 'c', 29: 'd'};
+  var tipsTools = {};
+  var keys = {48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9', 65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z'};
+  for(var id in toolTips) {
+    tipsTools[toolTips[id]] = id;
+  }
+  var permPress = false;
+  var lastKeyPress = 0;
+  var clearable;
+  
+  function override() {
+    if(selectedTool.override && (selectedTool.speculateDrag || selectedTool.speculateUp)) {
+      clearPotentialHighlights();
+      //var st = selectedTool.getState();
+      var st = selectedTool.getState();
+      var change = selectedTool.speculateDrag && selectedTool.speculateDrag(currPos.x,currPos.y);
+      if (!change) {
+        change = selectedTool.speculateUp && selectedTool.speculateUp(currPos.x,currPos.y)
+      }
+      selectedTool.setState(st);
+      if(change) setSpeculativeStep(change);
+    }
+  }
+  
   $(document).keydown(function(e) {
     if(e.which==17) { // control
       controlDown = true;
+      override();
     } else if (e.which==16) {
       shiftDown = true;
+      override();
+    } else if (e.which==18) { //alt key
+      if(permPress) {
+        $('[data-toggle="tooltip"]').tooltip('destroy');
+        permPress = false;
+        return;
+      }
+      var now = new Date();
+      permPress = false;
+      if(now - lastKeyPress <= 300) {
+        clearTimeout(clearable);
+        permPress = true;
+      }
+      lastKeyPress = now;
+      if(!permPress) {
+        $('#tools .btn').each(function(i,tool) {
+          var name = tool.id;
+          if(!oldTitles[name]) oldTitles[name] = $(tool).attr('title');
+          $(tool).attr({'data-toggle': 'tooltip', 'data-trigger': 'manual', 'data-container': 'body', 'title': toolTips[name]});
+        });
+        $('.tilePaletteOption').each(function(i,tile) {
+          if(!toolTips[i]) return;
+          if(!oldTitles[i]) oldTitles[i] = $(tile).attr('title');
+          $(tile).attr({'data-toggle': 'tooltip', 'data-trigger': 'manual', 'data-container': 'body', 'title': toolTips[i]});
+        });
+        $('[data-toggle="tooltip"]').tooltip('show');
+      }
     } else if (e.which==90) { //z
       undo();
     } else if (e.which==89) { //y
       redo();
+    } else if (keys[e.which]) {
+      var tool = tipsTools[keys[e.which]];
+      if($.isNumeric(tool)) {
+        $('.tilePaletteOption').eq(tool).click();
+      } else {
+        $('#'+tool).click();
+      }
     }
   }).keyup(function(e) {
     if (e.which==17) { // control
       controlDown = false;
-    }
-    if (e.which==16) {
+      override();
+    } else if (e.which==16) {
       shiftDown = false;
+      override();
+    } else if (e.which==18 && !permPress) {
+      clearable = setTimeout(function() {
+        $('#tools .btn').each(function(i,tool) {
+          $(tool).tooltip('destroy').attr('title', oldTitles[tool.id]);
+        });
+        $('.tilePaletteOption').each(function(i,tile) {
+          if(!oldTitles[i]) return;
+          $(tile).tooltip('destroy').attr('title', oldTitles[i]);
+        });
+      }, 301);
     }
   });
   
@@ -1278,11 +1834,12 @@ $(function() {
 
   var lineAnchor = null;
 
+  var count = 0;
   var mouseDown = false;
   $map.on('mouseenter', '.tile', function(e) {
 
-    var x = $(this).data('x');
-    var y = $(this).data('y');
+    var x = currPos.x = $(this).data('x');
+    var y = currPos.y = $(this).data('y');
 
     if (!selectedTool) return;
 
@@ -1293,7 +1850,7 @@ $(function() {
         change = selectedTool.speculateUp && selectedTool.speculateUp(x,y)
       }
       selectedTool.setState(st);
-      setSpeculativeStep(change);
+      if(change) setSpeculativeStep(change);
       return;
     }
     })
@@ -1304,10 +1861,10 @@ $(function() {
     .on('mousedown', '.tile', function(e) {
       e.preventDefault();
       if (e.which==1) {
-        if(!e.shiftKey) {
+        if(!e.shiftKey || selectedTool == clipboard) {
           var x = $(this).data('x');
           var y = $(this).data('y');
-          if (!controlDown) {
+          if (!controlDown || selectedTool == clipboard || selectedTool == addWidth || selectedTool == addHeight) {
             mouseDown = true;
           
             selectedTool.down(x,y);
@@ -1326,86 +1883,62 @@ $(function() {
           var y = $(this).data('y');
         
           if (tiles[x][y].type == portalType) {
-            /*var cooldown = parseFloat(prompt("Cooldown time (in seconds):", (tiles[x][y].cooldown>=0) ? tiles[x][y].cooldown : defaultPortalCooldown));
-            if (!(cooldown>=0)) return;*/
-          
             var cooldown = (tiles[x][y].cooldown!=undefined) ? tiles[x][y].cooldown : defaultPortalCooldown;
-            $('#portalCooldown').val('');
-            $('#portalCooldown').attr('placeholder',cooldown);
+            $('#portalCooldown').val('').attr('placeholder',cooldown);
             $('#portalAll').hide();
-            $( "#portalOptions" ).dialog({
-              modal: true,
-              title: 'Portal',
-              buttons: {
-                "Save": function() {
-                  cooldown = parseFloat($('#portalCooldown').val());
-                  $(this).dialog( "close" );
-                  if(!(cooldown>=0)) return;
+            $('#portalOptions .modal-header').css('background-color','#5bc0de');
+            $('#portalOptions').modal('show');
+            setTimeout(function() {$('#portalCooldown').focus();}, 100);
+            $( "#portalSubmit" ).off('click').click(function() {
+              cooldown = parseFloat($('#portalCooldown').val());
+              if(!(cooldown>=0)) return;
                 
-                  var change = new UndoStep([
-                    new TileState(tiles[x][y], {cooldown:cooldown})
-                  ]);
-                  applySymmetry(change);
-                  applyStep(change);
-                }
-              }
+              var change = new UndoStep([
+                new TileState(tiles[x][y], {cooldown:cooldown})
+              ]);
+              applySymmetry(change);
+              applyStep(change);
             });
           } else if (tiles[x][y].type == switchType) {
-            /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
-            if (!timer) return;*/
-          
             var timer = (tiles[x][y].timer!=undefined) ? tiles[x][y].timer : defaultButtonTimer;
-            $('#switchTimer').val('');
-            $('#switchTimer').attr('placeholder',timer);
+            $('#switchTimer').val('').attr('placeholder',timer);
             $('#switchAll').hide();
-            $( "#switchOptions" ).dialog({
-              modal: true,
-              title: 'Button',
-              buttons: {
-                "Save": function() {
-                  timer = parseFloat($('#switchTimer').val());
-                  $(this).dialog( "close" );
-                  if(!timer) return;
+            $('#switchOptions .modal-header').css('background-color','#5bc0de');
+            $('#switchOptions').modal('show');
+            setTimeout(function() {$('#switchTimer').focus();}, 100);
+            $( "#switchSubmit" ).off('click').click(function() {
+              timer = parseFloat($('#switchTimer').val());
+              if(!timer) return;
 
-                  var change = new UndoStep([
-                    new TileState(tiles[x][y], {timer:timer})
-                  ]);
-                  applySymmetry(change);
-                  applyStep(change);
-                }
-              }
+              var change = new UndoStep([
+                new TileState(tiles[x][y], {timer:timer})
+              ]);
+              applySymmetry(change);
+              applyStep(change);
             });
           } else if (tiles[x][y].topType == redSpawnType || tiles[x][y].topType == blueSpawnType) {
-            /*var timer = parseFloat(prompt("Button timer time (in seconds). Input a negative value for permanent buttons:", (!!tiles[x][y].timer) ? tiles[x][y].timer : defaultButtonTimer));
-            if (!timer) return;*/
-          
             var radius = (tiles[x][y].radius!=undefined) ? tiles[x][y].radius : defaultSpawnRadius;
             var weight = (tiles[x][y].weight!=undefined) ? tiles[x][y].weight : defaultSpawnWeight;
-            $('#spawnRadius').val('');
-            $('#spawnRadius').attr('placeholder',radius);
-            $('#spawnWeight').val('');
-            $('#spawnWeight').attr('placeholder',weight);
+            $('#spawnRadius').val('').attr('placeholder',radius);
+            $('#spawnWeight').val('').attr('placeholder',weight);
             $('#spawnAll').hide();
-            $( "#spawnOptions" ).dialog({
-              modal: true,
-              title: 'Spawn Point',
-              buttons: {
-                "Save": function() {
-                  radius = parseFloat($('#spawnRadius').val());
-                  weight = parseFloat($('#spawnWeight').val());
-                  $(this).dialog( "close" );
-                  if(!(radius>=0) && !(weight>=1)) return;
-                  var changes = {};
-                  if(radius>=0) changes.radius = radius;
-                  if(weight>=1) changes.weight = weight;
+            $('#spawnOptions .modal-header').css('background-color','#5bc0de');
+            $('#spawnOptions').modal('show');
+            setTimeout(function() {$('#spawnRadius').focus();}, 100);
+            $( "#spawnSubmit" ).off('click').click(function() {
+              radius = parseFloat($('#spawnRadius').val());
+              weight = parseFloat($('#spawnWeight').val());
+              if(!(radius>=0) && !(weight>=1)) return;
+                  
+              var changes = {};
+              if(radius>=0) changes.radius = radius;
+              if(weight>=1) changes.weight = weight;
                 
-                  var change = new UndoStep([
-                    new TileState(tiles[x][y], changes)
-                  ]);
-                  applySymmetry(change);
-                  applyStep(change);
-                }
-              }
+              var change = new UndoStep([
+                new TileState(tiles[x][y], changes)
+              ]);
+              applySymmetry(change);
+              applyStep(change);
             });
           }
         }
@@ -1413,8 +1946,8 @@ $(function() {
     })
     .on('mousemove', '.tile', function(e) {
       if(e.buttons!=1) mouseDown = false; //can drag outside $map and back in, but mouseDown is not stuck if mouseup occurs outside $map
-      var x = $(this).data('x');
-      var y = $(this).data('y');
+      var x = currPos.x = $(this).data('x');
+      var y = currPos.y = $(this).data('y');
       if (selectedTool && mouseDown) {
         var change = selectedTool.speculateDrag && selectedTool.speculateDrag(x,y);
         if (change) {
@@ -1430,9 +1963,9 @@ $(function() {
     })
     .on('mouseup', '.tile', function(e) {
       if (e.which==1) {
-        var x = $(this).data('x');
-        var y = $(this).data('y');
-        if (controlDown) {
+        var x = currPos.x = $(this).data('x');
+        var y = currPos.y = $(this).data('y');
+        if (controlDown && selectedTool != clipboard && selectedTool != addWidth && selectedTool != addHeight) {
           var eyeDropBrushType = tiles[x][y].type;
           setBrushTileType(eyeDropBrushType);
         } else {
@@ -1448,6 +1981,13 @@ $(function() {
         }
         mouseDown = false;
         cleanDirtyWalls();
+
+        if(++count>=20) {
+          count = 0;
+          localStorage.setItem('png', getPngBase64Url());
+          localStorage.setItem('json', makeLogicString(null,true));
+          addAlert('success','Map auto-saved!',1000);
+        }
       }
     });
 
@@ -1538,11 +2078,6 @@ $(function() {
     $(pngDropArea).attr('download',$('#mapName').val()+'.png').attr('href', getPngBase64Url());
   });
 
-  $('#save').click(function() {
-    localStorage.setItem('png', getPngBase64Url());
-    localStorage.setItem('json', makeLogicString());
-  });
-
   function isValidMapStr() {
     var hasRedFlag = false;
     var hasBlueFlag = false;
@@ -1557,16 +2092,16 @@ $(function() {
       });
     });
     if (!(hasRedSpawn || hasRedFlag))
-      return "A map requires a red flag or a red spawn tile to test.";
+      return "A map requires a red flag or a red spawn tile to test";
     if (!(hasBlueSpawn || hasBlueFlag))
-      return "A map requires a blue flag or a blue spawn tile to test.";
+      return "A map requires a blue flag or a blue spawn tile to test";
     return "Valid";
   }
 
   $('#test, #testeu').click(function(e) {
     var validStr = isValidMapStr();
     if (validStr != "Valid") {
-      alert(validStr);
+      addAlert('danger','Error: '+validStr,2000);
       return false;
     }
     var eu = e.target.id == 'testeu' ? true : false;
@@ -1574,7 +2109,7 @@ $(function() {
       if (data && data.location) {
         window.open(data.location);
       } else {
-        alert("Test couldn't get started.")
+        addAlert('danger','Error: Test couldn\'t get started',2000);
       }
       //console.log('back from test', data)
     });
@@ -1595,7 +2130,7 @@ $(function() {
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
     [spikeType, powerupType, portalType, gravityWellType, marsBallType],
     [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
-    [speedpadType, redSpeedPadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
+    [speedpadType, redSpeedpadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
     [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
   ];
 
@@ -1608,97 +2143,86 @@ $(function() {
         $rowDiv.append($("<div style='width:40px;display:inline-block;'></div>"));
         return;
       }
-      var $button = $("<div class='tileBackground tilePaletteOption' title = '" + type.toolTipText + "'><div class='tile'><div class='tileTypeSelectionIndicator'></div></div></div>");
+      var isWall = false;
+      var toAdd = "<div class='tile'><div class='tileTypeSelectionIndicator'></div></div>";
+      if(type==wallType || type==wallTopLeftType || type==wallTopRightType || type==wallBottomLeftType || type==wallBottomRightType) {
+        isWall = true;
+        toAdd = "<div class='tileQuadrant nestedSquareTR'></div>" +
+        "<div class='tileQuadrant nestedSquareBR'></div>" +
+        "<div class='tileQuadrant nestedSquareBL'></div>" +
+        "<div class='tileQuadrant nestedSquareTL'></div>" +
+        "<div class='tileTypeSelectionIndicator' style='position: absolute;'></div>";
+      }
+      var $button = $("<div class='tileBackground tilePaletteOption' title = '" + type.toolTipText + "'>"+toAdd+"</div>");
       $button.data('tileType', type);
-      type.drawOn($button.find('.tile'));
+      var tile;
+      if(isWall)
+        tile = new Tile({x: -1, y: -1, type: type}, $button);
+      type.drawOn($button.find('.tile'), tile);
       $button.click('click', function(e) {
         if (selectedTool == wire || selectedTool == clipboard) {
           $('#toolPencil').trigger('click');
         }
         setBrushTileType(type);
-        //}).mousedown(function(e) {
-        //if(e.which==3)
         if(e.shiftKey)
         {
           if (type == portalType) {
-            /*var cooldown = parseFloat(prompt("Change all portals to new default cooldown time (in seconds):", defaultPortalCooldown));
-            if (!(cooldown>=0)) return;*/
-            
             var cooldown = defaultPortalCooldown;
-            $('#portalCooldown').val('');
-            $('#portalCooldown').attr('placeholder',cooldown);
+            $('#portalCooldown').val('').attr('placeholder',cooldown);
             $('#portalAll').show();
-            $( "#portalOptions" ).dialog({
-              modal: true,
-              title: 'All Portals',
-              buttons: {
-                "Save": function() {
-                  cooldown = parseFloat($('#portalCooldown').val());
-                  $(this).dialog( "close" );
-                  if(!(cooldown>=0)) return;
-                
+            $('#portalOptions .modal-header').css('background-color','#428bca');
+            $('#portalOptions').modal('show');
+            setTimeout(function() {$('#portalCooldown').focus();}, 100);
+            $( "#portalSubmit" ).off('click').click(function() {
+              cooldown = parseFloat($('#portalCooldown').val());
+              if(!(cooldown>=0)) return;
             
-                  defaultPortalCooldown = cooldown;
-                  if($(this).find('input:checked').val()=='all')
-                    applyLargeStep(type, {cooldown: cooldown});
-                }
-              }
+              defaultPortalCooldown = cooldown;
+              if($('#portalOptions').find('input:checked').val()=='all')
+                applyLargeStep(type, {cooldown: undefined});
             });
           } else if (type == switchType) {
-            /*var timer = parseFloat(prompt("Change all buttons to new default button timer time (in seconds). Input a negative value for permanent buttons:", defaultButtonTimer));
-            if (!timer) return;*/
-            
             var timer = defaultButtonTimer;
-            $('#switchTimer').val('');
-            $('#switchTimer').attr('placeholder',timer);
+            $('#switchTimer').val('').attr('placeholder',timer);
             $('#switchAll').show();
-            $( "#switchOptions" ).dialog({
-              modal: true,
-              title: 'All Button',
-              buttons: {
-                "Save": function() {
-                  timer = parseFloat($('#switchTimer').val());
-                  $(this).dialog( "close" );
-                  if(!timer) return;
+            $('#switchOptions .modal-header').css('background-color','#428bca');
+            $('#switchOptions').modal('show');
+            setTimeout(function() {$('#switchTimer').focus();}, 100);
+            $( "#switchSubmit" ).off('click').click(function() {
+              timer = parseFloat($('#switchTimer').val());
+              if(!timer) return;
                   
-                  defaultButtonTimer = timer;
-                  if($(this).find('input:checked').val()=='all')
-                    applyLargeStep(type, {timer: timer});
-                }
-              }
+              defaultButtonTimer = timer;
+              if($('#switchOptions').find('input:checked').val()=='all')
+                applyLargeStep(type, {timer: undefined});
             });
           } else if (type == redSpawnType || type == blueSpawnType) {
             var radius = defaultSpawnRadius;
             var weight = defaultSpawnWeight;
-            $('#spawnRadius').val('');
-            $('#spawnRadius').attr('placeholder',radius);
-            $('#spawnWeight').val('');
-            $('#spawnWeight').attr('placeholder',weight);
+            $('#spawnRadius').val('').attr('placeholder',radius);
+            $('#spawnWeight').val('').attr('placeholder',weight);
             $('#spawnAll').show();
-            $( "#spawnOptions" ).dialog({
-              modal: true,
-              title: 'All Spawn Points',
-              buttons: {
-                "Save": function() {
-                  radius = parseFloat($('#spawnRadius').val());
-                  weight = parseFloat($('#spawnWeight').val());
-                  $(this).dialog( "close" );
-                  if(!(radius>=0) && !(weight>=1)) return;
-                  var changes = {};
-                  if(radius>=0) {
-                    defaultSpawnRadius = radius;
-                    changes.radius = radius;
-                  }
-                  if(weight>=1) {
-                    defaultSpawnWeight = weight;
-                    changes.weight = weight;
-                  }
+            $('#spawnOptions .modal-header').css('background-color','#428bca');
+            $('#spawnOptions').modal('show');
+            setTimeout(function() {$('#spawnRadius').focus();}, 100);
+            $( "#spawnSubmit" ).off('click').click(function() {
+              radius = parseFloat($('#spawnRadius').val());
+              weight = parseFloat($('#spawnWeight').val());
+              if(!(radius>=0) && !(weight>=1)) return;
+              
+              var changes = {};
+              if(radius>=0) {
+                defaultSpawnRadius = radius;
+                changes.radius = undefined;
+              }
+              if(weight>=1) {
+                defaultSpawnWeight = weight;
+                changes.weight = undefined;
+              }
                   
-                  if($(this).find('input:checked').val()=='all') {
-                    applyLargeStep(redSpawnType, changes);
-                    applyLargeStep(blueSpawnType, changes);
-                  }
-                }
+              if($('#spawnOptions').find('input:checked').val()=='all') {
+                applyLargeStep(redSpawnType, changes);
+                applyLargeStep(blueSpawnType, changes);
               }
             });
           }
@@ -1723,13 +2247,15 @@ $(function() {
   $('#toolClipboard').data('tool', clipboard);
   $('#tools .btn').click(function() {
     selectedTool.unselect.call(selectedTool);
+    $('#addWidth,#addHeight').removeClass('active').blur();
     $('#tools .btn').removeClass('active');
     $(this).toggleClass('active');
     selectedTool = $(this).data('tool');
     selectedTool.select.call(selectedTool);
-  })
+  });
 
   var selectedTool = pencil;
+  var oldTool = pencil;
   $('#toolPencil').toggleClass("active");
 //  $('#toolPencil').trigger('click');
 
@@ -1972,8 +2498,11 @@ $(function() {
     }
   });
 
-  function makeLogicString(json) {
-    return JSON.stringify(json || makeLogic(), null, 2);
+  function makeLogicString(json,notpretty) {
+    if(notpretty)
+      return JSON.stringify(json || makeLogic());
+    else
+      return JSON.stringify(json || makeLogic(), null, 2);
   }
   
   function transformLogic(json,tilemap,tilemap2) {
@@ -2119,80 +2648,114 @@ $(function() {
     $(this).toggleClass('active');
   });
   $('#resize').click(function(e) {
-    $resizeWidthTo.val('');
-    $resizeWidthTo.attr('placeholder',tiles.length);
-    $resizeHeightTo.val('');
-    $resizeHeightTo.attr('placeholder',tiles[0].length);
-    $('#resizeDialog a').removeClass('active');
+    $resizeWidthTo.val('').attr('placeholder',tiles.length);
+    $resizeHeightTo.val('').attr('placeholder',tiles[0].length);
+    setTimeout(function(){$resizeWidthTo.focus();},100);
+    e.preventDefault();
+  });
     
-    $( "#resizeDialog" ).dialog({
-      height: 300,
-      modal: true,
-      buttons: {
-        "Resize": function() {
-          var oldWidth = tiles.length;
-          var oldHeight = tiles[0].length;
+  $('#resizeSubmit').click(function(e) {
+    var oldWidth = tiles.length;
+    var oldHeight = tiles[0].length;
           
-          var width = parseInt($resizeWidthTo.val(),10);
-          var height = parseInt($resizeHeightTo.val(),10);
-          if(width==undefined) width = oldWidth;
-          if(height==undefined) height = oldHeight;
+    var width = parseInt($resizeWidthTo.val(),10);
+    var height = parseInt($resizeHeightTo.val(),10);
+    if(width==undefined) width = oldWidth;
+    if(height==undefined) height = oldHeight;
           
-          function getDelta(oldSize, newSize, anchorMin, anchorMax) {
-            if (anchorMin < anchorMax) {
-              return 0;
-            } else if (anchorMin > anchorMax) {
-              return newSize-oldSize;
-            } else {
-              return Math.round((newSize-oldSize)/2);
-            }
-          }
-          var deltaX = getDelta(oldWidth, width, $resizeAnchorLeft.hasClass('active'), $resizeAnchorRight.hasClass('active'));
-          var deltaY = getDelta(oldHeight, height, $resizeAnchorTop.hasClass('active'), $resizeAnchorBottom.hasClass('active'));
-          if (width * height > 3600) {
-            if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
-              $('#resizeWidth').val(tiles.length);
-              $('#resizeHeight').val(tiles[0].length);
-              e.preventDefault();
-              return;
-            }
-          } else if ( width < 1 || height < 1) {
-            alert('Min width/height is 1.');
-            width = Math.max(1, width);
-            height = Math.max(1, height);
-          }
-          resizeTo(width, height, deltaX,deltaY);
-          console.log('resizing to',width,height);
-          $(this).dialog( "close" );
-        }
+    function getDelta(oldSize, newSize, anchorMin, anchorMax) {
+      if (anchorMin < anchorMax) {
+        return 0;
+      } else if (anchorMin > anchorMax) {
+        return newSize-oldSize;
+      } else {
+        return Math.round((newSize-oldSize)/2);
       }
-    });
-    
+    }
+    var deltaX = getDelta(oldWidth, width, $resizeAnchorLeft.hasClass('active'), $resizeAnchorRight.hasClass('active'));
+    var deltaY = getDelta(oldHeight, height, $resizeAnchorTop.hasClass('active'), $resizeAnchorBottom.hasClass('active'));
+          
+    $('body').css('cursor','wait');
+    var delay = 0;
+    if (width * height > 3600) {
+      delay = 2000;
+      addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',delay);
+      /*if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
+        $('#resizeWidth').text(tiles.length);
+        $('#resizeHeight').text(tiles[0].length);
+        e.preventDefault();
+        return;
+      }*/
+    } else if ( width < 1 || height < 1) {
+      delay = 2000;
+      addAlert('warning','Warning: The minimum width and height are 1, any smaller values have been changed to 1',delay);
+      width = Math.max(1, width);
+      height = Math.max(1, height);
+    }
+    setTimeout(function() {
+      resizeTo(width, height, deltaX, deltaY);
+      console.log('resizing to',width,height);
+    }, delay);
     e.preventDefault();
   });
   
-  $('#resizeDialog input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER){
-      e.preventDefault();
-      $(this).parents('div').last().find('button:last').click();
+  $('#addWidth').click(function() {
+    $(this).toggleClass('active');
+    if($(this).hasClass('active')) {
+      if(selectedTool != addHeight)
+        oldTool = selectedTool;
+      $('#addHeight').removeClass('active');
+      selectedTool.unselect.call(selectedTool);
+      selectedTool = addWidth;
+    } else {
+      $(this).blur();
+      selectedTool = oldTool;
     }
   });
-  $('#portalOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER){
-      e.preventDefault();
-      $(this).parents('div').last().find('button:last').click();
+  $('#addHeight').click(function() {
+    $(this).toggleClass('active');
+    if($(this).hasClass('active')) {
+      if(selectedTool != addWidth)
+        oldTool = selectedTool;
+      $('#addWidth').removeClass('active');
+      selectedTool.unselect.call(selectedTool);
+      selectedTool = addHeight;
+    } else {
+      $(this).blur();
+      selectedTool = oldTool;
     }
   });
-  $('#switchOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER){
+  
+  var enterKey = 13;
+  $('#importExport').on('keydown',function(e){
+    e.stopPropagation();
+  });
+  $('#resizeDialog').on('keydown',function(e){
+    e.stopPropagation();
+    if(e.keyCode == enterKey){
       e.preventDefault();
-      $(this).parents('div').last().find('button:last').click();
+      $(this).find('button:last').click();
     }
   });
-  $('#spawnOptions input').on('keydown',function(e){
-    if(e.keyCode == $.ui.keyCode.ENTER){
+  $('#portalOptions').on('keydown',function(e){
+    e.stopPropagation();
+    if(e.keyCode == enterKey){
       e.preventDefault();
-      $(this).parents('div').last().find('button:last').click();
+      $(this).find('button:last').click();
+    }
+  });
+  $('#switchOptions').on('keydown',function(e){
+    e.stopPropagation();
+    if(e.keyCode == enterKey){
+      e.preventDefault();
+      $(this).find('button:last').click();
+    }
+  });
+  $('#spawnOptions').on('keydown',function(e){
+    e.stopPropagation();
+    if(e.keyCode == enterKey){
+      e.preventDefault();
+      $(this).find('button:last').click();
     }
   });
   
@@ -2244,6 +2807,7 @@ $(function() {
     if (confirm('Are you sure you want to clear the map?')) {
       clearMap();
     }
+    $(this).blur();
   });
   
   function enableZoomButtons() {
@@ -2404,36 +2968,33 @@ $(function() {
     };
   }
   $('#mirrorOptions a').click(function() {
-    $('#mirrorOptions a').removeClass('active');
-    $(this).toggleClass('active');
-  });
+      $('#mirrorOptions a').removeClass('active');
+      $(this).toggleClass('active');
+    });
   $('#mirror').click(function(e) {
     $('#mirrorOptions a').removeClass('active');
-    $( "#mirrorOptions" ).dialog({
-      modal: true,
-      buttons: {
-        "Mirror": function() {
-          if(!$(this).find('a.active').length)
-          {
-            $(this).dialog('close');
-            return;
-          }
-          var type = JSON.parse($(this).find('a.active').attr('value')); //[-2,0] = mirror on right, [-1,0] = left, [0,-1] = up, [0,-2] = down
-          var width = tiles.length * (type[0] ? 2 : 1);
-          var height = tiles[0].length * (type[1] ? 2 : 1);
-          if (width * height > 3600) {
-            if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
-              e.preventDefault();
-              $(this).dialog('close');
-              return;
-            }
-          }
-          mirrorMap(type);
-          $(this).dialog('close');
-        }
-      }
-    });
     e.preventDefault();
+  });
+  $( "#mirrorSubmit" ).click(function(e) {
+    if(!$('a.mirror-dir.active').length) return;
+    var type = JSON.parse($('a.mirror-dir.active').attr('value')); //[-2,0] = mirror on right, [-1,0] = left, [0,-1] = up, [0,-2] = down
+    var width = tiles.length * (type[0] ? 2 : 1);
+    var height = tiles[0].length * (type[1] ? 2 : 1);
+    if (width * height > 3600) {
+      addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',2000);
+      /*if (!confirm('It\'s currently not possible to test maps larger than 3600 tiles.\nVery large maps can (will) lag your browser as well.\nAre you sure you want to resize?')) {
+        e.preventDefault();
+        return;
+      }*/
+    }
+    mirrorMap(type);
+    e.preventDefault();
+  });
+  $('#mirrorOptions').on('keydown',function(e){
+    if(e.keyCode == 13){
+      e.preventDefault();
+      $(this).find('button:last').click();
+    }
   });
   
   $('#dropHelp').click(function() {
@@ -2441,244 +3002,117 @@ $(function() {
       "Drag a .png file and a .json file from your file manager onto their respective squares. When both are added, hit Import to apply them to the current map.\n\n" +
       "Exporting Map:\n" +
       "Hit Export. The .png and .json files can then be dragged or clicked from their respective squares.")
-  })
+  });
   
-  var savedPng = localStorage.getItem('png')
-  var savedJson = localStorage.getItem('json')
+  window.addEventListener("beforeunload", function (e) {
+    localStorage.setItem('png', getPngBase64Url());
+    localStorage.setItem('json', makeLogicString(null,true));
+    addAlert('success','Map auto-saved!',1000);
+  });
+  
+  function formatDate(date) {
+    var myDate = new Date();
+    var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ampm;
+    //"13 Jan 2012 11:00am";
+    return date.getDate()+" "+month[date.getMonth()]+" "+date.getFullYear()+" "+strTime;
+  }
+  
+  $('.slot').click(function() {
+    var old = $(this).hasClass('active');
+    $('.slot').removeClass('active');
+    if(!old) {
+      $(this).addClass('active');
+      if($(this).hasClass('empty')) {
+        $('.slot-buttons').children().addClass('disabled');
+        $('#saveToSlot').removeClass('disabled');
+      } else {
+        $('.slot-buttons').children().removeClass('disabled');
+      }
+    } else {
+      $('.slot-buttons').children().addClass('disabled');
+    }
+  });
+  $('.slot button').click(function(e) {
+    e.stopPropagation();
+    var slot = $(this).closest('.slot');
+    var a = document.createElement('a');
+    var type = $(this).is(':first-child') ? 'png' : 'json';
+    var json = makeLogic();
+    a.href = slot.data(type);
+    if(type==='json')
+      a.href = 'data:application/json;base64,' + Base64.encode(makeLogicString(JSON.parse(slot.data(type))));
+    a.download = json.info.name+'.'+type;
+    a.click();
+    $(this).blur();
+  });
+  
+  $('#editSlot').click(function() {
+    var slot = $('.slot.active');
+    restoreFromPngAndJson(slot.data('png'), slot.data('json'));
+    $(this).blur();
+    $('#saveDialog').modal('hide');
+  });
+  $('#saveToSlot').click(function() {
+    var which = $('.slot.active').attr('id').slice(-1);
+    var confirmed = true;
+    if(!$('.slot.active').hasClass('empty')) {
+      confirmed = confirm('Are you sure you want to overwrite the map already saved in this slot? This cannot be undone!');
+    }
+    if(confirmed) {
+      var png = getPngBase64Url();
+      var json = makeLogic();
+      var title = json.info.name;
+      var now = formatDate(new Date());
+      var slot = $('#slot'+which).removeClass('empty').data('png',png).data('json',makeLogicString(json,true));
+      slot.find('p:first').css('color','#333').text(json.info.name || 'Unititled');
+      slot.find('p:last').text(now || 'Unknown');
+      slot.find('button').removeClass('disabled');
+      localStorage.setItem('png'+which, png);
+      localStorage.setItem('json'+which, makeLogicString(json,true));
+      localStorage.setItem('title'+which, title);
+      localStorage.setItem('date'+which, now);
+      addAlert('success','Map successfully saved to slot '+which+'!',1000);
+      $('.slot-buttons').children().removeClass('disabled');
+    }
+    $(this).blur();
+  });
+  $('#clearSlot').click(function() {
+    if(confirm('Are you sure you want to clear this slot? This cannot be undone!')) {
+      var which = $('.slot.active').attr('id').slice(-1);
+      var slot = $('.slot.active').addClass('empty').removeClass('active').removeData('png').removeData('json');
+      slot.find('p:first').css('color','#888').text('Empty');
+      slot.find('p:last').text('');
+      slot.find('button').addClass('disabled');
+      $('.slot-buttons').children().addClass('disabled');
+      localStorage.removeItem('png'+which);
+      localStorage.removeItem('json'+which);
+      localStorage.removeItem('title'+which);
+      localStorage.removeItem('date'+which);
+    }
+    $(this).blur();
+  });
+  
+  var slotCount = 3;
+  for(var i = 1;i <= slotCount;i++) {
+    var savedPng = localStorage.getItem('png'+i);
+    var savedJson = localStorage.getItem('json'+i);
+    var savedTitle = localStorage.getItem('title'+i);
+    var savedDate = localStorage.getItem('date'+i);
+    if(savedPng && savedJson) {
+      var slot = $('#slot'+i).removeClass('empty').data('png',savedPng).data('json',savedJson);
+      slot.find('p:first').css('color','#333').text(savedTitle || 'Unititled');
+      slot.find('p:last').text(savedDate || 'Unknown');
+      slot.find('button').removeClass('disabled');
+    }
+  }
+  var savedPng = localStorage.getItem('png');
+  var savedJson = localStorage.getItem('json');
   restoreFromPngAndJson(savedPng, savedJson, undefined, true);
-  
-  var quadrantCoords = {
-    "132": [10.5, 7.5],
-    "232": [11, 7.5],
-    "332": [11, 8],
-    "032": [10.5, 8],
-    "132d": [0.5, 3.5],
-    "232d": [1, 3.5],
-    "032d": [0.5, 4],
-    "143": [4.5, 9.5],
-    "243": [5, 9.5],
-    "343": [5, 10],
-    "043": [4.5, 10],
-    "143d": [1.5, 2.5],
-    "243d": [2, 2.5],
-    "043d": [1.5, 3],
-    "154": [6.5, 9.5],
-    "254": [7, 9.5],
-    "354": [7, 10],
-    "054": [6.5, 10],
-    "154d": [9.5, 2.5],
-    "254d": [10, 2.5],
-    "354d": [10, 3],
-    "165": [0.5, 7.5],
-    "265": [1, 7.5],
-    "365": [1, 8],
-    "065": [0.5, 8],
-    "165d": [10.5, 3.5],
-    "265d": [11, 3.5],
-    "365d": [11, 4],
-    "176": [1.5, 6.5],
-    "276": [2, 6.5],
-    "376": [2, 7],
-    "076": [1.5, 7],
-    "276d": [9, 1.5],
-    "376d": [9, 2],
-    "076d": [8.5, 2],
-    "107": [6.5, 8.5],
-    "207": [7, 8.5],
-    "307": [7, 9],
-    "007": [6.5, 9],
-    "207d": [11, 1.5],
-    "307d": [11, 2],
-    "007d": [10.5, 2],
-    "110": [4.5, 8.5],
-    "210": [5, 8.5],
-    "310": [5, 9],
-    "010": [4.5, 9],
-    "110d": [0.5, 1.5],
-    "310d": [1, 2],
-    "010d": [0.5, 2],
-    "121": [9.5, 6.5],
-    "221": [10, 6.5],
-    "321": [10, 7],
-    "021": [9.5, 7],
-    "121d": [2.5, 1.5],
-    "321d": [3, 2],
-    "021d": [2.5, 2],
-    "142": [1.5, 7.5],
-    "242": [2, 7.5],
-    "042": [1.5, 8],
-    "142d": [10.5, 0.5],
-    "242d": [11, 0.5],
-    "042d": [10.5, 1],
-    "153": [5.5, 6.5],
-    "253": [6, 6.5],
-    "353": [6, 7],
-    "053": [5.5, 7],
-    "153d": [5.5, 0.5],
-    "253d": [6, 0.5],
-    "164": [9.5, 7.5],
-    "264": [10, 7.5],
-    "364": [10, 8],
-    "164d": [0.5, 0.5],
-    "264d": [1, 0.5],
-    "364d": [1, 1],
-    "175": [4.5, 5.5],
-    "275": [5, 5.5],
-    "375": [5, 6],
-    "075": [4.5, 6],
-    "275d": [7, 1.5],
-    "375d": [7, 2],
-    "206": [4, 9.5],
-    "306": [4, 10],
-    "006": [3.5, 10],
-    "206d": [2, 3.5],
-    "306d": [2, 4],
-    "006d": [1.5, 4],
-    "117": [5.5, 2.5],
-    "217": [6, 2.5],
-    "317": [6, 4],
-    "017": [5.5, 4],
-    "317d": [6, 3],
-    "017d": [5.5, 3],
-    "120": [7.5, 9.5],
-    "320": [8, 10],
-    "020": [7.5, 10],
-    "120d": [9.5, 3.5],
-    "320d": [10, 4],
-    "020d": [9.5, 4],
-    "131": [6.5, 5.5],
-    "231": [7, 5.5],
-    "331": [7, 6],
-    "031": [6.5, 6],
-    "131d": [4.5, 1.5],
-    "031d": [4.5, 2],
-    "141": [7.5, 8.5],
-    "241": [8, 8.5],
-    "323": [4, 5],
-    "041": [7.5, 9],
-    "141d": [8.5, 3.5],
-    "041d": [8.5, 4],
-    "152": [8.5, 7.5],
-    "252": [9, 7.5],
-    "334": [2, 0],
-    "052": [8.5, 8],
-    "152d": [3.5, 0.5],
-    "252d": [4, 0.5],
-    "163": [2.5, 7.5],
-    "263": [3, 7.5],
-    "363": [3, 8],
-    "045": [9.5, 0],
-    "163d": [7.5, 0.5],
-    "263d": [8, 0.5],
-    "174": [3.5, 8.5],
-    "274": [4, 8.5],
-    "374": [4, 9],
-    "056": [7.5, 5],
-    "274d": [3, 3.5],
-    "374d": [3, 4],
-    "167": [7.5, 6.5],
-    "205": [10, 8.5],
-    "305": [10, 9],
-    "005": [9.5, 9],
-    "205d": [2, 0.5],
-    "305d": [2, 1],
-    "170": [6.5, 7.5],
-    "216": [9, 9.5],
-    "316": [9, 10],
-    "016": [8.5, 10],
-    "316d": [10, 5],
-    "016d": [9.5, 5],
-    "127": [2.5, 9.5],
-    "201": [5, 7.5],
-    "327": [3, 10],
-    "027": [2.5, 10],
-    "327d": [2, 5],
-    "027d": [1.5, 5],
-    "130": [1.5, 8.5],
-    "212": [4, 6.5],
-    "330": [2, 9],
-    "030": [1.5, 9],
-    "130d": [9.5, 0.5],
-    "030d": [9.5, 1],
-    "151": [10.5, 9.5],
-    "251": [11, 9.5],
-    "324": [0, 7],
-    "051": [10.5, 10],
-    "151d": [10.5, 4.5],
-    "324d": [0, 0],
-    "162": [8.5, 10.5],
-    "262": [9, 10.5],
-    "335": [6, 8],
-    "035": [5.5, 8],
-    "162d": [3.5, 2.5],
-    "262d": [8, 2.5],
-    "173": [0.5, 9.5],
-    "273": [1, 9.5],
-    "373": [1, 10],
-    "046": [11.5, 7],
-    "046d": [11.5, 0],
-    "273d": [1, 4.5],
-    "157": [11.5, 8.5],
-    "204": [0, 5.5],
-    "304": [0, 5],
-    "057": [11.5, 9],
-    "204d": [0, 4.5],
-    "304d": [0, 6],
-    "160": [11.5, 7.5],
-    "215": [8, 6.5],
-    "315": [8, 7],
-    "015": [7.5, 7],
-    "160d": [2.5, 4.5],
-    "315d": [9, 3],
-    "171": [5.5, 10.5],
-    "271": [6, 10.5],
-    "326": [6, 5],
-    "026": [5.5, 5],
-    "326d": [7, 5],
-    "026d": [4.5, 5],
-    "137": [3.5, 6.5],
-    "202": [0, 7.5],
-    "337": [4, 7],
-    "037": [3.5, 7],
-    "202d": [9, 4.5],
-    "037d": [2.5, 3],
-    "140": [11.5, 5.5],
-    "213": [0, 8.5],
-    "313": [0, 9],
-    "040": [11.5, 5],
-    "140d": [11.5, 4.5],
-    "040d": [11.5, 6],
-    "161": [9.5, 10.5],
-    "261": [10, 10.5],
-    "325": [9, 6],
-    "025": [8.5, 6],
-    "161d": [3.5, 1.5],
-    "325d": [4, 1],
-    "172": [1.5, 10.5],
-    "272": [2, 10.5],
-    "336": [3, 6],
-    "036": [2.5, 6],
-    "036d": [7.5, 1],
-    "272d": [8, 1.5],
-    "147": [4.5, 7.5],
-    "203": [4, 3.5],
-    "303": [4, 4],
-    "047": [4.5, 8],
-    "047d": [8.5, 5],
-    "203d": [8, 4.5],
-    "150": [7.5, 3.5],
-    "214": [7, 7.5],
-    "314": [7, 8],
-    "050": [7.5, 4],
-    "150d": [3.5, 4.5],
-    "314d": [3, 5],
-    "100": [5.5, 5.5],
-    "200": [6, 5.5],
-    "300": [6, 6],
-    "000": [5.5, 6],
-    "100d": [5.5, 8.5],
-    "200d": [6, 8.5],
-    "300d": [6, 10],
-    "000d": [5.5, 10]
-  };
 });
