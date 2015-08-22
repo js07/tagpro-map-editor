@@ -1642,6 +1642,10 @@ $(function() {
 
     $('#resizeWidth').text(width);
     $('#resizeHeight').text(height);
+		
+    $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
+    $("div.tileBackground").css("background-position", "-520px -160px");
+    $("div.tileQuadrant").css('background-image', $("#tiles").attr('url'));
     showZoom();
   }
 
@@ -2145,8 +2149,8 @@ $(function() {
       $.each(row, function(tileIdx, tile) {
         if (tile.type.name == "redFlag") hasRedFlag = true;
         if (tile.type.name == "blueFlag") hasBlueFlag = true;
-        if (tile.type.name == "redSpawn" || tile.topType.name == "redSpawn") hasRedSpawn = true;
-        if (tile.type.name == "blueSpawn" || tile.topType.name == "blueSpawn") hasBlueSpawn = true;
+        if (tile.type.name == "redSpawn" || (tile.topType && tile.topType.name == "redSpawn")) hasRedSpawn = true;
+        if (tile.type.name == "blueSpawn" || (tile.topType && tile.topType.name == "blueSpawn")) hasBlueSpawn = true;
       });
     });
     if (!(hasRedSpawn || hasRedFlag))
