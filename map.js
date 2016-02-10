@@ -2112,7 +2112,7 @@ $(function() {
   }
 
   function getPngBase64() {
-    return Base64.encode(generatePng(width, height, createPng()));
+    return btoa(generatePng(width, height, createPng()));
   }
   
   function getPngBase64Url() {
@@ -2342,7 +2342,7 @@ $(function() {
 
   jsonDropArea.addEventListener("dragstart",function(evt){
     evt.dataTransfer.setData("DownloadURL",
-      'data:application/json;base64,' + Base64.encode(makeLogicString()));
+      'data:application/json;base64,' + btoa(makeLogicString()));
     return false;
   },false);
 
@@ -3135,7 +3135,7 @@ $(function() {
     var json = makeLogic();
     a.href = slot.data(type);
     if(type==='json')
-      a.href = 'data:application/json;base64,' + Base64.encode(makeLogicString(JSON.parse(slot.data(type))));
+      a.href = 'data:application/json;base64,' + btoa(makeLogicString(JSON.parse(slot.data(type))));
     a.download = json.info.name+'.'+type;
     a.click();
     $(this).blur();
