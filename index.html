@@ -184,24 +184,39 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="gameMode">Game Mode</label>
-            <label class="radioLabel">
-              <input type="radio" name="gameMode" class="form-control" id="normalMode" value="normal" checked /><span class="radioSpan">Normal</span>
-            </label>
-            <label class="radioLabel">
-              <input type="radio" name="gameMode" class="form-control" id="gravityMode" value="gravity"><span class="radioSpan">Gravity</span>
-            </label>
-            <label class="radioLabel">
-              <input type="radio" name="gameMode" class="form-control" id="gravityCTFMode" value="gravityCTF"><span class="radioSpan">GravityCTF</spawn>
-            </label>
-          </div>
-          <div class="form-group">
             <label for="mapName">Map Name</label>
             <input type="text" class="form-control" id="mapName" placeholder="Untitled">
           </div>
           <div class="form-group">
             <label for="author">Map Author</label>
             <input type="text" class="form-control" id="author" placeholder="Anonymous">
+          </div>
+          <div class="form-group">
+            <label>Map Settings</label>
+            <div>
+              <label class="radioLabel" title="Red versus blue, no gravity">
+                <input type="radio" name="gameMode" class="form-control" id="normalMode" value="normal" checked /><span class="radioSpan">Normal</span>
+              </label>
+              <label class="radioLabel" title="Free-for-all, gravity enabled">
+                <input type="radio" name="gameMode" class="form-control" id="gravityMode" value="gravity"><span class="radioSpan">Gravity</span>
+              </label>
+              <label class="radioLabel" title="Red versus blue, gravity enabled">
+                <input type="radio" name="gameMode" class="form-control" id="gravityCTFMode" value="gravityCTF"><span class="radioSpan">Team Gravity</spawn>
+              </label>
+            </div>
+            <div>
+              <label class="radioLabel" style="width: auto" title="Hold time limit for any potatoes in milliseconds">
+                Potato Timer (milliseconds): <input type='number' placeholder='0' min='0' id='potatoTimer' style='width:6em' />
+              </label>
+            </div>
+            <div>
+              <label class="radioLabel" title="Check if too lazy to use actual potato tiles">
+                <input type="checkbox" class="form-control" id="flagsArePotatoes" /><span class="radioSpan">Flags are Potatoes</span>
+              </label>
+              <label class="radioLabel" title="Check to display throwback notice at game start">
+                <input type="checkbox" class="form-control" id="throwback" /><span class="radioSpan">Throwback</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -484,7 +499,7 @@
               Choose the portal cooldown time in milliseconds.
             </div><br>
             <div>
-              Cooldown: <input type='text' id='portalCooldown' style='width:4em' />
+              Cooldown: <input type='number' min='0' id='portalCooldown' style='width:6em' />
             </div><br>
             <div id="portalAll" style="text-align: left;">
               <label class="radioLabel" style="width: auto">
@@ -516,7 +531,7 @@
               Choose the button timer time in seconds.
             </div><br>
             <div>
-              Timer: <input type='text' id='switchTimer' style='width:4em' />
+              Timer: <input type='number' min='0' id='switchTimer' style='width:4em' />
             </div><br>
             <div id="switchAll" style="text-align: left;">
               <label class="radioLabel" style="width: auto">

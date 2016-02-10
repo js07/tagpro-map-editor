@@ -1668,8 +1668,12 @@ $(function() {
     buildTilesWith(emptyTypes);
     savePoint();
     clearHistory();
-    $('#mapName').val('Untitled');
-    $('#author').val('Anonymous');
+    $('#mapName').val('');
+    $('#author').val('');
+    document.getElementById('normalMode').checked = true;
+    document.getElementById('potatoTimer').value = '';
+    document.getElementById('flagsArePotatoes').checked = false;
+    document.getElementById('throwback').checked = false;
     $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
     $(pngDropArea).attr('download',$('#mapName').val()+'.png');
 
@@ -2055,9 +2059,9 @@ $(function() {
   function makeLogic() {
     var logic = {
       info: {
-        name: $('#mapName').val() || $("#author").attr("placeholder"),
-        author: $('#author').val(),
-        gameMode: $('input[name="gameMode"]:checked').val()
+        name: $('#mapName').val() || $("#mapName").attr("placeholder"),
+        author: $('#author').val() || $("#author").attr("placeholder"),
+        gameMode: $('input[name="gameMode"]:checked').val(),
       },
       switches: {},
       fields: {},
@@ -2065,6 +2069,12 @@ $(function() {
       marsballs: [],
       spawnPoints: {red: [], blue: []}
     };
+    if(+document.getElementById('potatoTimer').value)
+      logic.info.potatoTimer = +document.getElementById('potatoTimer').value;
+    if(document.getElementById('flagsArePotatoes').checked)
+      logic.info.flagsArePotatoes = true;
+    if(document.getElementById('throwback').checked)
+      logic.info.throwback = true;
 
     for (var x=0; x<width; x++) {
       for (var y=0; y<height; y++) {
@@ -2439,6 +2449,9 @@ $(function() {
       var info = json.info || {};
       $('#mapName').val(info.name || 'Untitled');
       $('#author').val(info.author || 'Anonymous');
+      document.getElementById('potatoTimer').value = info.potatoTimer || '';
+      document.getElementById('flagsArePotatoes').checked = info.flagsArePotatoes;
+      document.getElementById('throwback').checked = info.throwback;
       $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
       $(pngDropArea).attr('download',$('#mapName').val()+'.png');
       if(info.gameMode == 'gravity')

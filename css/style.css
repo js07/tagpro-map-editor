@@ -94,7 +94,7 @@ label {
 }
 label.radioLabel {
     display: inline-block;
-    width: 20%;
+    width: 30%;
     font-weight: normal;
 }
 span.input-group-addon {
@@ -123,9 +123,9 @@ span.off-center2 {
     left: -2px;
 }
 span.radioSpan {
-    margin: 0% 10% 0% 10%;
+    margin: 0% 10% 0% 5%;
 }
-input[type="radio"] {
+input[type="radio"], input[type="checkbox"] {
     display: inline-block;
     width: auto;
     height: auto;
