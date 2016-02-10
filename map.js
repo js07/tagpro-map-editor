@@ -1444,10 +1444,10 @@ $(function() {
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
     redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
     blueSpawnType = new TileType('blueSpawn', 15,0, 0,0,155, "Blue Spawn Tile - Blue balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
-    yellowFlagType = new TileType('yellowFlag', 13,1, 128,128,0, "Yellow Flag - Bring this neutral flag to your zone to score."),
-    redEndzoneType = new TileType('redEndzone', 14,5, 185,0,0, "Red Endzone - Bring a neutral (yellow) flag to this zone to score."),
-    blueEndzoneType = new TileType('blueEndzone', 15,5, 25,0,148, "Blue Endzone - Bring a neutral (yellow) flag to this zone to score."),
-    potatoType = new TileType('potato', 14,6, 101,101,0, "Potato - Neutral (yellow) flag with hold time limit."),
+    yellowFlagType = new TileType('yellowFlag', 13,1, 128,128,0, "Neutral Flag - Can be grabbed by either team."),
+    redEndzoneType = new TileType('redEndzone', 14,5, 185,0,0, "Red Endzone - Carry a flag to this zone to score."),
+    blueEndzoneType = new TileType('blueEndzone', 15,5, 25,0,148, "Blue Endzone - Carry a flag to this zone to score."),
+    potatoType = new TileType('potato', 14,6, 101,101,0, "Potato - Neutral flag with hold time limit."),
     redPotatoType = new TileType('redPotato', 14,7, 255,128,128, "Red Potato - Red flag with hold time limit."),
     bluePotatoType = new TileType('bluePotato', 14,8, 128,128,255, "Blue Potato - Blue flag with hold time limit."),
     gravityWellType = new TileType('gravityWell', 13,0, 32,32,32, "Gravity Well - Pulls nearby balls to their splat."),
@@ -2151,16 +2151,16 @@ $(function() {
     var hasBlueSpawn = false;
     $.each(tiles, function(rowIdx, row) {
       $.each(row, function(tileIdx, tile) {
-        if (tile.type.name == "redFlag") hasRedFlag = true;
-        if (tile.type.name == "blueFlag") hasBlueFlag = true;
+        if (tile.type.name == "redFlag" || tile.type.name == "redPotato") hasRedFlag = true;
+        if (tile.type.name == "blueFlag" || tile.type.name == "bluePotato") hasBlueFlag = true;
         if (tile.type.name == "redSpawn" || (tile.topType && tile.topType.name == "redSpawn")) hasRedSpawn = true;
         if (tile.type.name == "blueSpawn" || (tile.topType && tile.topType.name == "blueSpawn")) hasBlueSpawn = true;
       });
     });
     if (!(hasRedSpawn || hasRedFlag))
-      return "A map requires a red flag or a red spawn tile to test.";
+      return "A map requires a red flag/potato or a red spawn tile to test.";
     if (!(hasBlueSpawn || hasBlueFlag))
-      return "A map requires a blue flag or a blue spawn tile to test.";
+      return "A map requires a blue flag/potato or a blue spawn tile to test.";
     return "Valid";
   }
 
