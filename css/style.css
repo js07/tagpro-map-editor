@@ -16,7 +16,7 @@ div.tileQuadrant {
     width:20px;
     height:20px;
     position:absolute;
-    background-image: url("../default-skin-v2.png");
+    background-image: url("../tiles.png");
 }
 div.nestedSquare {
     position:absolute;
@@ -45,7 +45,7 @@ div.topSquare {
 div.tileBackground {
     width:40px;
     height:40px;
-    background-image: url("../default-skin-v2.png");
+    background-image: url("../tiles.png");
     display:inline-block;
     background-position: -80px -80px;
     position:relative;

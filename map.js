@@ -309,7 +309,7 @@ $(function() {
   }
   TileType.prototype.drawOn = function($elem, tile, onTop) {
     var styleBgColor = '';
-    var styleUrl = this.image || 'url(default-skin-v2.png)';
+    var styleUrl = this.image || 'url(tiles.png)';
     var styleBackgroundSize = this.image ? (this.imageTileWidth*tileSize+'px ' + this.imageTileHeight*tileSize + 'px') : (tileSheetWidth*tileSize*this.multiplier + 'px ' + tileSheetHeight*tileSize*this.multiplier + 'px');
     if (this.name == 'empty') {
       styleBgColor = 'black';
