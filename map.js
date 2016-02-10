@@ -1416,7 +1416,9 @@ $(function() {
     blueFlagType, redFlagType, switchType, bombType, onFieldType, offFieldType,
     redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType,
     spikeType, powerupType, speedpadType,
-    yellowFlagType, redEndzoneType, blueEndzoneType;
+    yellowFlagType, redEndzoneType, blueEndzoneType,
+    redPotatoType, bluePotatoType,
+    gravityWellType, marsBallType;
   
   var tileTypes = [
     emptyType = new TileType('empty', 13,5, 0,0,0, "Background"),
