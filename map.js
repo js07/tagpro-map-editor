@@ -1447,6 +1447,9 @@ $(function() {
     yellowFlagType = new TileType('yellowFlag', 13,1, 128,128,0, "Yellow Flag - Bring this neutral flag to your zone to score."),
     redEndzoneType = new TileType('redEndzone', 14,5, 185,0,0, "Red Endzone - Bring a neutral (yellow) flag to this zone to score."),
     blueEndzoneType = new TileType('blueEndzone', 15,5, 25,0,148, "Blue Endzone - Bring a neutral (yellow) flag to this zone to score."),
+    potatoType = new TileType('potato', 14,6, 101,101,0, "Potato - Neutral (yellow) flag with hold time limit."),
+    redPotatoType = new TileType('redPotato', 14,7, 255,128,128, "Red Potato - Red flag with hold time limit."),
+    bluePotatoType = new TileType('bluePotato', 14,8, 128,128,255, "Blue Potato - Blue flag with hold time limit."),
     gravityWellType = new TileType('gravityWell', 13,0, 32,32,32, "Gravity Well - Pulls nearby balls to their splat."),
     marsBallType = new TileType('marsBall', 12,9, 256,256,256, "Mars Ball - Push it onto the opponent's flag to win.", {logicFn: exportMarsBall, multiplier: 0.5}),
   ];
@@ -1475,6 +1478,7 @@ $(function() {
   areOpposites(redFlagType, blueFlagType);
   areOpposites(redSpawnType, blueSpawnType);
   areOpposites(redEndzoneType, blueEndzoneType);
+  areOpposites(redPotatoType, bluePotatoType);
   areHorizontalMirrors(wallBottomLeftType, wallBottomRightType);
   areHorizontalMirrors(wallTopLeftType, wallTopRightType);
   areVerticalMirrors(wallBottomLeftType, wallTopLeftType);
@@ -2193,6 +2197,7 @@ $(function() {
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
     [spikeType, powerupType, portalType, gravityWellType, marsBallType],
     [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
+    [potatoType, redPotatoType, bluePotatoType],
     [speedpadType, redSpeedpadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
     [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
   ];
