@@ -1421,11 +1421,11 @@ $(function() {
   var tileTypes = [
     emptyType = new TileType('empty', 13,5, 0,0,0, "Background"),
     floorType = new TileType('floor',13,4, 212,212,212, "Tile"),
-    wallType = new TileType('wall', 15,6, 120,120,120, "Wall", {wallSolids: 0xff}), // encoding: bit 0 is noon, goes clockwise
-    wallBottomLeftType = new TileType('wallBottomLeft', 15,7, 128,112,64, "Wall BL", {wallSolids: 0xb4}),
-    wallTopLeftType = new TileType('wallTopLeft', 15,9, 64,128,80, "Wall TL", {wallSolids: 0xd2}),
-    wallTopRightType = new TileType('wallTopRight', 15,10, 64,80,128, "Wall TR", {wallSolids: 0x4b}),
-    wallBottomRightType = new TileType('wallBottomRight', 15,8, 128,64,112, "Wall BR", {wallSolids: 0x2d}),
+    wallType = new TileType('wall', 15,6, 120,120,120, "SquareWall", {wallSolids: 0xff}), // encoding: bit 0 is noon, goes clockwise
+    wallBottomLeftType = new TileType('wallBottomLeft', 15,7, 128,112,64, "Bottomleft Diagonal Wall ", {wallSolids: 0xb4}),
+    wallTopLeftType = new TileType('wallTopLeft', 15,9, 64,128,80, "Topleft Diagonal Wall", {wallSolids: 0xd2}),
+    wallTopRightType = new TileType('wallTopRight', 15,10, 64,80,128, "Topright Diagonal Wall", {wallSolids: 0x4b}),
+    wallBottomRightType = new TileType('wallBottomRight', 15,8, 128,64,112, "Bottomright Diagonal Wall", {wallSolids: 0x2d}),
     switchType = new TileType('switch', 13,6, 185,122,87, "Button - Emits signals to gates and bombs.", {logicFn: exportSwitch}),
     spikeType = new TileType('spike', 12,0, 55,55,55, "Spike"),
     bombType = new TileType('bomb', 12,1, 255,128,0, "Bomb - Receives signals from switches."),
