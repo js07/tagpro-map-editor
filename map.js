@@ -309,7 +309,7 @@ $(function() {
   }
   TileType.prototype.drawOn = function($elem, tile, onTop) {
     var styleBgColor = '';
-    var styleUrl = this.image || $("#tiles").attr("url");
+    var styleUrl = this.image || 'url(default-skin-v2.png)';
     var styleBackgroundSize = this.image ? (this.imageTileWidth*tileSize+'px ' + this.imageTileHeight*tileSize + 'px') : (tileSheetWidth*tileSize*this.multiplier + 'px ' + tileSheetHeight*tileSize*this.multiplier + 'px');
     if (this.name == 'empty') {
       styleBgColor = 'black';
@@ -1430,16 +1430,16 @@ $(function() {
     spikeType = new TileType('spike', 12,0, 55,55,55, "Spike"),
     bombType = new TileType('bomb', 12,1, 255,128,0, "Bomb - Receives signals from switches."),
     powerupType = new TileType('powerup', 12,7, 0,255,0, "Powerup"),
-    speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: $("#speedpad").attr("url")}),
-    blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: $("#speedpadblue").attr("url")}),
-    redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: $("#speedpadred").attr("url")}),
+    speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: 'url(speedpad.png)'}),
+    blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: 'url(speedpadblue.png)'}),
+    redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'url(speedpadred.png)'}),
     redFloorType = new TileType('redFloor', 14,4, 220,186,186, "Red Speed Tile - Increases speed for non-flag-carriers."),
     blueFloorType = new TileType('blueFloor', 15,4, 187,184,221, "Blue Speed Tile - Increases speed for non-flag-carriers."),
     offFieldType = new TileType('offField', 12,3, 0,117,0, "Gate - Default Off", {logicFn: setFieldFn('off')}),
     onFieldType = new TileType('onField', 13,3, 0,117,0, "Gate - Default On", {logicFn: setFieldFn('on')}),
     redFieldType = new TileType('redField', 14,3, 0,117,0, "Gate - Default Red", {logicFn: setFieldFn('red')}),
     blueFieldType = new TileType('blueField', 15,3, 0,117,0, "Gate - Default Blue", {logicFn: setFieldFn('blue')}),
-    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Link two portals using the wire tool.", {image: $("#portal").attr("url"), logicFn: exportPortal}),
+    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Link two portals using the wire tool.", {image: 'url(portal.png)', logicFn: exportPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
     redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
@@ -1447,7 +1447,7 @@ $(function() {
     yellowFlagType = new TileType('yellowFlag', 13,1, 128,128,0, "Yellow Flag - Bring this neutral flag to your zone to score."),
     redEndzoneType = new TileType('redEndzone', 14,5, 185,0,0, "Red Endzone - Bring a neutral (yellow) flag to this zone to score."),
     blueEndzoneType = new TileType('blueEndzone', 15,5, 25,0,148, "Blue Endzone - Bring a neutral (yellow) flag to this zone to score."),
-    gravityWellType = new TileType('gravityWell', 0, 0, 32,32,32, "Gravity Well - Pulls nearby balls to their splat.", {image: $("#gravitywell").attr("url"), imageTileWidth: 1, imageTileHeight: 1}),
+    gravityWellType = new TileType('gravityWell', 0, 0, 32,32,32, "Gravity Well - Pulls nearby balls to their splat.", {image: 'url(gravitywell.png)', imageTileWidth: 1, imageTileHeight: 1}),
     marsBallType = new TileType('marsBall', 12,9, 256,256,256, "Mars Ball - Push it onto the opponent's flag to win.", {logicFn: exportMarsBall, multiplier: 0.5}),
   ];
 

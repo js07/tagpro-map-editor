@@ -16,7 +16,7 @@ div.tileQuadrant {
     width:20px;
     height:20px;
     position:absolute;
-    background-image: url("/static/tagpro-map-editor/default-skin-v2.png");
+    background-image: url("../default-skin-v2.png");
 }
 div.nestedSquare {
     position:absolute;
@@ -45,7 +45,7 @@ div.topSquare {
 div.tileBackground {
     width:40px;
     height:40px;
-    background-image: url("/static/tagpro-map-editor/default-skin.png");
+    background-image: url("../default-skin-v2.png");
     display:inline-block;
     background-position: -80px -80px;
     position:relative;
@@ -53,13 +53,13 @@ div.tileBackground {
 div.selectionIndicator {
     width:40px;
     height:40px;
-    background-image: url("/static/tagpro-map-editor/selected.png");
+    background-image: url("../selected.png");
     display:none;
 }
 div.tileTypeSelectionIndicator {
     width:40px;
     height:40px;
-    background-image: url("/static/tagpro-map-editor/selected.png");
+    background-image: url("../selected.png");
     display:none;
 }
 div.potentialHighlight {
@@ -67,7 +67,7 @@ div.potentialHighlight {
     height:40px;
     background-color:#99ff99;
     opacity: .5;
-    /*background-image: url("selected.png");*/
+    /*background-image: url("../selected.png");*/
     display:none;
 }
 a.dropArea {
