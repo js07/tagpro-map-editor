@@ -1791,7 +1791,7 @@ $(function() {
   var shiftDown = false;
   var oldTitles = {};
   var toolTips = {toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
-  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 's', 8: 'p', 12: 'n', 13: 'v', 14: 'b', 15: 'j', 16: 'k', 17: 'n', 18: 'm', 22: 'a', 23: 'u', 24: 'i', 25: 'g', 26: 'h', 27: 'l', 28: 'x', 29: 'c', 30: 'd'};
+  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 'p', 9: 'o', 10: 'v', 11: 'b', 12: 'j', 13: 'k', 17: 'n', 18: 'm', 19: 'a', 20: 'u', 21: 'i', 22: 'g', 23: 'h', 24: 's', 26: 'c', 29: 'x', 30: 'l', 31: 'd'};
   var tipsTools = {};
   var keys = {48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9', 65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z'};
   for(var id in toolTips) {
@@ -2207,11 +2207,11 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [spikeType, powerupType, portalType, gravityWellType, marsBallType],
-    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
-    [potatoType, redPotatoType, bluePotatoType],
-    [speedpadType, redSpeedpadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
-    [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
+    [powerupType, portalType],
+    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType],
+    [potatoType, redPotatoType, bluePotatoType, redEndzoneType, blueEndzoneType],
+    [speedpadType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType, spikeType, gravityWellType],
+    [onFieldType, redFieldType, blueFieldType, offFieldType, switchType, bombType, marsBallType]
   ];
 
   var brushTileType = paletteRows[0][0];
