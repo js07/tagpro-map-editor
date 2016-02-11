@@ -2175,24 +2175,24 @@ $(function() {
     return "Valid";
   }
 
-  $('#test, #testeu').click(function(e) {
-    var validStr = isValidMapStr();
-    if (validStr != "Valid") {
-      addAlert('danger','Error: '+validStr,2000);
-      return false;
-    }
-    var eu = e.target.id == 'testeu' ? true : false;
-    $.post('/editortest', {logic: JSON.stringify(makeLogic()), layout: getPngBase64(), eu: eu}, function(data) {
-      console.log(data);
-      if (data && data.location) {
-        window.open(data.location);
-      } else {
-        addAlert('danger','Error: Test couldn\'t get started',2000);
+  var testServers = document.getElementById('test').getElementsByTagName('a');
+  for(var i = 0; i < testServers.length; i++)
+    testServers[i].addEventListener('click', function(i) { return function(e) {
+      var validStr = isValidMapStr();
+      if (validStr != "Valid") {
+        addAlert('danger','Error: '+validStr,2000);
+        return false;
       }
-      //console.log('back from test', data)
-    });
-    return false;
-  });
+      var eu = e.target.id == 'testeu' ? true : false;
+      $.post('test.php', {logic: JSON.stringify(makeLogic()), layout: getPngBase64(), server: i}, function(data) {
+        if (data) {
+          window.open(data, 'tagpro');
+        } else {
+          addAlert('danger','Error: Test couldn\'t get started',2000);
+        }
+      });
+      return false;
+    }; }(i));
   
   function setBrushTileType(type) {
     $('.tileTypeSelectionIndicator').css('display', 'none');

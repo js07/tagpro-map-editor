@@ -31,9 +31,11 @@
         </div>
         <div class="btn-group" style="position:static;">
           <button class='btn btn-default' title="Test Map" style="border-top-right-radius:4px;border-bottom-right-radius:4px;" data-toggle="dropdown"><span class="glyphicon glyphicon-play"></span> Test <span class="caret"></span></button>
-          <ul class="dropdown-menu" style="margin-top: 35px;top:auto;right:0;left:auto;text-align:right;" role="menu">
-            <li><a id='test' href="#" style="overflow:hidden;text-overflow:ellipsis;">North American Server</a></li>
-            <li><a id='testeu' href="#" style="overflow:hidden;text-overflow:ellipsis;">European Server</a></li>
+          <ul id="test" class="dropdown-menu" style="margin-top: 35px;top:auto;right:0;left:auto;text-align:right;" role="menu">
+            <li><a style="overflow:hidden;text-overflow:ellipsis;">Europe</a></li>
+            <li><a style="overflow:hidden;text-overflow:ellipsis;">East Coast</a></li>
+            <li><a style="overflow:hidden;text-overflow:ellipsis;">West Coast</a></li>
+            <li><a style="overflow:hidden;text-overflow:ellipsis;">Oceanic</a></li>
           </ul>
         </div>
       </div>
@@ -146,7 +148,7 @@
     <div id="palette">
     </div>
   
-    <p><a href="https://github.com/RondingTagPro/tagpro-map-editor">Source</a></p>
+    <p><a href="https://github.com/RondingTagPro/tagpro-map-editor" target="tagpro">Source</a></p>
     </div>
 
   </div>
@@ -170,10 +172,10 @@
           <div class="form-group">
             <div class="row">
               <div class="col-xs-6">
-                <a class="dropArea" draggable="true" id="pngDrop" download="map.png" href="#">PNG</a>
+                <a class="dropArea" draggable="true" id="pngDrop" download="map.png">PNG</a>
               </div>
               <div class="col-xs-6">
-                <a class="dropArea" draggable="true" id="jsonDrop" download="map.json" href="#">JSON</a>
+                <a class="dropArea" draggable="true" id="jsonDrop" download="map.json">JSON</a>
               </div>
             </div>
           </div>
