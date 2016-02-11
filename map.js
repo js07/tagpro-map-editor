@@ -804,15 +804,13 @@ $(function() {
     speculateUp: function(x,y) {
       var tile = tiles[x][y];
       var change = null;
-      if (tile.type == portalType) {
-        if (this.selectedSwitch && this.selectedSwitch.type == portalType) {
-          change = new TileState(this.selectedSwitch, {destination: tile})
-          console.log('making destination action to', xy(tile));
-          this.selectedSwitch = null;
-        } else {
-          this.selectedSwitch = tile;
-          console.log('selected ', xy(this.selectedSwitch));
-        }
+      if ((tile.type == portalType || tile.type == exitPortalType) && this.selectedSwitch && this.selectedSwitch.type == portalType) {
+        change = new TileState(this.selectedSwitch, {destination: tile})
+        console.log('making destination action to', xy(tile));
+        this.selectedSwitch = null;
+      } else if (tile.type == portalType) {
+        this.selectedSwitch = tile;
+        console.log('selected ', xy(this.selectedSwitch));
       } else if (tile.type == switchType) {
         this.selectedSwitch = tile;
       } else if (this.selectedSwitch && this.selectedSwitch.type == switchType) {
@@ -1390,15 +1388,13 @@ $(function() {
   }
   function exportPortal(logic, tile) {
     var dest = tile.destination || tile;
-    if(tile.x===dest.x && tile.y===dest.y) {
-      logic.portals[tile.x + ',' + tile.y] = {};
-      if(tile.cooldown!=undefined)
-        logic.portals[tile.x + ',' + tile.y] = {cooldown: tile.cooldown};
-    } else
-      logic.portals[tile.x + ',' + tile.y] = {
-        destination: {x: dest.x, y: dest.y},
-        cooldown: (tile.cooldown!=undefined) ? tile.cooldown : defaultPortalCooldown
-      };
+    logic.portals[tile.x + ',' + tile.y] = {
+      destination: {x: dest.x, y: dest.y},
+      cooldown: (tile.cooldown!=undefined) ? tile.cooldown : defaultPortalCooldown
+    };
+  }
+  function exportExitPortal(logic, tile) {
+    logic.portals[tile.x + ',' + tile.y] = {};
   }
   function exportMarsBall(logic, tile) {
     logic.marsballs.push({y: tile.y,x: tile.x});
@@ -1428,7 +1424,7 @@ $(function() {
     wallTopLeftType = new TileType('wallTopLeft', 15,9, 64,128,80, "Topleft Diagonal Wall", {wallSolids: 0xd2}),
     wallTopRightType = new TileType('wallTopRight', 15,10, 64,80,128, "Topright Diagonal Wall", {wallSolids: 0x4b}),
     wallBottomRightType = new TileType('wallBottomRight', 15,8, 128,64,112, "Bottomright Diagonal Wall", {wallSolids: 0x2d}),
-    switchType = new TileType('switch', 13,6, 185,122,87, "Button - Emits signals to gates and bombs.", {logicFn: exportSwitch}),
+    switchType = new TileType('switch', 13,6, 185,122,87, "Button - Emits signals to gates and bombs; use wire tool to specify.", {logicFn: exportSwitch}),
     spikeType = new TileType('spike', 12,0, 55,55,55, "Spike"),
     bombType = new TileType('bomb', 12,1, 255,128,0, "Bomb - Receives signals from switches."),
     powerupType = new TileType('powerup', 12,7, 0,255,0, "Powerup"),
@@ -1441,7 +1437,8 @@ $(function() {
     onFieldType = new TileType('onField', 13,3, 0,117,0, "Gate - Default On", {logicFn: setFieldFn('on')}),
     redFieldType = new TileType('redField', 14,3, 0,117,0, "Gate - Default Red", {logicFn: setFieldFn('red')}),
     blueFieldType = new TileType('blueField', 15,3, 0,117,0, "Gate - Default Blue", {logicFn: setFieldFn('blue')}),
-    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Link two portals using the wire tool.", {image: 'url(portal.png)', logicFn: exportPortal}),
+    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Links to self by default; use wire tool to set destination.", {image: 'url(portal.png)', logicFn: exportPortal}),
+    exitPortalType = new TileType('exitPortal', 4,0, 202, 192,0, "Exit Portal - Can be linked as destination for other portals.", {image: 'url(portal.png)', logicFn: exportExitPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
     redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
@@ -1790,8 +1787,13 @@ $(function() {
   var controlDown = false;
   var shiftDown = false;
   var oldTitles = {};
-  var toolTips = {toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
-  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 'p', 9: 'o', 10: 'v', 11: 'b', 12: 'j', 13: 'k', 17: 'n', 18: 'm', 19: 'a', 20: 'u', 21: 'i', 22: 'g', 23: 'h', 24: 's', 26: 'c', 29: 'x', 30: 'l', 31: 'd'};
+  var toolTips = {
+   toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
+   0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f',
+   7: 'o', 8: 'v', 9: 'b', 10: 'j', 11: 'k', 12: 'p',
+   16: 'n', 17: 'm',
+   20: 'a', 21: 'u', 22: 'i', 23: 'g', 24: 'h', 25: 's',
+   27: 'c', 30: 'x', 31: 'l', 32: 'd'};
   var tipsTools = {};
   var keys = {48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9', 65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z'};
   for(var id in toolTips) {
@@ -2132,7 +2134,7 @@ $(function() {
   $('#export').click(function() {
     $('.dropArea').removeClass('hasImportable');
     $('.dropArea').addClass('hasExportable');
-    $(jsonDropArea).attr('download',$('#mapName').val()+'.json').attr('href', 'data:application/json;base64,' + Base64.encode(makeLogicString()));
+    $(jsonDropArea).attr('download',$('#mapName').val()+'.json').attr('href', 'data:application/json;base64,' + btoa(makeLogicString()));
     $(pngDropArea).attr('download',$('#mapName').val()+'.png').attr('href', getPngBase64Url());
   });
   
@@ -2207,9 +2209,8 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [powerupType, portalType],
-    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType],
-    [potatoType, redPotatoType, bluePotatoType, redEndzoneType, blueEndzoneType],
+    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, powerupType],
+    [potatoType, redPotatoType, bluePotatoType, redEndzoneType, blueEndzoneType, portalType, exitPortalType],
     [speedpadType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType, spikeType, gravityWellType],
     [onFieldType, redFieldType, blueFieldType, offFieldType, switchType, bombType, marsBallType]
   ];
@@ -2410,6 +2411,7 @@ $(function() {
         typeByColor[type.rgb] = type;
       })
 
+      var portals = json.portals || {};
       var fields = json.fields || {};
       var cols = [];
       for (var destX=0; destX<optWidth; destX++) {
@@ -2433,6 +2435,8 @@ $(function() {
               if(!json.spawnPoints) json.spawnPoints = {red: [], blue: []};
               if(!json.spawnPoints.blue) json.spawnPoints.blue = [];
               if(!json.spawnPoints.blue.push({x: destX, y: destY}));
+            } else if(type == portalType || type == exitPortalType) {
+              type = (portals[sourceX+','+sourceY]||{}).destination ? portalType : exitPortalType;
             } else if (type == onFieldType || type==offFieldType || type==redFieldType || type==blueFieldType) {
               type = {on: onFieldType, off: offFieldType, red: redFieldType, blue: blueFieldType
               }[(fields[sourceX+','+sourceY]||{}).defaultState] || offFieldType;
@@ -2459,7 +2463,6 @@ $(function() {
       else if(info.gameMode == 'gravityCTF')
         $('input[name="gameMode"]').eq(2).prop('checked',true);
 
-      var portals = json.portals || {};
       for (var key in portals) {
         var xy = key.split(',');
         xy[0] = parseInt(xy[0])+deltaX;
