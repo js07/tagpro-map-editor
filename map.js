@@ -1437,7 +1437,7 @@ $(function() {
     onFieldType = new TileType('onField', 13,3, 0,117,0, "Gate - Default On", {logicFn: setFieldFn('on')}),
     redFieldType = new TileType('redField', 14,3, 0,117,0, "Gate - Default Red", {logicFn: setFieldFn('red')}),
     blueFieldType = new TileType('blueField', 15,3, 0,117,0, "Gate - Default Blue", {logicFn: setFieldFn('blue')}),
-    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Links to self by default; use wire tool to set destination.", {image: 'url(portal.png)', logicFn: exportPortal}),
+    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Links to self by default; use wire tool to link portal or exit portal as destination.", {image: 'url(portal.png)', logicFn: exportPortal}),
     exitPortalType = new TileType('exitPortal', 4,0, 202, 192,0, "Exit Portal - Can be linked as destination for other portals.", {image: 'url(portal.png)', logicFn: exportExitPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
