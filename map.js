@@ -1669,7 +1669,6 @@ $(function() {
     $('#author').val('');
     document.getElementById('normalMode').checked = true;
     document.getElementById('potatoTimer').value = '';
-    document.getElementById('flagsArePotatoes').checked = false;
     document.getElementById('throwback').checked = false;
     $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
     $(pngDropArea).attr('download',$('#mapName').val()+'.png');
@@ -2073,8 +2072,6 @@ $(function() {
     };
     if(+document.getElementById('potatoTimer').value)
       logic.info.potatoTimer = +document.getElementById('potatoTimer').value;
-    if(document.getElementById('flagsArePotatoes').checked)
-      logic.info.flagsArePotatoes = true;
     if(document.getElementById('throwback').checked)
       logic.info.throwback = true;
 
@@ -2413,6 +2410,7 @@ $(function() {
 
       var portals = json.portals || {};
       var fields = json.fields || {};
+      var info = json.info || {};
       var cols = [];
       for (var destX=0; destX<optWidth; destX++) {
         var sourceX = destX - deltaX;
@@ -2440,6 +2438,10 @@ $(function() {
             } else if (type == onFieldType || type==offFieldType || type==redFieldType || type==blueFieldType) {
               type = {on: onFieldType, off: offFieldType, red: redFieldType, blue: blueFieldType
               }[(fields[sourceX+','+sourceY]||{}).defaultState] || offFieldType;
+            } else if(info.flagsArePotatoes) {
+              if(type == yellowFlagType) type = potatoType;
+              if(type == redFlagType) type = redPotatoType;
+              if(type == blueFlagType) type = bluePotatoType;
             }
           } else {
             type = emptyType;
@@ -2450,11 +2452,9 @@ $(function() {
       }
       buildTilesWith(cols);
 
-      var info = json.info || {};
       $('#mapName').val(info.name || 'Untitled');
       $('#author').val(info.author || 'Anonymous');
       document.getElementById('potatoTimer').value = info.potatoTimer || '';
-      document.getElementById('flagsArePotatoes').checked = info.flagsArePotatoes;
       document.getElementById('throwback').checked = info.throwback;
       $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
       $(pngDropArea).attr('download',$('#mapName').val()+'.png');
