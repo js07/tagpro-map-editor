@@ -3076,13 +3076,6 @@ $(function() {
     }
   });
   
-  $('#dropHelp').click(function() {
-    alert("Importing Map:\n" +
-      "Drag a .png file and a .json file from your file manager onto their respective squares. When both are added, hit Import to apply them to the current map.\n\n" +
-      "Exporting Map:\n" +
-      "Hit Export. The .png and .json files can then be dragged or clicked from their respective squares.")
-  });
-  
   window.addEventListener("beforeunload", function (e) {
     localStorage.setItem('png', getPngBase64Url());
     localStorage.setItem('json', makeLogicString(null,true));
