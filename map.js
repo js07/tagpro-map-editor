@@ -234,41 +234,11 @@ $(function() {
     "300d": [6, 10],
     "000d": [5.5, 10]
   };
-  $("#jjlogo").hide();
-  if($("#remix").length > 0) {
-    $('#loading').modal();
-    $.get('/remix', {'mapid':$("#remix").attr("mapid")}, 
-    function(data) {
-      pngdata = data.pngdata;
-      jsondata = data.jsondata;
-      $("#mapName").val(jsondata.name);
-      restoreFromPngAndJson(pngdata, jsondata, undefined, true);
-      $("#remix").remove();
-      $("#loading").modal("hide");
-      $("#loading").hide();
-    });
-  }
-  else {
-    var savedPng = localStorage.getItem('png')
-    var savedJson = localStorage.getItem('json')
-    restoreFromPngAndJson(savedPng, savedJson, undefined, true);
-  }
 
-  $(".editmap").click( function() {
-    $("#importExport").modal("hide");
-    $("#loading").show()
-    $("#loading").modal();
-    $.get('/remix', {'mapid':$(this).attr("mapid")}, 
-    function(data) {
-      pngdata = data.pngdata;
-      jsondata = data.jsondata;
-      $("#mapName").val(jsondata.name);        
-      restoreFromPngAndJson(pngdata, jsondata, undefined, true);
-      $("#loading").modal("hide");
-      $("#loading").hide()
-    })
-  });
-  
+  var savedPng = localStorage.getItem('png')
+  var savedJson = localStorage.getItem('json')
+  restoreFromPngAndJson(savedPng, savedJson, undefined, true);
+
   var importJson;
   var importPng;
 
@@ -2579,7 +2549,7 @@ $(function() {
     enableUndoRedoButtons();
   }
 
-  $('#import').click(function() {
+  $('#importConfirm').click(function() {
     if (importPng && importJson) {
       restoreFromPngAndJson(
         importPng,
