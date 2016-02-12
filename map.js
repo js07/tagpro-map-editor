@@ -2554,8 +2554,9 @@ $(function() {
       restoreFromPngAndJson(
         importPng,
         importJson, undefined, true);
+      addAlert('success','Map imported from files!',1000);
     } else {
-      alert('Please drag and drop a PNG and a JSON to import onto their receptacles.')
+      addAlert('danger','Error: No PNG and/or JSON dragged and dropped for input.',2000);
     }
   });
 
@@ -2788,31 +2789,7 @@ $(function() {
   });
   
   var enterKey = 13;
-  $('#importExport').on('keydown',function(e){
-    e.stopPropagation();
-  });
-  $('#resizeDialog').on('keydown',function(e){
-    e.stopPropagation();
-    if(e.keyCode == enterKey){
-      e.preventDefault();
-      $(this).find('button:last').click();
-    }
-  });
-  $('#portalOptions').on('keydown',function(e){
-    e.stopPropagation();
-    if(e.keyCode == enterKey){
-      e.preventDefault();
-      $(this).find('button:last').click();
-    }
-  });
-  $('#switchOptions').on('keydown',function(e){
-    e.stopPropagation();
-    if(e.keyCode == enterKey){
-      e.preventDefault();
-      $(this).find('button:last').click();
-    }
-  });
-  $('#spawnOptions').on('keydown',function(e){
+  $('[role=dialog]').on('keydown',function(e){
     e.stopPropagation();
     if(e.keyCode == enterKey){
       e.preventDefault();
