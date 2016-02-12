@@ -73,6 +73,9 @@ div.potentialHighlight {
 a {
     cursor: pointer;
 }
+#palette {
+    font-size: 0;
+}
 a.dropArea {
     width: 100%;
     height: 100px;
