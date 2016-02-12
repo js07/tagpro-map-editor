@@ -1670,8 +1670,6 @@ $(function() {
     document.getElementById('normalMode').checked = true;
     document.getElementById('potatoTimer').value = '';
     document.getElementById('throwback').checked = false;
-    $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
-    $(pngDropArea).attr('download',$('#mapName').val()+'.png');
 
     $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
     $("div.tileBackground").css("background-position", "-520px -160px");
@@ -2128,28 +2126,12 @@ $(function() {
     return 'data:image/png;base64,' + getPngBase64();
   }
 
-  $('#export').click(function() {
-    $('.dropArea').removeClass('hasImportable');
-    $('.dropArea').addClass('hasExportable');
-    $(jsonDropArea).attr('download',$('#mapName').val()+'.json').attr('href', 'data:application/json;base64,' + btoa(makeLogicString()));
-    $(pngDropArea).attr('download',$('#mapName').val()+'.png').attr('href', getPngBase64Url());
+  $('#exportButton').click(function() {
+    var name = $('#mapName').val() || 'Untitled';
+    $(jsonOutArea).attr('download',name+'.json').attr('href', 'data:application/json;base64,' + btoa(makeLogicString()));
+    $(pngOutArea).attr('download',name+'.png').attr('href', getPngBase64Url());
   });
   
-  $("#saveToJJ").click( function() {
-    $(this).text("Saving...");
-    $.post('/editorsave',{layout: getPngBase64(),logic: makeLogicString()}).done(function (data) {
-      if(data.message == true) {
-        $("#saveToJJ").text("Saved");
-        $("#closeModal").click();
-        window.location = data.location;
-      }
-      else {
-        addAlert('danger',"Error saving to Juke Juice",2000);
-      }
-      $("#saveToJJ").text("Save to JJ");
-    })
-  });
-
   $('#save').click(function() {
     localStorage.setItem('png', getPngBase64Url());
     localStorage.setItem('json', makeLogicString());
@@ -2175,7 +2157,7 @@ $(function() {
     return "Valid";
   }
 
-  var testServers = document.getElementById('test').getElementsByTagName('a');
+  var testServers = document.getElementById('menuTest').getElementsByTagName('a');
   for(var i = 0; i < testServers.length; i++)
     testServers[i].addEventListener('click', function(i) { return function(e) {
       var validStr = isValidMapStr();
@@ -2183,12 +2165,36 @@ $(function() {
         addAlert('danger','Error: '+validStr,2000);
         return false;
       }
-      var eu = e.target.id == 'testeu' ? true : false;
       $.post('test.php', {logic: JSON.stringify(makeLogic()), layout: getPngBase64(), server: i}, function(data) {
         if (data) {
-          window.open(data, 'tagpro');
+          var win = window.open(data, 'tagpro');
+          if(win)
+            win.focus();
+          else
+            addAlert('danger','Please set your pop-up blocker to allow pop-ups',2000);
         } else {
           addAlert('danger','Error: Test couldn\'t get started',2000);
+        }
+      });
+      return false;
+    }; }(i));
+    
+  var exportServers = document.getElementById('menuExport').getElementsByTagName('a');
+  for(var i = 0; i < 2; i++)
+    exportServers[i+1].addEventListener('click', function(i) { return function(e) {
+      var validStr = isValidMapStr();
+      if (validStr != "Valid") {
+        addAlert('danger','Error: '+validStr,2000);
+        return false;
+      }
+      $.post('test.php', {logic: JSON.stringify(makeLogic()), layout: getPngBase64(), cloud: i}, function(data) {
+        if (data) {
+          addAlert('success','Map uploaded successfully!',2000);
+          var win = window.open(data, 'tagpro');
+          if(win)
+            win.focus();
+        } else {
+          addAlert('danger','Error: Publication failed',2000);
         }
       });
       return false;
@@ -2344,9 +2350,10 @@ $(function() {
   var importPng;
   //$jsonDrop.ondragover = function () { this.className = 'hover'; return false; };
   //$jsonDrop.ondragend = function () { this.className = ''; return false; };
-  var jsonDropArea = document.getElementById('jsonDrop')
+  var jsonDropArea = document.getElementById('jsonDrop');
   jsonDropArea.ondragover = function () { return false; };
   jsonDropArea.ondragend = function () { return false; };
+  var jsonOutArea = document.getElementById('jsonOut');
 
   jsonDropArea.addEventListener("dragstart",function(evt){
     evt.dataTransfer.setData("DownloadURL",
@@ -2357,10 +2364,10 @@ $(function() {
   var pngDropArea = document.getElementById('pngDrop');
   pngDropArea.ondragover = function () { return false; };
   pngDropArea.ondragend = function () { return false; };
+  var pngOutArea = document.getElementById('pngOut');
 
   jsonDropArea.ondrop = pngDropArea.ondrop = function (e) {
     e.preventDefault();
-    $('.dropArea').removeClass('hasExportable');
     for (var i=0; i<e.dataTransfer.files.length; i++) {
       var file = e.dataTransfer.files[i],
         reader = new FileReader();
@@ -2456,8 +2463,6 @@ $(function() {
       $('#author').val(info.author || 'Anonymous');
       document.getElementById('potatoTimer').value = info.potatoTimer || '';
       document.getElementById('throwback').checked = info.throwback;
-      $(jsonDropArea).attr('download',$('#mapName').val()+'.json');
-      $(pngDropArea).attr('download',$('#mapName').val()+'.png');
       if(info.gameMode == 'gravity')
         $('input[name="gameMode"]').eq(1).prop('checked',true);
       else if(info.gameMode == 'gravityCTF')
