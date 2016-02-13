@@ -51,7 +51,7 @@ if(isset($_POST['logic']) && isset($_POST['layout']))
  elseif(isset($_POST['cloud']) && isset($clouds[$_POST['cloud']]))
   upload_map('http://' . $clouds[$_POST['cloud']] . '/upload', 'file[0]', 'file[1]', false);
 }
-elseif(isset($_POST['url']) && preg_match('#^\s*(?:http://)?((?:unfortunate-)?maps.jukejuice.com)/(?:show|static/previews)/(\d+)(?:\.png)?\s*$#', $_POST['url'], $matches))
+elseif(isset($_POST['url']) && preg_match('#^\s*(?:http://)?((?:unfortunate-)?maps\.jukejuice\.com)/(?:show|static/previews)/(\d+)(?:\.png)?\s*$#', $_POST['url'], $matches))
 {
  if(($curl = user_agent('http://' . $matches[1] . '/download?mapname=map&type=json&mapid=' . $matches[2]))
   && ($json = curl_exec($curl)) !== false
