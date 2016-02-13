@@ -3105,19 +3105,6 @@ $(function() {
       $('.slot-buttons').children().addClass('disabled');
     }
   });
-  $('.slot button').click(function(e) {
-    e.stopPropagation();
-    var slot = $(this).closest('.slot');
-    var a = document.createElement('a');
-    var type = $(this).is(':first-child') ? 'png' : 'json';
-    var json = makeLogic();
-    a.href = slot.data(type);
-    if(type==='json')
-      a.href = 'data:application/json;base64,' + btoa(makeLogicString(JSON.parse(slot.data(type))));
-    a.download = json.info.name+'.'+type;
-    a.click();
-    $(this).blur();
-  });
   
   $('#editSlot').click(function() {
     var slot = $('.slot.active');
@@ -3139,7 +3126,6 @@ $(function() {
       var slot = $('#slot'+which).removeClass('empty').data('png',png).data('json',makeLogicString(json,true));
       slot.find('p:first').css('color','#333').text(json.info.name || 'Unititled');
       slot.find('p:last').text(now || 'Unknown');
-      slot.find('button').removeClass('disabled');
       localStorage.setItem('png'+which, png);
       localStorage.setItem('json'+which, makeLogicString(json,true));
       localStorage.setItem('title'+which, title);
@@ -3155,7 +3141,6 @@ $(function() {
       var slot = $('.slot.active').addClass('empty').removeClass('active').removeData('png').removeData('json');
       slot.find('p:first').css('color','#888').text('Empty');
       slot.find('p:last').text('');
-      slot.find('button').addClass('disabled');
       $('.slot-buttons').children().addClass('disabled');
       localStorage.removeItem('png'+which);
       localStorage.removeItem('json'+which);
@@ -3175,7 +3160,6 @@ $(function() {
       var slot = $('#slot'+i).removeClass('empty').data('png',savedPng).data('json',savedJson);
       slot.find('p:first').css('color','#333').text(savedTitle || 'Unititled');
       slot.find('p:last').text(savedDate || 'Unknown');
-      slot.find('button').removeClass('disabled');
     }
   }
 });
