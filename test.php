@@ -1,5 +1,12 @@
 <?php
 header('Content-Type: text/plain;charset=UTF-8');
+function user_agent($address)
+{
+ return ($curl = curl_init($address))
+  && curl_setopt($curl, CURLOPT_USERAGENT, 'RondingTagProMapEditor/1.0 (+http://map-editor.tagpro.eu)')
+  && curl_setopt($curl, CURLOPT_RETURNTRANSFER, true)
+  ? $curl : false;
+}
 function upload_map($address, $logic, $layout, $play)
 {
  global $clouds;
@@ -9,9 +16,7 @@ function upload_map($address, $logic, $layout, $play)
  $png = tempnam($sys, 'mp');
  file_put_contents($json, $_POST['logic']);
  file_put_contents($png, base64_decode($_POST['layout']));
- if(($curl = curl_init($address))
-  && curl_setopt($curl, CURLOPT_USERAGENT, 'RondingTagProMapEditor/1.0 (+http://map-editor.tagpro.eu)')
-  && curl_setopt($curl, CURLOPT_RETURNTRANSFER, true)
+ if(($curl = user_agent($address))
   && curl_setopt($curl, CURLOPT_POST, true)
   && curl_setopt($curl, CURLOPT_POSTFIELDS, array(
   $logic => new CURLFile($json, 'application/json', 'map.json'),
@@ -45,5 +50,13 @@ if(isset($_POST['logic']) && isset($_POST['layout']))
   upload_map('http://' . $servers[$_POST['server']] . '/testmap', 'logic', 'layout', true);
  elseif(isset($_POST['cloud']) && isset($clouds[$_POST['cloud']]))
   upload_map('http://' . $clouds[$_POST['cloud']] . '/upload', 'file[0]', 'file[1]', false);
+}
+elseif(isset($_POST['url']) && preg_match('#^\s*(?:http://)?((?:unfortunate-)?maps.jukejuice.com)/(?:show|static/previews)/(\d+)(?:\.png)?\s*$#', $_POST['url'], $matches))
+{
+ if(($curl = user_agent('http://' . $matches[1] . '/download?mapname=map&type=json&mapid=' . $matches[2]))
+  && ($json = curl_exec($curl)) !== false
+  && ($curl = user_agent('http://' . $matches[1] . '/download?mapname=map&type=png&mapid=' . $matches[2]))
+  && ($png = curl_exec($curl)) !== false)
+  echo json_encode(array('logic' => $json, 'layout' => base64_encode($png)));
 }
 ?>

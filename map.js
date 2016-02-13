@@ -757,8 +757,8 @@ $(function() {
         }
         
         for (var i = 0; i < coordinates.length; i++) {
-          var x = coordinates[i].x;
-          var y = coordinates[i].y;
+          x = coordinates[i].x;
+          y = coordinates[i].y;
           var tile = tiles[x][y];
           if(tile.type == bombType || tile.type == onFieldType || tile.type == offFieldType || tile.type == redFieldType || tile.type == blueFieldType) {
             var hitKey = xy(tile);          
@@ -2404,12 +2404,12 @@ $(function() {
               type = floorType;
               if(!json.spawnPoints) json.spawnPoints = {red: [], blue: []};
               if(!json.spawnPoints.red) json.spawnPoints.red = [];
-              if(!json.spawnPoints.red.push({x: destX, y: destY}));
+              json.spawnPoints.red.push({x: destX, y: destY});
             } else if(type == blueSpawnType) {
               type = floorType;
               if(!json.spawnPoints) json.spawnPoints = {red: [], blue: []};
               if(!json.spawnPoints.blue) json.spawnPoints.blue = [];
-              if(!json.spawnPoints.blue.push({x: destX, y: destY}));
+              json.spawnPoints.blue.push({x: destX, y: destY});
             } else if(type == portalType || type == exitPortalType) {
               type = (portals[sourceX+','+sourceY]||{}).destination ? portalType : exitPortalType;
             } else if (type == onFieldType || type==offFieldType || type==redFieldType || type==blueFieldType) {
@@ -2557,6 +2557,23 @@ $(function() {
       addAlert('success','Map imported from files!',1000);
     } else {
       addAlert('danger','Error: No PNG and/or JSON dragged and dropped for input.',2000);
+    }
+  });
+  
+  $('#importUrl').click(function() {
+    var url = prompt('Enter a JukeJuice or Unfortunate JukeJuice map URL to import:');
+    if(url) {
+      $.post('test.php', {url: url}, function(data) {
+        if (data) {
+          data = JSON.parse(data);
+          restoreFromPngAndJson(
+            'data:image/png;base64,' + data.layout,
+            data.logic, undefined, true);
+          addAlert('success','Map downloaded from URL and imported!',1000);
+        } else {
+          addAlert('danger','Error: Invalid map URL or download failed.',2000);
+        }
+      });
     }
   });
 
