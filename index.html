@@ -48,7 +48,7 @@
             <li><a id="exportButton" style="overflow:hidden;text-overflow:ellipsis;" data-target="#export" data-toggle="modal"><span class="glyphicon glyphicon-file"></span> PNG/JSON files</a></li>
             <li><a style="overflow:hidden;text-overflow:ellipsis;"><span class="glyphicon glyphicon-cloud"></span> JukeJuice</a></li>
             <li><a style="overflow:hidden;text-overflow:ellipsis;"><span class="glyphicon glyphicon-cloud"></span> Unfortunate JukeJuice</a></li>
-            <li><a style="overflow:hidden;text-overflow:ellipsis;"><span class="glyphicon glyphicon-picture"></span> Analytics</a></li>
+            <li><a id="analytics" style="overflow:hidden;text-overflow:ellipsis;"><span class="glyphicon glyphicon-picture"></span> Analytics</a></li>
           </ul>
         </div>
       </div>
@@ -146,6 +146,11 @@
     </div>
 
     <div id="palette"></div>
+  
+    <form id="analyticsForm" action="//tagpro.eu" method="POST" target="tagpro">
+      <input type="hidden" name="logic" />
+      <input type="hidden" name="layout" />
+    </form>
   
     <p>
       <a href="LICENSE.txt" target="tagpro">License</a>

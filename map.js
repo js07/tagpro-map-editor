@@ -2102,6 +2102,13 @@ $(function() {
     $(pngOutArea).attr('download',name+'.png').attr('href', getPngBase64Url());
   });
   
+  $('#analytics').click(function() {
+    var name = $('#mapName').val() || 'Untitled';
+    document.getElementById('analyticsForm').elements[0].value = makeLogicString();
+    document.getElementById('analyticsForm').elements[1].value = getPngBase64();
+    document.getElementById('analyticsForm').submit();
+  });
+  
   $('#save').click(function() {
     localStorage.setItem('png', getPngBase64Url());
     localStorage.setItem('json', makeLogicString());
