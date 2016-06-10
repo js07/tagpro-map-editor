@@ -235,8 +235,10 @@ $(function() {
     "000d": [5.5, 10]
   };
 
-  var savedPng = localStorage.getItem('png')
-  var savedJson = localStorage.getItem('json')
+  var socket = io();
+
+  var savedPng = null; //localStorage.getItem('png')
+  var savedJson = null; //localStorage.getItem('json')
   restoreFromPngAndJson(savedPng, savedJson, undefined, true);
 
   var importJson;
@@ -247,6 +249,9 @@ $(function() {
   var tileSize = 40;
   var tileSheetWidth = 16;
   var tileSheetHeight = 11;
+
+  var versionHistory = [];
+  var roomHistory = [];
   
   function positionCss(x, y, mult) {
     return (mult ? -x*tileSize*mult : -x*tileSize) + 'px ' + (mult ? -y*tileSize*mult : -y*tileSize) + 'px';
@@ -772,6 +777,7 @@ $(function() {
       }
     },
     speculateUp: function(x,y) {
+      console.log("speculate up");
       var tile = tiles[x][y];
       var change = null;
       if ((tile.type == portalType || tile.type == exitPortalType) && this.selectedSwitch && this.selectedSwitch.type == portalType) {
@@ -793,6 +799,7 @@ $(function() {
         if (affected[hitKey]) delete affected[hitKey];
         else affected[hitKey] = tile;
         */
+        console.log("wireCalculatedAffected: ", wireCalculatedAffected);
         change = new TileState(this.selectedSwitch, {affected: wireCalculatedAffected});
       }
       return new UndoStep(change ? [change] : []);
@@ -991,6 +998,8 @@ $(function() {
       
       $('#addWidth').removeClass('active').blur();
       selectedTool = oldTool;
+
+      socket.emit('action', {action:'addWidthUp', extra: extra, start: start, controlDown: controlDown});
     }
   });
   
@@ -1059,6 +1068,8 @@ $(function() {
       
       $('#addHeight').removeClass('active').blur();
       selectedTool = oldTool;
+
+      socket.emit('action', {action:'addHeightUp', extra: extra, start: start, controlDown: controlDown});
     }
   });
 
@@ -1096,6 +1107,7 @@ $(function() {
   var marsBallCount = 0;
   function TileState(source, changes) {
     changes = changes || {};
+    this.changes = changes; //todo: remove or not
     this.x = changes.x || source.x; 
     this.y = changes.y || source.y;
     var onTop = (changes.type == marsBallType || changes.type == redSpawnType || changes.type == blueSpawnType)
@@ -1242,6 +1254,11 @@ $(function() {
   }
   
   function applyStep(step) {
+    if (!step.isOld) {
+      var socketstep = serializeStep(step);
+      socket.emit('action', {action:'applyStep', step:socketstep});
+    }
+
     var tileChanges = step.states;
     if (step.size) {
       var types = [];
@@ -1306,10 +1323,12 @@ $(function() {
     enable($('#redo'), redoSteps.length);
   }
   function undo() {
+    socket.emit('action', { action: 'undo' });
     moveChange(undoSteps, redoSteps);
     enableUndoRedoButtons();
   }
   function redo() {
+    socket.emit('action', { action: 'redo' })
     moveChange(redoSteps, undoSteps);
     enableUndoRedoButtons();
   }
@@ -1324,9 +1343,10 @@ $(function() {
     dirtyStates[xy(tile)] = tile;
   }
 
-  function UndoStep(states, size) {
+  function UndoStep(states, size, isOld) {
     this.states = states;
     this.size = size;
+    this.isOld = isOld || false;
   }
   var undoSteps = [];
   var redoSteps = [];
@@ -1474,6 +1494,7 @@ $(function() {
         this.topSquare = domElem.children[4];
         this.selectionIndicator = domElem.children[5];
         this.affectedIndicator = domElem.children[6];
+        this.affectedIndicatorOther = domElem.children[7];
       
         this.setType(options.type, true, false, true);
         this.background = elem.parent();
@@ -1537,6 +1558,10 @@ $(function() {
     $map.find('.potentialHighlight').css('display', 'none');
   }
 
+  Tile.prototype.highlightWithPotentialOther = function(highlighted) {
+    this.elem.find('.potentialHighlightOther').css('display', highlighted ? 'inline-block' : 'none');
+  }
+
 
   var dirtyWalls = {};
   function isWall(x, y) {
@@ -1577,6 +1602,17 @@ $(function() {
   var tiles;
   var currPos = {};
 
+  var highlightColors = {
+    'green':'#99FF99',
+    'blue':'#9999ff',
+    'red':'#ff9999',
+    'purple':'#cc99ff',
+    'orange':'#ffcc99',
+    'yellow': '#ffff99',
+    'turquoise': '#6fe8e0'
+  }
+  var myHighlightColor = 'green';
+
   function buildTilesWith(types) {
     width = types.length;
     height = types[0].length;
@@ -1593,7 +1629,9 @@ $(function() {
         "<div class='tileQuadrant nestedSquareTL'></div>" +
         "<div class='topSquare'></div>" +
         "<div class='selectionIndicator nestedSquare'></div>" +
-        "<div class='potentialHighlight nestedSquare'></div></div></div>";
+        "<div class='potentialHighlightOther nestedSquare'></div>" +
+        "<div class='potentialHighlight nestedSquare'></div></div></div>"
+        ;
     }
     row += "</div>"
     for (var y=0; y<height; y++) {
@@ -1723,7 +1761,7 @@ $(function() {
     applySymmetry(step);
     $.each(step.states, function(idx, state) {
       if(!state.noHighlight) {
-        var color = state.redHighlight ? '#F44A4A' : '#99FF99';
+        var color = state.redHighlight ? '#F44A4A' : highlightColors[myHighlightColor];
         tiles[state.x][state.y].elem.find('.potentialHighlight').css('backgroundColor',color);
         tiles[state.x][state.y].highlightWithPotential(true);
       }
@@ -1753,6 +1791,8 @@ $(function() {
 
   var controlDown = false;
   var shiftDown = false;
+  var chatFocused = false;
+  var hideChatCount = 0;
   var oldTitles = {};
   var toolTips = {
    toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
@@ -1818,10 +1858,31 @@ $(function() {
         $('[data-toggle="tooltip"]').tooltip('show');
       }
     } else if (e.which==90) { //z
+      if (chatFocused) return;
       undo();
     } else if (e.which==89) { //y
+      if (chatFocused) return;
       redo();
+    } else if (e.which==13) { //enter
+      if (chatFocused) {
+        if ($('#chat-input').val() != '') {
+          socket.emit('chat', { msg: $('#chat-input').val() });
+        }
+        hideChat();
+      }
+      else {
+        $('#chat-text').css('display', 'table-cell');
+        $('#chat-text-single').css('display', 'none');
+        $('#chat-input').css('visibility', 'visible');
+        $('#chat-input').focus();
+        chatFocused = true;
+        scrollChat();
+      }
+    } else if (e.which==27) { //esc
+      if (!chatFocused) return;
+      hideChat();
     } else if (keys[e.which]) {
+      if (chatFocused) return;
       var tool = tipsTools[keys[e.which]];
       if($.isNumeric(tool)) {
         $('.tilePaletteOption').eq(tool).click();
@@ -1871,12 +1932,16 @@ $(function() {
         change = selectedTool.speculateUp && selectedTool.speculateUp(x,y)
       }
       selectedTool.setState(st);
-      if(change) setSpeculativeStep(change);
+      if(change) {
+        setSpeculativeStep(change);
+        socket.emit('action', {action: 'setSpeculativeStep', step: serializeStep(change)});
+      }
       return;
     }
     })
     .on('mouseleave', '.tile', function(e) {
       clearPotentialHighlights();
+      socket.emit('action', { action: 'clearPotentialHighlights'});
 //      console.log('mouse left ', $(this).data('x'), $(this).data('y'));
     })
     .on('mousedown', '.tile', function(e) {
@@ -1978,7 +2043,10 @@ $(function() {
           var st = selectedTool.getState();
           change = selectedTool.speculateUp(x,y);
           selectedTool.setState(st);
-          if (change) setSpeculativeStep(change);
+          if (change) {
+            setSpeculativeStep(change);
+            socket.emit('action', { action:'setSpeculativeStep', step: serializeStep(change)});
+          };
         }
       }
     })
@@ -1999,16 +2067,17 @@ $(function() {
           selectedTool.up(x,y);
         
           savePoint();
+          socket.emit('action', { action: 'savePoint' });
         }
         mouseDown = false;
         cleanDirtyWalls();
 
-        if(++count>=20) {
-          count = 0;
-          localStorage.setItem('png', getPngBase64Url());
-          localStorage.setItem('json', makeLogicString(null,true));
-          addAlert('success','Map auto-saved!',1000);
-        }
+        // if(++count>=20) { // Don't autosave
+        //   count = 0;
+        //   localStorage.setItem('png', getPngBase64Url());
+        //   localStorage.setItem('json', makeLogicString(null,true));
+        //   addAlert('success','Map auto-saved!',1000);
+        // }
       }
     });
 
@@ -2114,6 +2183,13 @@ $(function() {
     localStorage.setItem('json', makeLogicString());
   });
 
+  $('#syncToServer').click(function() {
+    socket.emit('syncToServer', { force: true, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo()});
+  });
+  $('#pullFromServer').click(function() {
+    socket.emit('pullFromServer', {});
+  });
+
   function isValidMapStr() {
     var hasRedFlag = false;
     var hasBlueFlag = false;
@@ -2149,6 +2225,7 @@ $(function() {
             win.focus();
           else
             addAlert('danger','Please set your pop-up blocker to allow pop-ups',2000);
+          socket.emit('action', { action: 'test', url: data });
         } else {
           addAlert('danger','Error: Test couldn\'t get started',2000);
         }
@@ -2562,6 +2639,7 @@ $(function() {
         importPng,
         importJson, undefined, true);
       addAlert('success','Map imported from files!',1000);
+      setTimeout(function() { socket.emit('syncToServer', { isImport:true, force: false, pull:true, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo()  }) }, 1500);
     } else {
       addAlert('danger','Error: No PNG and/or JSON dragged and dropped for input.',2000);
     }
@@ -2577,6 +2655,7 @@ $(function() {
             'data:image/png;base64,' + data.layout,
             data.logic, undefined, true);
           addAlert('success','Map downloaded from URL and imported!',1000);
+          setTimeout(function() { socket.emit('syncToServer', { isImport:true, force: false, pull:true, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo()  }) }, 1500);
         } else {
           addAlert('danger','Error: Invalid map URL or download failed.',2000);
         }
@@ -2781,6 +2860,7 @@ $(function() {
     setTimeout(function() {
       resizeTo(width, height, deltaX, deltaY);
       console.log('resizing to',width,height);
+      socket.emit('action', {action:'resizeTo', width:width, height:height, deltaX:deltaX, deltaY:deltaY});
     }, delay);
     e.preventDefault();
   });
@@ -2849,6 +2929,7 @@ $(function() {
         }
         applySize(tile.topSquare);
         applySize(tile.affectedIndicator);
+        applySize(tile.affectedIndicatorOther);
         applySize(tile.selectionIndicator);
         tile.selectionIndicator.style.backgroundSize = singleTileBackgroundSize;
         applySize(tile.elem[0]);
@@ -2868,6 +2949,7 @@ $(function() {
   $('#clear').click(function() {
     if (confirm('Are you sure you want to clear the map?')) {
       clearMap();
+      socket.emit('action', {action:'clear'});
     }
     $(this).blur();
   });
@@ -2946,9 +3028,11 @@ $(function() {
   }
   $('#rotateLeft').click(function() {
     rotateMap(-90);
+    socket.emit('action', {action:'rotate', degrees:-90});
   });
   $('#rotateRight').click(function() {
     rotateMap(90);
+    socket.emit('action', {action:'rotate', degrees:90});
   });
   
   function flipMap(type) {
@@ -2989,9 +3073,11 @@ $(function() {
   }
   $('#flipVertical').click(function() {
     flipMap([1,-1]);
+    socket.emit('action', {action:'flip', type:[1,-1]});
   });
   $('#flipHorizontal').click(function() {
     flipMap([-1,1]);
+    socket.emit('action', {action:'flip', type:[-1,1]});
   })
   
   function mirrorMap(type) {
@@ -3068,6 +3154,7 @@ $(function() {
       }*/
     }
     mirrorMap(type);
+    socket.emit('action', {action:'mirror', type:type});
     e.preventDefault();
   });
   $('#mirrorOptions').on('keydown',function(e){
@@ -3077,11 +3164,11 @@ $(function() {
     }
   });
   
-  window.addEventListener("beforeunload", function (e) {
-    localStorage.setItem('png', getPngBase64Url());
-    localStorage.setItem('json', makeLogicString(null,true));
-    addAlert('success','Map auto-saved!',1000);
-  });
+  // window.addEventListener("beforeunload", function (e) {
+  //   localStorage.setItem('png', getPngBase64Url());
+  //   localStorage.setItem('json', makeLogicString(null,true));
+  //   addAlert('success','Map auto-saved!',1000);
+  // });
   
   function formatDate(date) {
     var myDate = new Date();
@@ -3169,4 +3256,491 @@ $(function() {
       slot.find('p:last').text(savedDate || 'Unknown');
     }
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /*
+   *  Coedit functions
+   */
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  function setDetails() {
+    var username = $('#my-username').val();
+    localStorage.setItem('username', username);
+    localStorage.setItem('color', myHighlightColor);
+    socket.emit('details', { username: username, color: myHighlightColor });
+  }
+
+  function setHighlightColor(color) {
+    myHighlightColor = color;
+    $('.highlight-color').removeClass('highlight-color-active');
+    $('.highlight-'+color).addClass('highlight-color-active');
+    setDetails();
+  }
+
+  function xmlEscape(s) {
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/'/g, '&apos;')
+        .replace(/"/g, '&quot;');
+  }
+
+  function urlify(text) {
+      var urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, function(url) {
+          return '<a href="' + url + '" target="_blank">' + url + '</a>';
+      })
+  }
+
+  function scrollChat() {
+    $('#chat-text').prop({scrollTop: $('#chat-text').prop('scrollHeight')});
+    $('#chat-text-single').prop({scrollTop: $('#chat-text-single').prop('scrollHeight')});
+  }
+
+  function hideChat() {
+    $('#chat-text').css('display', 'none');
+    $('#chat-text-single').css('display', 'table-cell');
+    $('#chat-input').val('');
+    $('#chat-input').blur();
+    $('#chat-input').css('visibility', 'hidden');
+    chatFocused = false;
+    scrollChat();
+  }
+
+  function addWidthUp(extra, start, cntrlDown) {
+      var controlDownTemp = controlDown;
+      controlDown = cntrlDown;
+      var canvas = document.createElement('canvas');
+      canvas.height = tiles[0].length;
+      canvas.width = tiles.length+(controlDown?-extra:extra);
+      var ctx = canvas.getContext('2d');
+      
+      if(!controlDown && canvas.width*canvas.height > 3600)
+        addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',2000);
+    
+      var tilemap = [[]];
+      for(var x = 0;x < width;x++) {
+        for(var y = 0;y < height;y++) {
+          if(x<start) {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y};
+          }
+          else {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x+(controlDown?-extra:extra), y: y};
+          }
+        }
+      }
+      
+      var json = transformLogic(makeLogic(),tilemap);
+      var png = getPngBase64Url();
+      var image = new Image();
+      image.src = png;
+      image.onload = function() {
+        $('body').css('cursor','wait');
+        ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = ctx.msImageSmoothinEnabled = false;
+        ctx.drawImage(image,0,0,start,image.height,0,0,start,image.height);
+        ctx.drawImage(image,start+(controlDown?extra:0),0,image.width-start,image.height,start+(controlDown?0:extra),0,image.width-start,image.height);
+        png = canvas.toDataURL();
+        restoreFromPngAndJson(png, makeLogicString(json), false, false);
+      };
+      controlDown = controlDownTemp;
+  }
+  function addHeightUp(extra, start, cntrlDown) {
+      var controlDownTemp = controlDown;
+      controlDown = cntrlDown;
+      var canvas = document.createElement('canvas');
+      canvas.height = tiles[0].length+(controlDown?-extra:extra);
+      canvas.width = tiles.length;
+      var ctx = canvas.getContext('2d');
+      
+      if(!controlDown && canvas.width*canvas.height > 3600)
+        addAlert('warning','Warning: Maps larger than 3600 tiles may cause lag and may not be allowed to be tested by normal means',2000);
+      
+      var tilemap = [[]];
+      for(var x = 0;x < width;x++) {
+        for(var y = 0;y < height;y++) {
+          if(y<start) {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y};
+          }
+          else {
+            if(!tilemap[x]) tilemap[x] = [];
+            tilemap[x][y] = {x: x, y: y+(controlDown?-extra:extra)};
+          }
+        }
+      }
+      
+      var json = transformLogic(makeLogic(),tilemap);
+      var png = getPngBase64Url();
+      var image = new Image();
+      image.src = png;
+      image.onload = function() {
+        $('body').css('cursor','wait');
+        ctx.webkitImageSmoothingEnabled = ctx.imageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = ctx.msImageSmoothinEnabled = false;
+        ctx.drawImage(image,0,0,image.width,start,0,0,image.width,start);
+        ctx.drawImage(image,0,start+(controlDown?extra:0),image.width,image.height-start,0,start+(controlDown?0:extra),image.width,image.height-start);
+        png = canvas.toDataURL();
+        restoreFromPngAndJson(png, makeLogicString(json), false, false);
+      };
+      controlDown = controlDownTemp;
+  }
+  function setSpeculativeStepOther(step, idNum, highlightColor) {
+    // applySymmetry(step);
+    $.each(step.states, function(idx, state) {
+      if(!state.noHighlight) {
+        var color = state.redHighlight ? '#F44A4A' : highlightColors[highlightColor];
+        tiles[state.x][state.y].elem.find('.potentialHighlightOther').css('backgroundColor',color);
+        tiles[state.x][state.y].elem.find('.potentialHighlightOther').addClass('potentialHighlightOther-'+idNum);
+        tiles[state.x][state.y].highlightWithPotentialOther(true);
+      }
+    });
+  }
+  function clearPotentialHighlightsOther(idNum) {
+    $map.find('.potentialHighlightOther-'+idNum).css('display', 'none');
+    $map.find('.potentialHighlightOther-'+idNum).removeClass('.potentialHighlightOther-'+idNum);
+  }
+
+  function undoOther() {
+    moveChangeOther(undoSteps, redoSteps);
+    enableUndoRedoButtons();
+  }
+  function redoOther() {
+    moveChangeOther(redoSteps, undoSteps);
+    enableUndoRedoButtons();
+  }
+  function moveChangeOther(fromSteps, toSteps) {
+    console.log("move change other");
+    if (!fromSteps.length) return;
+    
+    var step = fromSteps.splice(fromSteps.length-1, 1)[0];
+    //applyStep(step);
+    
+    var step = recordStep();
+    console.log("here");
+    if (step) {
+      console.log("step");
+      toSteps.push(step);
+    }
+  }
+
+
+  function serializeStep(step) {
+    var socketstep = step.states.map(function(obj) { 
+      var rObj = {};
+      rObj.x = obj.x;
+      rObj.y = obj.y;
+      rObj.typeName = obj.type.name;
+      rObj.changes = {};
+      if (obj.affected) {
+        rObj.affected = {};
+        for (k in obj.affected) {
+          rObj.affected[k] = { x:obj.affected[k].x, y:obj.affected[k].y };
+        }
+      }
+      if (obj.destination) {
+        rObj.destination = { x:obj.destination.x, y:obj.destination.y };
+      }
+      for (key in obj.changes) {
+        if (key === "type") {
+          rObj.changes.typeName = obj.changes.type.name;
+        }
+        else if (key === "destination") {
+          rObj.changes.destination = { x:obj.changes.destination.x, y:obj.changes.destination.y };
+        }
+        else if (key === "affected") {
+          rObj.changes.affected = {};
+          for (k in obj.changes.affected) {
+            rObj.changes.affected[k] = { x:obj.changes.affected[k].x, y:obj.changes.affected[k].y };
+          }
+        }
+        else {
+          rObj.changes[key] = obj.changes[key];
+        }
+      }
+      return rObj;
+    });
+    return socketstep;
+  }
+  function deserializeStep(step) {
+    var states = step.map(function(obj) {
+      tileTypes.forEach(function(type) {
+        if (type.name === obj.typeName) {
+          obj.type = type;
+        }
+      });
+      if (obj.changes.typeName) {
+        tileTypes.forEach(function(type) {
+          if (type.name === obj.changes.typeName) {
+            obj.changes.type = type;
+          }
+        });
+      }
+      if (obj.changes.destination) {
+        obj.changes.destination = tiles[obj.changes.destination.x][obj.changes.destination.y];
+      }
+      if (obj.changes.affected) {
+        var affected = {};
+        for (var k in obj.changes.affected) {
+          affected[k] = tiles[obj.changes.affected[k].x][obj.changes.affected[k].y];
+        }
+        obj.changes.affected = affected;
+        obj.affected = affected;
+      }
+      var state = new TileState(tiles[obj.x][obj.y], obj.changes);
+      if (obj.destination) {
+        state.destination = tiles[obj.destination.x][obj.destination.y];
+      }
+      if (obj.affected) {
+        var affected = [];
+        for (var k in obj.affected) {
+          affected[k] = tiles[obj.affected[k].x][obj.affected[k].y];
+        }
+        state.affected = affected;
+      }
+      state.type = obj.type;
+      state = new TileState(state, obj.changes);
+      return state;
+    });
+    return new UndoStep(states, 0, true);
+  }
+
+  var actionHandlers = {
+    applyStep: function(data) {
+      var change = deserializeStep(data.step);
+      applyStep(change);
+    },
+    addWidthUp: function(data) {
+      addWidthUp(data.extra, data.start, data.controlDown);
+    },
+    addHeightUp: function(data) {
+      addHeightUp(data.extra, data.start, data.controlDown);
+    },
+    rotate: function(data) {
+      rotateMap(data.degrees);
+    },
+    flip: function(data) {
+      flipMap(data.type);
+    },
+    mirror: function(data) {
+      mirrorMap(data);
+    },
+    resizeTo: function(data) {
+      resizeTo(data.width, data.height, data.deltaX, data.deltaY);
+    },
+    clear: function(data) {
+      clearMap();
+    },
+    setSpeculativeStep: function(data) {
+      setSpeculativeStepOther(deserializeStep(data.step), data.idNum, data.color);
+    },
+    clearPotentialHighlights: function(data) {
+      clearPotentialHighlightsOther(data.idNum);
+    },
+    mapInfo: function(data) {
+      $('#mapName').val(data.name);
+      $('#author').val(data.author);
+      $('#'+data.gameMode+'Mode').click();
+    },
+    savePoint: function(data) {
+      savePoint();
+    },
+    undo: function(data) {
+      undoOther();
+    },
+    redo: function(data) {
+      redoOther();
+    },
+    test: function(data) {
+      addAlert('success','A test has been started here: ' + urlify(data.url), 6000);
+    }
+  }
+
+  function processActions(actions) {
+    for (var i = 0; i < actions.length; i++) {
+      actionHandlers[actions[i].action](actions[i]);
+    }
+  }
+
+  /////////////////////////////////////////////// 
+  // Socket Handlers
+  ///////////////////////////////////////////////
+  socket.on('connect', function() {
+    var room = window.location.pathname.split('/')[1];
+    var username = $('#my-username').val();
+    myHighlightColor = localStorage.getItem('color') || myHighlightColor;
+    socket.emit('roomConnect', {room: room, username: username, color: myHighlightColor });
+  });
+
+  socket.on('action', function(data) {
+    // console.log(data);
+    actionHandlers[data.action](data);
+  });
+
+  socket.on('actions', function(data) {
+    processActions(data);
+  });
+
+  socket.on('pullFromServer', function(data) {
+    //console.log(data);
+    if (data.timeout) {
+      setTimeout(function() {
+        restoreFromPngAndJson(data.files.png, data.files.json);
+        if (data.actions) {
+          setTimeout(function() {processActions(data.actions)}, 1500);
+        }
+      }, 2500);
+    }
+    else {
+      restoreFromPngAndJson(data.files.png, data.files.json);
+      if (data.actions) processActions(data.actions);
+    }
+  });
+
+  socket.on('chat', function(data) {
+    hideChatCount++;
+    var chatSelector = $('#chat-text');
+    $('#chat-text-single').css('display', 'table-cell');
+    var singleSelector = $('#chat-text-single');
+    var html = '<span><span style="color:' + highlightColors[data.color] + '"><b>' + xmlEscape(data.username) + '</b></span>: <span>' + urlify(xmlEscape(data.msg)) + '</span><br></span>';
+    var $html = $(html);
+    setTimeout(function() { $html.fadeOut(400, function() { $html.remove(); }) }, 10000);
+    singleSelector.children('.current').append($html);
+    chatSelector.children('.current').append(html);
+    scrollChat();
+  });
+
+  socket.on('roomConnect', function(data) {
+    var username = data.username;
+    $('#my-username').val(username);
+    setHighlightColor(myHighlightColor);
+  });
+
+  socket.on('details', function(data) {
+    //console.log(data);
+    var html = "";
+    for (var i = 0; i < data.users.length; i++) {
+      var user = data.users[i];
+      html += '<span class="strokeme-black" style="color:' + highlightColors[user.color] + '">' + xmlEscape(user.username) + '</span><br>';
+    }
+    $('#users-list').html(html);
+  });
+
+  socket.on('history', function(data) {
+    versionHistory = data;
+    setHistory();
+  });
+
+  /////////////////////////////////////////////// 
+  // Client Handler Functions
+  ///////////////////////////////////////////////
+
+  function getMapInfo() {
+    var name = $('#mapName').val() || $("#mapName").attr("placeholder");
+    var author = $('#author').val() || $("#author").attr("placeholder");
+    var gameMode = $('input[name="gameMode"]:checked').val();
+    return { action: 'mapInfo', name: name, author: author, gameMode: gameMode };
+  }
+  function makeDateString(d) {
+    var t = d.toLocaleTimeString().split(' ');
+    var dateString = d.toString().substring(4,10) + " " + t[0].substring(0,t[0].length-3) + " " + t[1];
+    return dateString;
+  }
+  function setHistory() {
+    var historyType = $('#history-type').val();
+    if (historyType === 'Version') {
+      setVersionHistory();
+    }
+    else {
+      setRoomHistory();
+    }
+  }
+  function setVersionHistory() {
+    var versionType = $('#version-type').val();
+    var useManual = versionType === 'Manual';
+    var html = "";
+    for (var i = 0; i < versionHistory.maps.length; i++) {
+      var map = versionHistory.maps[i];
+      if (!map.manual && useManual) continue;
+      var d = new Date(map.creationDate);
+      var dateString = makeDateString(d);
+      html += '<tr class="map-version" data-id='+map.id+'><td>' + map.id + '</td><td>' + map.name + '</td><td>' + dateString +'</td><tr>';
+    }
+    $('#history-text table').html(html);
+    $('#version-type').css('display', 'inline');
+    $('.map-version').on('click', function() {
+      socket.emit('getMap', { id: $(this).attr('data-id') });
+    });
+  }
+  function setRoomHistory() {
+    var html = "";
+    for (var i = roomHistory.length - 1; i >= 0; i--) {
+      var roomName = roomHistory[i];
+      html += '<tr class="room-name" data-room='+roomName+'><td>' + roomName +'</td><tr>';
+    }
+    $('#history-text table').html(html);
+    $('#version-type').css('display', 'none');
+    $('.room-name').on('click', function() {
+      socket.emit('getMap', { id: $(this).attr('data-id') });
+      window.location = '/' + $(this).attr('data-room');
+    });
+  }
+  /////////////////////////////////////////////// 
+  // Client Handlers
+  ///////////////////////////////////////////////
+  $('.highlight-color').click(function() {
+    setHighlightColor($(this).attr('data-color'));
+  });
+  $('#my-username').focusout(function() {
+    setDetails();
+  });
+  $('#mapName').focusout(function() {
+    socket.emit('action', getMapInfo());
+  });
+  $('#author').focusout(function() {
+    socket.emit('action', getMapInfo());
+  });
+  $('input[name="gameMode"]').change(function() {
+    socket.emit('action', getMapInfo());
+  });
+  $('#version-type').change(function() {
+    setHistory();
+  });
+  $('#history-type').change(function() {
+    setHistory();
+  });
+
+  /////////////////////////////////////////////// 
+  // Init
+  ///////////////////////////////////////////////
+  setTimeout(function() {
+    socket.emit('syncToServer', { force: false, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo() });
+  }, 6000);
+  setInterval(function() {
+    socket.emit('syncToServer', { force: false, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo() });
+  }, 15000);
+  setInterval(function() {
+    socket.emit('syncToServer', { save:true, force: false, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo() });
+  }, 300000);
+
+  // Set username
+  if (localStorage.getItem('username')) {
+    $('#my-username').val(localStorage.getItem('username'));
+  }
+  // Add room 
+  var roomName = window.location.pathname.split('/')[1];
+  if (localStorage.getItem('roomHistory')) {
+    roomHistory = JSON.parse(localStorage.getItem('roomHistory'));
+    var roomIndex = roomHistory.indexOf(roomName);
+    if (roomIndex >= 0) {
+      roomHistory.splice(roomIndex, 1);
+    }
+    if (roomHistory.length >= 9) {
+      roomHistory.splice(0, 1);
+    }
+  }
+  roomHistory.push(roomName);
+  localStorage.setItem('roomHistory', JSON.stringify(roomHistory));
+
 });

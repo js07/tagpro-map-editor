@@ -70,6 +70,14 @@ div.potentialHighlight {
     /*background-image: url("../selected.png");*/
     display:none;
 }
+div.potentialHighlightOther {
+    width:40px;
+    height:40px;
+    background-color:#99ff99;
+    opacity: .5;
+    /*background-image: url("../selected.png");*/
+    display:none;
+}
 a {
     cursor: pointer;
 }
@@ -175,3 +183,96 @@ input[type="radio"], input[type="checkbox"] {
 div.active {
     background-color: rgba(200,200,200,0.75);
 }
+
+#chat-text {
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+
+.chat-text {
+    height:0px;
+    vertical-align:bottom;
+    background-color: rgba(0,0,0,0.8);
+}
+
+#chat-box {
+    position:fixed;
+    width:300px;
+    right:4%;
+    bottom:4%;
+    pointer-events: none;
+}
+
+#chat-input {
+    width:100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    border:0;
+    color:white;
+    visibility:hidden;
+}
+
+.current {
+    min-width:300px;
+    max-width:300px;
+    max-height:150px;
+}
+
+.strokeme
+{
+    color: white;
+    text-shadow:
+    -0.5px -0.5px 0 #000,
+    0.5px -0.5px 0 #000,
+    -0.5px 0.5px 0 #000,
+    0.5px 0.5px 0 #000;  
+}
+
+.strokeme-black
+{
+    color: black;
+    text-shadow:
+    -0.5px -0.5px 0 #000,
+    0.5px -0.5px 0 #000,
+    -0.5px 0.5px 0 #000,
+    0.5px 0.5px 0 #000;  
+}
+
+.highlight-color {
+    padding-right:10px;
+    margin-right:10px;
+    height:20px;
+    width:20px;
+}
+
+.highlight-color:hover {
+    border-color:black;
+    border-style:solid;
+    border-width:2px;
+}
+
+.highlight-color-active {
+    border-color:black;
+    border-style:solid;
+    border-width:2px;
+}
+
+.green { background-color: #99FF99; }
+.blue { background-color: #9999ff; }
+.red { background-color: #ff9999; }
+.purple { background-color: #cc99ff; }
+.orange { background-color: #ffcc99; }
+.yellow { background-color: #ffff99; }
+.turquoise { background-color: #6fe8e0; }
+
+.map-version {
+    cursor: pointer;
+}
+
+.room-name {
+    cursor: pointer;
+}
+
+.chat-single {
+    pointer-events: none;
+}
+

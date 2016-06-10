@@ -30,12 +30,24 @@ function upload_map($address, $logic, $layout, $play)
   else
   {
    if(($result = curl_exec($curl)) !== false && ($result = json_decode($result)) && $result->success)
+    // echo isset($result->saveurl) ? $result->saveurl : $result->url;
     echo 'http://', $clouds[$_POST['cloud']], isset($result->saveurl) ? $result->saveurl : $result->url;
   }
  }
  unlink($json);
  unlink($png);
 }
+if (strlen($argv[1]) > 0)
+  $_POST['logic'] = $argv[1];
+if (strlen($argv[2]) > 0)
+  $_POST['layout'] = $argv[2];
+if (strlen($argv[3]) > 0)
+  $_POST['server'] = $argv[3];
+if (strlen($argv[4]) > 0)
+  $_POST['url'] = $argv[4];
+if (strlen($argv[5]) > 0)
+  $_POST['cloud'] = $argv[5];
+
 if(isset($_POST['logic']) && isset($_POST['layout']))
 {
  $servers = array(
@@ -46,6 +58,7 @@ if(isset($_POST['logic']) && isset($_POST['layout']))
  $clouds = array(
   'maps.jukejuice.com',
   'unfortunate-maps.jukejuice.com');
+
  if(isset($_POST['server']) && isset($servers[$_POST['server']]))
   upload_map('http://' . $servers[$_POST['server']] . '/testmap', 'logic', 'layout', true);
  elseif(isset($_POST['cloud']) && isset($clouds[$_POST['cloud']]))
