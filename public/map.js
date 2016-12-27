@@ -239,6 +239,8 @@ $(function() {
 
   var savedPng = null; //localStorage.getItem('png')
   var savedJson = null; //localStorage.getItem('json')
+
+  var texturePack = localStorage.getItem('texturePack') || 'classic';
   restoreFromPngAndJson(savedPng, savedJson, undefined, true);
 
   var importJson;
@@ -284,7 +286,7 @@ $(function() {
   }
   TileType.prototype.drawOn = function($elem, tile, onTop) {
     var styleBgColor = '';
-    var styleUrl = this.image || 'url(tiles.png)';
+    var styleUrl = this.image || 'url(texturepacks/'+texturePack+'/tiles.png)';
     var styleBackgroundSize = this.image ? (this.imageTileWidth*tileSize+'px ' + this.imageTileHeight*tileSize + 'px') : (tileSheetWidth*tileSize*this.multiplier + 'px ' + tileSheetHeight*tileSize*this.multiplier + 'px');
     if (this.name == 'empty') {
       styleBgColor = 'black';
@@ -1246,7 +1248,7 @@ $(function() {
   function savePoint() {
     var step = recordStep();
     if (step) {
-      console.log('recording step', step);
+      // console.log('recording step', step); // Changed: don't log recording step
       undoSteps.push(step);
       redoSteps = [];
       enableUndoRedoButtons();
@@ -1418,17 +1420,17 @@ $(function() {
     spikeType = new TileType('spike', 12,0, 55,55,55, "Spike"),
     bombType = new TileType('bomb', 12,1, 255,128,0, "Bomb - Receives signals from switches."),
     powerupType = new TileType('powerup', 12,7, 0,255,0, "Powerup"),
-    speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: 'url(speedpad.png)'}),
-    blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: 'url(speedpadblue.png)'}),
-    redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'url(speedpadred.png)'}),
+    speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: 'url(texturepacks/'+texturePack+'/speedpad.png)'}),
+    blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: 'url(texturepacks/'+texturePack+'/speedpadblue.png)'}),
+    redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'url(texturepacks/'+texturePack+'/speedpadred.png)'}),
     redFloorType = new TileType('redFloor', 14,4, 220,186,186, "Red Speed Tile - Increases speed for non-flag-carriers."),
     blueFloorType = new TileType('blueFloor', 15,4, 187,184,221, "Blue Speed Tile - Increases speed for non-flag-carriers."),
     offFieldType = new TileType('offField', 12,3, 0,117,0, "Gate - Default Off", {logicFn: setFieldFn('off')}),
     onFieldType = new TileType('onField', 13,3, 0,117,0, "Gate - Default On", {logicFn: setFieldFn('on')}),
     redFieldType = new TileType('redField', 14,3, 0,117,0, "Gate - Default Red", {logicFn: setFieldFn('red')}),
     blueFieldType = new TileType('blueField', 15,3, 0,117,0, "Gate - Default Blue", {logicFn: setFieldFn('blue')}),
-    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Links to self by default; use wire tool to link portal or exit portal as destination.", {image: 'url(portal.png)', logicFn: exportPortal}),
-    exitPortalType = new TileType('exitPortal', 4,0, 202, 192,0, "Exit Portal - Can be linked as destination for other portals.", {image: 'url(portal.png)', logicFn: exportExitPortal}),
+    portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Links to self by default; use wire tool to link portal or exit portal as destination.", {image: 'url(texturepacks/'+texturePack+'/portal.png)', logicFn: exportPortal}),
+    exitPortalType = new TileType('exitPortal', 4,0, 202, 192,0, "Exit Portal - Can be linked as destination for other portals.", {image: 'url(texturepacks/'+texturePack+'/portal.png)', logicFn: exportExitPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
     redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
@@ -1909,6 +1911,9 @@ $(function() {
       }, 301);
     }
   });
+  $('#my-username').keydown(function(e) {
+    e.stopPropagation();
+  });
   
   $(window).blur (function() { // If the user ctrl-tabs away, it won't the keyup won't register
     controlDown = false;
@@ -2185,6 +2190,7 @@ $(function() {
 
   $('#syncToServer').click(function() {
     socket.emit('syncToServer', { force: true, files: { png: getPngBase64Url(), json: makeLogicString() }, mapInfo: getMapInfo()});
+    addAlert('success','Map saved on server successfully!',2000);
   });
   $('#pullFromServer').click(function() {
     socket.emit('pullFromServer', {});
@@ -2226,6 +2232,7 @@ $(function() {
           else
             addAlert('danger','Please set your pop-up blocker to allow pop-ups',2000);
           socket.emit('action', { action: 'test', url: data });
+          addChat('<span><span>' + urlify(data) + '</span><br></span>');
         } else {
           addAlert('danger','Error: Test couldn\'t get started',2000);
         }
@@ -2445,7 +2452,7 @@ $(function() {
 
     return false;
   };
-  function restoreFromPngAndJson(pngBase64, jsonString, optResizeParams, doHistoryClear, method) {
+  function restoreFromPngAndJson(pngBase64, jsonString, optResizeParams, doHistoryClear, method, cb) {
     $('body').css('cursor','wait');
     var optWidth = optResizeParams && optResizeParams.width;
     var optHeight = optResizeParams && optResizeParams.height;
@@ -2621,6 +2628,9 @@ $(function() {
       if (doHistoryClear) clearHistory();
       
       $('body').css('cursor','auto');
+
+      // CHANGED
+      if (cb) cb();
     }
     if(pngBase64)
       img.src = pngBase64;//'https://mdn.mozillademos.org/files/5397/rhino.jpg';
@@ -3257,6 +3267,15 @@ $(function() {
     }
   }
 
+  $('#texturePack').val(texturePack);
+  $('#texturePack').change(function() {
+    console.log('Texture pack was ', texturePack);
+    texturePack = $(this).val();
+    console.log('Texture pack is ', texturePack);
+    localStorage.setItem('texturePack', texturePack);
+    // socket.emit('pullFromServer', { isJoin: true });
+  });
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /*
    *  Coedit functions
@@ -3293,8 +3312,16 @@ $(function() {
       })
   }
 
-  function scrollChat() {
-    $('#chat-text').prop({scrollTop: $('#chat-text').prop('scrollHeight')});
+  function scrollChat(preventScroll) {
+    if (preventScroll) {
+        $('#chat-text').css({"border-bottom":"3px dashed red"});
+        setTimeout(function() { 
+            $('#chat-text').css({ "border-bottom":"none" }); 
+        }, 1500);
+    }
+    else {
+        $('#chat-text').prop({scrollTop: $('#chat-text').prop('scrollHeight')});
+    }
     $('#chat-text-single').prop({scrollTop: $('#chat-text-single').prop('scrollHeight')});
   }
 
@@ -3411,17 +3438,58 @@ $(function() {
     enableUndoRedoButtons();
   }
   function moveChangeOther(fromSteps, toSteps) {
-    console.log("move change other");
     if (!fromSteps.length) return;
     
     var step = fromSteps.splice(fromSteps.length-1, 1)[0];
     //applyStep(step);
     
     var step = recordStep();
-    console.log("here");
     if (step) {
-      console.log("step");
       toSteps.push(step);
+    }
+  }
+
+  function addChat(html) {
+    var chatSelector = $('#chat-text');
+    var singleSelector = $('#chat-text-single');
+    var preventScroll = chatSelector.prop("scrollTop") + chatSelector.height() + 50 < chatSelector.prop('scrollHeight');
+    var $html = $(html);
+    setTimeout(function() { $html.fadeOut(400, function() { $html.remove(); }) }, 16000);
+    singleSelector.children('.current').append($html);
+    chatSelector.children('.current').append(html);
+    scrollChat(preventScroll);
+  }
+
+  function notifyBrowser(title, message) {
+    var options = {
+        body: message
+    }
+    if (!("Notification" in window)) {
+      alert("This browser does not support system notifications");
+    }
+    else if (Notification.permission === "granted") {
+      var n = new Notification(title, options);
+      setTimeout(n.close.bind(n), 5000); 
+    }
+    else if (Notification.permission !== 'denied') {
+      Notification.requestPermission(function (permission) {
+        if (permission === "granted") {
+          var n = new Notification(title, options);
+          setTimeout(n.close.bind(n), 5000); 
+        }
+      });
+    }
+  }
+  function notify(title, message) {
+    if (!windowFocus && localStorage.getItem('audioNotification') && JSON.parse(localStorage.getItem('audioNotification'))) {
+      $('#audio')[0].play();
+    }
+    if (!windowFocus && localStorage.getItem('browserNotification') && JSON.parse(localStorage.getItem('browserNotification'))) {
+      notifyBrowser(title, message);
+    }
+    if (!windowFocus && localStorage.getItem('pageTitleNotification') && JSON.parse(localStorage.getItem('pageTitleNotification'))) {
+      pageTitleNotification.off();
+      pageTitleNotification.on(title);
     }
   }
 
@@ -3553,7 +3621,9 @@ $(function() {
       redoOther();
     },
     test: function(data) {
-      addAlert('success','A test has been started here: ' + urlify(data.url), 6000);
+      addAlert('success','A test has been started here: ' + urlify(data.url), 15000);
+      addChat('<span><span>' + urlify(data.url) + '</span><br></span>');
+      notify('New test!', data.url);
     }
   }
 
@@ -3579,36 +3649,29 @@ $(function() {
   });
 
   socket.on('actions', function(data) {
-    processActions(data);
+    processActions(data.actions);
   });
 
   socket.on('pullFromServer', function(data) {
-    //console.log(data);
-    if (data.timeout) {
-      setTimeout(function() {
-        restoreFromPngAndJson(data.files.png, data.files.json);
-        if (data.actions) {
-          setTimeout(function() {processActions(data.actions)}, 1500);
+      restoreFromPngAndJson(data.files.png, data.files.json, null, null, null, function() {
+        if (data.isJoin) {
+          console.log('ready for actions');
+          socket.emit('readyForActions', {tick: data.tick });
         }
-      }, 2500);
-    }
-    else {
-      restoreFromPngAndJson(data.files.png, data.files.json);
-      if (data.actions) processActions(data.actions);
-    }
+      });
+      if (data.actions) {
+        processActions(data.actions);
+      }
+      if (data.mapInfo && data.mapInfo.symmetry) {
+          $('#symmetry').val(data.mapInfo.symmetry);
+          $('#symmetry').change();
+      }
   });
 
   socket.on('chat', function(data) {
-    hideChatCount++;
-    var chatSelector = $('#chat-text');
-    $('#chat-text-single').css('display', 'table-cell');
-    var singleSelector = $('#chat-text-single');
     var html = '<span><span style="color:' + highlightColors[data.color] + '"><b>' + xmlEscape(data.username) + '</b></span>: <span>' + urlify(xmlEscape(data.msg)) + '</span><br></span>';
-    var $html = $(html);
-    setTimeout(function() { $html.fadeOut(400, function() { $html.remove(); }) }, 10000);
-    singleSelector.children('.current').append($html);
-    chatSelector.children('.current').append(html);
-    scrollChat();
+    addChat(html);
+    notify('New message!', data.msg);
   });
 
   socket.on('roomConnect', function(data) {
@@ -3618,7 +3681,7 @@ $(function() {
   });
 
   socket.on('details', function(data) {
-    //console.log(data);
+    // console.log(data);
     var html = "";
     for (var i = 0; i < data.users.length; i++) {
       var user = data.users[i];
@@ -3640,7 +3703,8 @@ $(function() {
     var name = $('#mapName').val() || $("#mapName").attr("placeholder");
     var author = $('#author').val() || $("#author").attr("placeholder");
     var gameMode = $('input[name="gameMode"]:checked').val();
-    return { action: 'mapInfo', name: name, author: author, gameMode: gameMode };
+    var symmetry = $('#symmetry').val();
+    return { action: 'mapInfo', name: name, author: author, gameMode: gameMode, symmetry: symmetry };
   }
   function makeDateString(d) {
     var t = d.toLocaleTimeString().split(' ');
@@ -3710,6 +3774,20 @@ $(function() {
   $('#history-type').change(function() {
     setHistory();
   });
+  $('#audio-notification').change(function() {
+    localStorage.setItem('audioNotification', JSON.stringify($(this).is(':checked')));
+  });
+  $('#browser-notification').change(function() {
+    if ($(this).is(':checked')) {
+      Notification.requestPermission(function (permission) {
+        console.log('Browser permission ', permission);
+      });
+    }
+    localStorage.setItem('browserNotification', JSON.stringify($(this).is(':checked')));
+  });
+  $('#page-title-notification').change(function() {
+    localStorage.setItem('pageTitleNotification', JSON.stringify($(this).is(':checked')));
+  });
 
   /////////////////////////////////////////////// 
   // Init
@@ -3728,6 +3806,16 @@ $(function() {
   if (localStorage.getItem('username')) {
     $('#my-username').val(localStorage.getItem('username'));
   }
+  // Set notifications
+  if (localStorage.getItem('audioNotification')) {
+    $('#audio-notification').attr('checked', JSON.parse(localStorage.getItem('audioNotification')));
+  }
+  if (localStorage.getItem('browserNotification')) {
+    $('#browser-notification').attr('checked', JSON.parse(localStorage.getItem('browserNotification')));
+  }
+  if (localStorage.getItem('pageTitleNotification')) {
+    $('#page-title-notification').attr('checked', JSON.parse(localStorage.getItem('browserNotification')));
+  }
   // Add room 
   var roomName = window.location.pathname.split('/')[1];
   if (localStorage.getItem('roomHistory')) {
@@ -3743,4 +3831,5 @@ $(function() {
   roomHistory.push(roomName);
   localStorage.setItem('roomHistory', JSON.stringify(roomHistory));
 
+  initPageTitleNotification();
 });

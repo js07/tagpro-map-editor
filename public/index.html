@@ -36,8 +36,15 @@
           <button id="syncToServer" class="btn btn-default" title="Copy map to server"><span class="glyphicon glyphicon-upload"></span> Push</button>
         </div>
         <div class="btn-group">
-          <button id="pullFromServer" class="btn btn-default" title="Copy map from server"><span class="glyphicon glyphicon-download"></span> Pull</button>
+          <button class="btn btn-default" data-target="#options" data-toggle="modal"><span class="glyphicon glyphicon-cog"></span> Options</button>
         </div>
+
+<!--         <div class="btn-group">
+          <button id="syncToServer" class="btn btn-default" title="Copy map to server"><span class="glyphicon glyphicon-upload"></span> Push</button>
+        </div>
+        <div class="btn-group">
+          <button id="pullFromServer" class="btn btn-default" title="Copy map from server"><span class="glyphicon glyphicon-download"></span> Pull</button>
+        </div> -->
       </div>
     </div>
 
@@ -724,9 +731,79 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="options" tabindex="-1" role="dialog" aria-labelledby="historyLabel" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+      <div class="modal-dialog modal-sm vertical-align-center">
+        <div class="modal-content">
+          <div class="modal-header modal-colored-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Options</h4>
+          </div>
+
+          <div class="modal-body">
+<!--             <div class="form-group">
+              <div class="btn-group">
+                <button id="syncToServer" class="btn btn-default" title="Copy map to server"><span class="glyphicon glyphicon-upload"></span> Push</button>
+              </div>
+              <div class="btn-group">
+                <button id="pullFromServer" class="btn btn-default" title="Copy map from server"><span class="glyphicon glyphicon-download"></span> Pull</button>
+              </div>
+            </div> -->
+            <div class="form-group">
+              <div>
+                <label class="radioLabel" title="Check to receive an audio notification on chat and game test when not on page." style="width:100%">
+                  <input type="checkbox" class="form-control" id="audio-notification" /><span class="radioSpan">Audio Notification</span>
+                </label>
+                <label class="radioLabel" title="Check to receive a browser notification on chat and game test when not on page." style="width:100%">
+                  <input type="checkbox" class="form-control" id="browser-notification" /><span class="radioSpan">Browser Notification</span>
+                </label>
+                <label class="radioLabel" title="Check to receive a page title notification on chat and game test when not on page." style="width:100%">
+                  <input type="checkbox" class="form-control" id="page-title-notification" /><span class="radioSpan">Page Title Notification</span>
+                </label>
+                <label>Texture Pack</label>
+                <div class="form-group">
+                  <select id="texturePack" class="form-control">
+                    <option value="camsppdark">CamsPP Dark by Cam</option>
+                    <option value="camspplight">CamsPP Light by Cam</option>
+                    <option value="camsppold">CamsPP Old by Cam</option>
+                    <option value="celeste">Celeste by MagicPigeon</option>
+                    <option value="classic" selected>Classic by LuckySpammer</option>
+                    <option value="cmyk">CMYK by MagicPigeon</option>
+                    <option value="coral">Coral by MagicPigeon</option>
+                    <option value="corallight">Coral Light by MagicPigeon</option>
+                    <option value="crystal">Crystal by MagicPigeon</option>
+                    <option value="electric">Electric by Bug</option>
+                    <option value="element">Element+ by MagicPigeon</option>
+                    <option value="flat">Flat by why</option>
+                    <option value="flatbug">Flat (Bug) by Bug</option>
+                    <option value="isometric">Isometric by mtbkr24</option>
+                    <option value="mltplive">MLTP Live by Ron Spawnson</option>
+                    <option value="mtbad">MTBad by mtbkr24</option>
+                    <option value="musclescupgradient">Muscle's Cup Gradients by MuscleCups</option>
+                    <option value="musclescupog">Muscle's Cup OG by MuscleCups</option>
+                    <option value="pastelpro">PastelPro by SuperTed</option>
+                    <option value="plique">Plique by Despair</option>
+                    <option value="plumb">Plumb by SuperTed</option>
+                    <option value="sharp">Sharp by MagicPigeon</option>
+                    <option value="sketch">Sketch+ by MagicPigeon</option>
+                    <option value="sniperpack">Sniper Pack by DOKE</option>
+                    <option value="sparkle">Sparkle by MagicPigeon</option>
+                    <option value="starlight">Starlight by MagicPigeon</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   
   <div id="alerts" style="display: table; position: absolute; width: 33%; top: 20px; margin: auto; left: 0px; right: 0px; z-index: 2000;"></div>
   
+  <script type="text/javascript" src="pagetitlenotification.js"></script>
   <script type="text/javascript" src="map.js"></script>
 
+  <audio id="audio" src="chime.wav"></audio>
 </body></html>

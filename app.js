@@ -70,7 +70,10 @@ server.listen(8080, function () {
 //////////////////////////////// Functions ////////////////////////////////////////
 
 var sendDetails = function(room) {
-  var users = users.map(function(obj) {
+  var users = rooms[room].sockets.filter(function(obj) {
+    return obj.username !== 'hidden';
+  });
+  users = users.map(function(obj) {
     return { username: obj.username, color: obj.color, idNum: obj.idNum };
   });
   io.to(room).emit('details', { users: users});
@@ -79,6 +82,10 @@ var sendDetails = function(room) {
 
 ////////////////////////////// Socket Handlers /////////////////////////////////////////////////
 
+// Don't connect user to room until they are ready
+// When they connect to page, send them the map
+// When they are ready, send the actions they are missing and join/connect to room with socket
+
 io.on('connection', function (socket) {
 
   socket.on('roomConnect', function(data) {
@@ -86,7 +93,7 @@ io.on('connection', function (socket) {
     socket.room = data.room;
 
     if (!rooms[data.room]) { // new room
-        rooms[data.room] = {sockets: [], conCount: 1, actions: [], fileCount: 0, lastSaved: { png: "", json: ""} };
+        rooms[data.room] = {sockets: [], conCount: 1, actions: [], previousActions: [], fileCount: 0, lastSaved: { png: "", json: ""}, tick: true };
         rooms[data.room].leader = socket.id;
         db.latestMap(data.room, function(result) { // latest saved map
           if (result.length > 0) {
@@ -98,16 +105,17 @@ io.on('connection', function (socket) {
           db.getMap( data.room, 0, function(result) {  // most recent map... (id: 0)
               if (result) {
                   rooms[data.room].files = result.files;
+                  if (result.mapInfo) rooms[data.room].mapInfo = result.mapInfo;
               }
               if (rooms[data.room].files) {
-              io.to(socket.id).emit('pullFromServer', {timeout: true, files:rooms[socket.room].files, actions: rooms[socket.room].actions });
+                  io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo });
               }
           });
         });
     }
     else { // room exists
       if (rooms[data.room].files) {
-        io.to(socket.id).emit('pullFromServer', {timeout: true, files:rooms[socket.room].files, actions: rooms[socket.room].actions });
+        io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo });
       }
     }
 
@@ -117,13 +125,21 @@ io.on('connection', function (socket) {
 
     rooms[data.room].sockets.push(socket);
     rooms[data.room].conCount++;
-    socket.join(data.room);
+    // socket.join(data.room); // don't join until ready
 
     io.to(socket.id).emit('roomConnect', { username: socket.username, idNum: socket.idNum });
     sendDetails(socket.room);
     db.mapsInfo({room:socket.room}, function(results) {
       if (results) io.to(socket.id).emit('history', { maps: results });
     });
+  });
+
+  socket.on('readyForActions', function(data) { // READY FOR ACTION!
+    socket.join(socket.room);
+    var room = rooms[socket.room];
+    var actions = (data.tick === room.tick) ? room.actions : room.previousActions.concat(room.actions);
+    io.to(socket.id).emit('actions', { actions: actions });
+    sendDetails(socket.room);
   });
 
   socket.on('disconnect', function(data) {
@@ -153,13 +169,16 @@ io.on('connection', function (socket) {
     var room = rooms[socket.room];
     if (socket.id === room.leader || data.isImport) {
         room.files = data.files;
+        room.mapInfo = data.mapInfo;
+        room.previousActions = room.actions;
         room.actions = [];
-        db.updateMap({ room: socket.room, id: 0}, { id: 0, manual: false, room: socket.room, files: room.files, name: data.mapInfo.name, creationDate: new Date() }, function() {
+        room.tick = !room.tick;
+        db.updateMap({ room: socket.room, id: 0}, { id: 0, manual: false, room: socket.room, files: room.files, name: data.mapInfo.name, creationDate: new Date(), mapInfo: data.mapInfo }, function() {
         });
     }
     if (data.force || (data.save && (socket.id === room.leader) && (room.files.png !== room.lastSaved.png || room.files.json !== room.lastSaved.json) )) {
       room.fileCount++;
-        db.insertMap({ id: room.fileCount, manual: data.force, room: socket.room, files: room.files, name: data.mapInfo.name, save: data.save || false }, function() {
+        db.insertMap({ id: room.fileCount, manual: data.force, room: socket.room, files: room.files, name: data.mapInfo.name, save: data.save || false, mapInfo: data.mapInfo }, function() {
           room.lastSaved.png = room.files.png;
           room.lastSaved.json = room.files.json;
           db.mapsInfo({room:socket.room}, function(results) {
@@ -168,19 +187,19 @@ io.on('connection', function (socket) {
         });
     }
     if (data.pull && room.files) {
-        socket.broadcast.to(socket.room).emit('pullFromServer', {files: room.files});
+        socket.broadcast.to(socket.room).emit('pullFromServer', {files: room.files, mapInfo: room.mapInfo });
     }
   });
   socket.on('pullFromServer', function(data) {
     if (!socket.room) return;
     if (rooms[socket.room].files) {
-      io.to(socket.id).emit('pullFromServer', {files: rooms[socket.room].files});
+      io.to(socket.id).emit('pullFromServer', {files: rooms[socket.room].files, mapInfo: room[socket.room].mapInfo, isJoin: data.isJoin || false });
     }
   });
   socket.on('orderPull', function(data) {
     if (!socket.room) return;
     if (rooms[socket.room].files) {
-      socket.broadcast.to(socket.room).emit('pullFromServer', {files: rooms[socket.room].files});
+      socket.broadcast.to(socket.room).emit('pullFromServer', {files: rooms[socket.room].files, mapInfo: room[socket.room].mapInfo });
     }
   });
 
@@ -191,14 +210,14 @@ io.on('connection', function (socket) {
   });
 
   socket.on('details', function(data) {
-    socket.username = data.username;
+    socket.username = (data.username.length > 0 && data.username.length < 512) ? data.username : ('Some Ball ' + rooms[socket.room].conCount);
     socket.color = data.color;
     sendDetails(socket.room);
   });
 
   socket.on('getMap', function(data) {
     db.getMap(socket.room, data.id, function(result) {
-      if (result) io.to(socket.room).emit('pullFromServer', {files: result.files});
+      if (result) io.to(socket.room).emit('pullFromServer', {files: result.files, mapInfo: result.mapInfo });
     });
   });
 

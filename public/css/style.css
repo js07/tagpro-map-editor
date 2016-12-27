@@ -187,12 +187,14 @@ div.active {
 #chat-text {
     overflow-y: auto; 
     overflow-x: hidden;
+    display: none;
 }
 
 .chat-text {
     height:0px;
     vertical-align:bottom;
     background-color: rgba(0,0,0,0.8);
+    display: table-cell;
 }
 
 #chat-box {
@@ -214,7 +216,7 @@ div.active {
 .current {
     min-width:300px;
     max-width:300px;
-    max-height:150px;
+    max-height:180px;
 }
 
 .strokeme
