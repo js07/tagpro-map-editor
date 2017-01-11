@@ -1655,7 +1655,7 @@ $(function() {
 
     $('#resizeWidth').text(width);
     $('#resizeHeight').text(height);
-		
+    
     $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
     $("div.tileBackground").css("background-position", "-520px -160px");
     $("div.tileQuadrant").css('background-image', $("#tiles").attr('url'));
@@ -3644,7 +3644,6 @@ $(function() {
   });
 
   socket.on('action', function(data) {
-    // console.log(data);
     actionHandlers[data.action](data);
   });
 
@@ -3655,7 +3654,6 @@ $(function() {
   socket.on('pullFromServer', function(data) {
       restoreFromPngAndJson(data.files.png, data.files.json, null, null, null, function() {
         if (data.isJoin) {
-          console.log('ready for actions');
           socket.emit('readyForActions', {tick: data.tick });
         }
       });
@@ -3666,6 +3664,9 @@ $(function() {
           $('#symmetry').val(data.mapInfo.symmetry);
           $('#symmetry').change();
       }
+  });
+  socket.on('readyForActions', function(data) {
+    socket.emit('readyForActions', {tick: data.tick});
   });
 
   socket.on('chat', function(data) {
@@ -3681,7 +3682,6 @@ $(function() {
   });
 
   socket.on('details', function(data) {
-    // console.log(data);
     var html = "";
     for (var i = 0; i < data.users.length; i++) {
       var user = data.users[i];

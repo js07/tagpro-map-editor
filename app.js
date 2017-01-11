@@ -83,7 +83,7 @@ var sendDetails = function(room) {
 ////////////////////////////// Socket Handlers /////////////////////////////////////////////////
 
 // Don't connect user to room until they are ready
-// When they connect to page, send them the map
+// When they connect to page, send them the map if it exists (otherwise, tell them to tell server that they're ready)
 // When they are ready, send the actions they are missing and join/connect to room with socket
 
 io.on('connection', function (socket) {
@@ -107,15 +107,22 @@ io.on('connection', function (socket) {
                   rooms[data.room].files = result.files;
                   if (result.mapInfo) rooms[data.room].mapInfo = result.mapInfo;
               }
-              if (rooms[data.room].files) {
-                  io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo });
+              if (rooms[data.room].files) { // there are files
+                  io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo, tick: rooms[data.room].tick });
+              }
+              else {
+                  // Tell client to tell server it's ready I guess. Since there are no files and for simplicity (simplicity?)
+                  io.to(socket.id).emit('readyForActions', { tick: rooms[data.room].tick });
               }
           });
         });
     }
     else { // room exists
       if (rooms[data.room].files) {
-        io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo });
+        io.to(socket.id).emit('pullFromServer', {isJoin: true, files:rooms[socket.room].files, /*actions: rooms[socket.room].actions,*/ mapInfo: rooms[socket.room].mapInfo, tick: rooms[data.room].tick });
+      }
+      else {
+        io.to(socket.id).emit('readyForActions', { tick: rooms[data.room].tick });
       }
     }
 
