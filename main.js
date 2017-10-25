@@ -7,7 +7,7 @@ var util = require('util');
 
 var app = express();
 
-app.use(express.static('static'));
+app.use(express.static('public'));
 
 app.use(express.urlencoded())
 app.use(express.json())
