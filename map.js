@@ -1150,7 +1150,7 @@ $(function() {
   TileState.prototype.restoreInto = function(tile) {
     if(this.topType && this.topType != marsBallType)
     {
-      if(this.type==tile.type && tile.type != floorType && tile.type != redFloorType && tile.type != blueFloorType) {
+      if(this.type==tile.type && tile.type != floorType && tile.type != yellowFloorType && tile.type != redFloorType && tile.type != blueFloorType) {
         addAlert('danger','Error: You cannot place a spawn tile on top of this type of tile',1500);
         if(tile.topType) this.topType = tile.topType;
         else delete this.topType;
@@ -1380,7 +1380,7 @@ $(function() {
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
     blueFlagType, redFlagType, switchType, bombType, onFieldType, offFieldType,
-    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType,
+    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType,
     spikeType, powerupType, speedpadType,
     yellowFlagType, redEndzoneType, blueEndzoneType,
     redPotatoType, bluePotatoType,
@@ -1401,6 +1401,7 @@ $(function() {
     speedpadType = new TileType('speedpad', 0,0, 255,255,0, "Boost", {image: 'url(speedpad.png)'}),
     blueSpeedpadType = new TileType('blueSpeedpad', 0,0, 115,115,255, "Blue Team Boost", {image: 'url(speedpadblue.png)'}),
     redSpeedpadType = new TileType('redSpeedpad', 0,0, 255,115,115, "Red Team Boost", {image: 'url(speedpadred.png)'}),
+    yellowFloorType = new TileType('yellowFloor', 13,5, 220,220,186, "Yellow Speed Tile - Increases speed for non-flag-carriers."),
     redFloorType = new TileType('redFloor', 14,4, 220,186,186, "Red Speed Tile - Increases speed for non-flag-carriers."),
     blueFloorType = new TileType('blueFloor', 15,4, 187,184,221, "Blue Speed Tile - Increases speed for non-flag-carriers."),
     offFieldType = new TileType('offField', 12,3, 0,117,0, "Gate - Default Off", {logicFn: setFieldFn('off')}),
@@ -2189,9 +2190,9 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, powerupType],
+    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, powerupType, gravityWellType],
     [potatoType, redPotatoType, bluePotatoType, redEndzoneType, blueEndzoneType, portalType, exitPortalType],
-    [speedpadType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType, spikeType, gravityWellType],
+    [speedpadType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType, spikeType],
     [onFieldType, redFieldType, blueFieldType, offFieldType, switchType, bombType, marsBallType]
   ];
 
@@ -2481,7 +2482,7 @@ $(function() {
         var spawn = spawnpoints[color] || [];
         for(var i = 0;i < spawn.length;i++) {
           var tile = tiles[parseInt(spawn[i].x)+deltaX][parseInt(spawn[i].y)+deltaY];
-          if(tile && !tile.radius && !tile.weight && (tile.type == floorType || tile.type == redFloorType || tile.type == blueFloorType)) {
+          if(tile && !tile.radius && !tile.weight && (tile.type == floorType || tile.type == yellowFloorType || tile.type == redFloorType || tile.type == blueFloorType)) {
             var changes = {
               type: (color=='red') ? redSpawnType : blueSpawnType,
               radius: (spawn[i].radius!=undefined) ? spawn[i].radius : undefined,
