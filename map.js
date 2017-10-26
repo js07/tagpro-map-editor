@@ -1182,7 +1182,7 @@ $(function() {
   TileState.prototype.restoreInto = function(tile) {
     if(this.topType && this.topType != marsBallType)
     {
-      if(this.type==tile.type && tile.type != floorType && tile.type != redFloorType && tile.type != blueFloorType) {
+      if(this.type==tile.type && tile.type != floorType && tile.type != yellowFloorType && tile.type != redFloorType && tile.type != blueFloorType) {
         addAlert('danger','Error: You cannot place a spawn tile on top of this type of tile',1500);
         if(tile.topType) this.topType = tile.topType;
         else delete this.topType;
@@ -1414,7 +1414,7 @@ $(function() {
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
     blueFlagType, redFlagType, switchType, bombType, onFieldType, offFieldType,
-    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType,
+    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType,
     spikeType, powerupType, speedpadType,
     yellowFlagType, redEndzoneType, blueEndzoneType;
   
@@ -2193,7 +2193,7 @@ $(function() {
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
     [spikeType, powerupType, portalType, gravityWellType, marsBallType],
     [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
-    [speedpadType, redSpeedpadType, blueSpeedpadType, '', '', redFloorType, blueFloorType],
+    [speedpadType, redSpeedpadType, blueSpeedpadType, '', yellowFloorType, redFloorType, blueFloorType],
     [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
   ];
 
@@ -2476,7 +2476,7 @@ $(function() {
         var spawn = spawnpoints[color] || [];
         for(var i = 0;i < spawn.length;i++) {
           var tile = tiles[parseInt(spawn[i].x)+deltaX][parseInt(spawn[i].y)+deltaY];
-          if(tile && !tile.radius && !tile.weight && (tile.type == floorType || tile.type == redFloorType || tile.type == blueFloorType)) {
+          if(tile && !tile.radius && !tile.weight && (tile.type == floorType || tile.type == yellowFloorType || tile.type == redFloorType || tile.type == blueFloorType)) {
             var changes = {
               type: (color=='red') ? redSpawnType : blueSpawnType,
               radius: (spawn[i].radius!=undefined) ? spawn[i].radius : undefined,
