@@ -1656,9 +1656,11 @@ $(function() {
     $('#resizeWidth').text(width);
     $('#resizeHeight').text(height);
     
-    $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
+    // $("div.tileBackground").css('background-image', $("#tiles").attr('url'));
+    $("div.tileBackground").css('background-image', 'url(texturepacks/'+texturePack+'/tiles.png)');
     $("div.tileBackground").css("background-position", "-520px -160px");
-    $("div.tileQuadrant").css('background-image', $("#tiles").attr('url'));
+    // $("div.tileQuadrant").css('background-image', $("#tiles").attr('url'));
+    $("div.tileQuadrant").css('background-image', 'url(texturepacks/'+texturePack+'/tiles.png)');
     showZoom();
   }
 
@@ -2181,6 +2183,26 @@ $(function() {
     document.getElementById('analyticsForm').elements[0].value = makeLogicString();
     document.getElementById('analyticsForm').elements[1].value = getPngBase64();
     document.getElementById('analyticsForm').submit();
+  });
+
+  $("#saveToJJ").click( function() {
+    $.ajax({
+        url: 'http://unfortunate-maps.jukejuice.com/editorsave',
+        type: 'POST',
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true
+        },
+        data: {layout: getPngBase64(), logic: makeLogicString()}
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) {
+    })
+    .always(function () {
+        addAlert('success','Map uploaded successfully?',2000);
+        var win = window.open('http://unfortunate-maps.jukejuice.com', 'tagpro');
+        if(win)
+            win.focus();
+    });
   });
   
   $('#save').click(function() {
@@ -3454,7 +3476,7 @@ $(function() {
     var singleSelector = $('#chat-text-single');
     var preventScroll = chatSelector.prop("scrollTop") + chatSelector.height() + 50 < chatSelector.prop('scrollHeight');
     var $html = $(html);
-    setTimeout(function() { $html.fadeOut(400, function() { $html.remove(); }) }, 16000);
+    setTimeout(function() { $html.fadeOut(400, function() { $html.remove(); }) }, 25000);
     singleSelector.children('.current').append($html);
     chatSelector.children('.current').append(html);
     scrollChat(preventScroll);
@@ -3644,6 +3666,7 @@ $(function() {
   });
 
   socket.on('action', function(data) {
+    // console.log(data);
     actionHandlers[data.action](data);
   });
 
@@ -3654,6 +3677,7 @@ $(function() {
   socket.on('pullFromServer', function(data) {
       restoreFromPngAndJson(data.files.png, data.files.json, null, null, null, function() {
         if (data.isJoin) {
+          console.log('ready for actions');
           socket.emit('readyForActions', {tick: data.tick });
         }
       });
@@ -3682,6 +3706,7 @@ $(function() {
   });
 
   socket.on('details', function(data) {
+    // console.log(data);
     var html = "";
     for (var i = 0; i < data.users.length; i++) {
       var user = data.users[i];
@@ -3814,7 +3839,7 @@ $(function() {
     $('#browser-notification').attr('checked', JSON.parse(localStorage.getItem('browserNotification')));
   }
   if (localStorage.getItem('pageTitleNotification')) {
-    $('#page-title-notification').attr('checked', JSON.parse(localStorage.getItem('browserNotification')));
+    $('#page-title-notification').attr('checked', JSON.parse(localStorage.getItem('pageTitleNotification')));
   }
   // Add room 
   var roomName = window.location.pathname.split('/')[1];
