@@ -1832,11 +1832,11 @@ $(function() {
   var oldTitles = {};
   var toolTips = {
    toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
-   0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f',
-   7: 'o', 8: 'v', 9: 'b', 10: 'j', 11: 'k', 12: 'p',
-   16: 'n', 17: 'm',
-   20: 'a', 21: 'u', 22: 'i', 23: 'g', 24: 'h', 25: 's',
-   27: 'c', 30: 'x', 31: 'l', 32: 'd'};
+    0: 'q',  1: 'w',  2: 'e',  3: 'r',  4: 't',  5: 'f',
+    7: 'o',  8: 'v',  9: 'b', 10: 'j', 11: 'k', 12: 's',
+                              17: 'n', 18: 'm',
+   21: 'a', 22: 'u', 23: 'i', 24: 'g', 25: 'h',          27: 'p',
+   28: 'c', 31: 'x', 32: 'l', 33: 'd'};
   var tipsTools = {};
   var keys = {48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9', 65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z'};
   for(var id in toolTips) {
@@ -2327,9 +2327,9 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, powerupType, gravityWellType],
+    [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, spikeType, gravityWellType],
     [potatoType, redPotatoType, bluePotatoType, redEndzoneType, blueEndzoneType, portalType, exitPortalType],
-    [speedpadType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType, spikeType],
+    [speedpadType, redSpeedpadType, blueSpeedpadType, redFloorType, blueFloorType, yellowFloorType, powerupType],
     [onFieldType, redFieldType, blueFieldType, offFieldType, switchType, bombType, marsBallType]
   ];
 
