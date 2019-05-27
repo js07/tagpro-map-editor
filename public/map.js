@@ -274,6 +274,8 @@ $(function() {
     this.opposite = this; // What it switches to when mirrored
     this.verticalMirror = this;
     this.horizontalMirror = this;
+    this.diagonal1Mirror = this;
+    this.diagonal2Mirror = this;
     this.plusNinetyRotator = this;
     this.minusNinetyRotator = this;
     this.toolTipText = toolTipText;
@@ -1464,6 +1466,14 @@ $(function() {
   function isMinusNinetyRotator(t1, t2) {
     t1.minusNinetyRotator = t2;
   }
+  function areDiagonal1Mirrors(t1, t2) {
+    t1.diagonal1Mirror = t2;
+    t2.diagonal1Mirror = t1;
+  }
+  function areDiagonal2Mirrors(t1, t2) {
+    t1.diagonal2Mirror = t2;
+    t2.diagonal2Mirror = t1;
+  }
   areOpposites(redSpeedpadType, blueSpeedpadType);
   areOpposites(redFloorType, blueFloorType);
   areOpposites(redFieldType, blueFieldType);
@@ -1483,7 +1493,15 @@ $(function() {
   isMinusNinetyRotator(wallTopRightType, wallTopLeftType);
   isMinusNinetyRotator(wallBottomRightType, wallTopRightType);
   isMinusNinetyRotator(wallBottomLeftType, wallBottomRightType);
-
+  areDiagonal1Mirrors(wallTopLeftType, wallTopLeftType);
+  areDiagonal1Mirrors(wallTopRightType, wallBottomLeftType);
+  areDiagonal1Mirrors(wallBottomLeftType, wallTopRightType);
+  areDiagonal1Mirrors(wallBottomRightType, wallBottomRightType);
+  areDiagonal2Mirrors(wallTopLeftType, wallBottomRightType);
+  areDiagonal2Mirrors(wallTopRightType, wallTopRightType);
+  areDiagonal2Mirrors(wallBottomLeftType, wallBottomLeftType);
+  areDiagonal2Mirrors(wallBottomRightType, wallTopLeftType);
+  
   function Tile(options, elem) {
     this.set(options);
     if (elem) {
@@ -1698,35 +1716,48 @@ $(function() {
     console.log('Symmetry is ', symmetry);
   });
 
-  function transformPoint(pt, how) {
-    pt.x = pt.x*how[0] + (tiles.length-1)*how[1];
-    pt.y = pt.y*how[2] + (tiles[0].length-1)*how[3];
+  function transformPoint(pt, how) {how[5]==1
+    tempX = pt.x
+    pt.x = pt.x*how[0] + (tiles.length-1)*how[1] + pt.y*how[5];
+    pt.y = pt.y*how[2] + (tiles[0].length-1)*how[3] + tempX*how[6];
     if (pt.type && how[4]) pt.type = pt.type.opposite;
     if (pt.topType && how[4]) pt.topType = pt.topType.opposite;
     if (pt.type && how[0]==-1) pt.type = pt.type.horizontalMirror;
     if (pt.topType && how[0]==-1) pt.topType = pt.topType.horizontalMirror;
     if (pt.type && how[2]==-1) pt.type = pt.type.verticalMirror;
     if (pt.topType && how[2]==-1) pt.topType = pt.topType.verticalMirror;
+    if (pt.type && how[5]==1) pt.type = pt.type.diagonal1Mirror;
+    if (pt.topType && how[5]==1) pt.topType = pt.topType.diagonal1Mirror;
+    if (pt.type && how[5]==-1) pt.type = pt.type.diagonal2Mirror;
+    if (pt.topType && how[5]==-1) pt.topType = pt.topType.diagonal2Mirror; 
   }
   
   var symmetryFns = {
     'Horizontal': [
-      [1,0,  1,0],
-      [-1,1, 1,0, true]
+      [1,0,  1,0, false, 0, 0],
+      [-1,1, 1,0, true,  0, 0]
     ],
     'Vertical': [
-      [1,0, 1,0],
-      [1,0, -1,1, true]
+      [1,0, 1,0, false,  0, 0],
+      [1,0, -1,1, true,  0, 0]
     ],
     '4-Way': [
-      [1,0, 1,0],
-      [-1,1, 1,0, true],
-      [1,0, -1,1, true],
-      [-1,1, -1,1]
+      [1,0, 1,0, false,  0, 0],
+      [-1,1, 1,0, true,  0, 0],
+      [1,0, -1,1, true,  0, 0],
+      [-1,1, -1,1,false, 0, 0]
     ],
     'Rotational': [
-      [1,0, 1,0],
-      [-1,1, -1,1, true]
+      [1,0, 1,0, false,  0, 0],
+      [-1,1, -1,1, true, 0, 0]
+    ],
+    'Diagonal1': [
+      [1,0,  1,0, false, 0, 0],
+      [0,0,  0,0, true,  1, 1]
+    ],
+    'Diagonal2': [
+      [1,0,  1,0, false, 0, 0],
+      [0,1,  0,1, true,  -1, -1]
     ]
   }
   
@@ -3524,6 +3555,9 @@ $(function() {
       rObj.y = obj.y;
       rObj.typeName = obj.type.name;
       rObj.changes = {};
+      if (obj.topType) {
+        rObj.topTypeName = obj.topType.name;
+      }
       if (obj.affected) {
         rObj.affected = {};
         for (k in obj.affected) {
@@ -3560,6 +3594,9 @@ $(function() {
         if (type.name === obj.typeName) {
           obj.type = type;
         }
+        if (obj.topTypeName && type.name === obj.topTypeName) {
+          obj.topType = type;
+        }
       });
       if (obj.changes.typeName) {
         tileTypes.forEach(function(type) {
@@ -3590,6 +3627,7 @@ $(function() {
         }
         state.affected = affected;
       }
+      state.topType = obj.topType;
       state.type = obj.type;
       state = new TileState(state, obj.changes);
       return state;
