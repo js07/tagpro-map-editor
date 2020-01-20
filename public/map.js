@@ -254,6 +254,8 @@ $(function() {
 
   var versionHistory = [];
   var roomHistory = [];
+
+  var selectionIndicatorCircleColors = ['red', 'orange', 'olive', 'green', 'purple', 'fuchsia', 'lime', 'teal', 'aqua', 'blue', 'navy', 'black', 'grey', 'silver'];
   
   function positionCss(x, y, mult) {
     return (mult ? -x*tileSize*mult : -x*tileSize) + 'px ' + (mult ? -y*tileSize*mult : -y*tileSize) + 'px';
@@ -728,6 +730,9 @@ $(function() {
   var wireCalculatedAffected = {};
   var wire = new Tool({
     type: 'special',
+    select: function() {
+      this.refreshHighlights();
+    },
     unselect: function() {
       clearHighlights();
       this.selectedSwitch = null;
@@ -821,6 +826,32 @@ $(function() {
         var sel = this.selectedSwitch.affected || ( this.selectedSwitch.affected={});
         for (var key in sel) {
           sel[key].highlight(true);
+        }
+      }
+    } else {
+      var colorNum = 0;
+      for (var x=0; x<tiles.length; x++) {
+        for (var y=0; y<tiles[x].length; y++) {
+          if (tiles[x][y].type == portalType || tiles[x][y].type == switchType) {
+            var selectedSwitch = tiles[x][y];
+            var color = selectionIndicatorCircleColors[colorNum++ % selectionIndicatorCircleColors.length];
+            if (!selectedSwitch.destination && (
+              !selectedSwitch.affected || Object.keys(selectedSwitch.affected).length === 0
+            )) {
+              continue;
+            }
+            selectedSwitch.highlightCircle(true, color);
+            if (selectedSwitch.type == portalType) {
+              if (selectedSwitch.destination) {
+                selectedSwitch.destination.highlightCircle(true, color);
+              }
+            } else if (selectedSwitch.type == switchType) {
+              var sel = selectedSwitch.affected || (selectedSwitch.affected={});
+              for (var key in sel) {
+                sel[key].highlightCircle(true, color);
+              }
+            }
+          }
         }
       }
     }
@@ -1079,6 +1110,7 @@ $(function() {
 
   function clearHighlights() {
     $map.find('.selectionIndicator').css('display', 'none');
+    $map.find('.selectionIndicatorCircle').css('display', 'none');
   }
 
   function ensureUnique(placedX, placedY) {
@@ -1516,6 +1548,7 @@ $(function() {
         this.selectionIndicator = domElem.children[5];
         this.affectedIndicator = domElem.children[6];
         this.affectedIndicatorOther = domElem.children[7];
+        this.selectionIndicatorCircle = domElem.children[8];
       
         this.setType(options.type, true, false, true);
         this.background = elem.parent();
@@ -1581,6 +1614,10 @@ $(function() {
 
   Tile.prototype.highlightWithPotentialOther = function(highlighted) {
     this.elem.find('.potentialHighlightOther').css('display', highlighted ? 'inline-block' : 'none');
+  }
+  Tile.prototype.highlightCircle = function(highlighted, color='black') {
+    this.elem.find('.selectionIndicatorCircle').css('display', highlighted ? 'inline-block' : 'none');
+    this.elem.find('.selectionIndicatorCircle circle').css('stroke', color);
   }
 
 
@@ -1651,7 +1688,12 @@ $(function() {
         "<div class='topSquare'></div>" +
         "<div class='selectionIndicator nestedSquare'></div>" +
         "<div class='potentialHighlightOther nestedSquare'></div>" +
-        "<div class='potentialHighlight nestedSquare'></div></div></div>"
+        "<div class='potentialHighlight nestedSquare'></div>" +
+        "<div class='selectionIndicatorCircle nestedSquare'>" +
+          '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+            '<circle r="45" cy="50" cx="50" stroke-width="5" fill="none"/>' +
+          '</svg>' +
+        "</div></div></div>"
         ;
     }
     row += "</div>"
@@ -2995,7 +3037,9 @@ $(function() {
         applySize(tile.affectedIndicator);
         applySize(tile.affectedIndicatorOther);
         applySize(tile.selectionIndicator);
+        applySize(tile.selectionIndicatorCircle);
         tile.selectionIndicator.style.backgroundSize = singleTileBackgroundSize;
+        tile.selectionIndicatorCircle.style.backgroundSize = singleTileBackgroundSize;
         applySize(tile.elem[0]);
         applySize(tile.background[0]);
         for (var q=0;q<4; q++) {
