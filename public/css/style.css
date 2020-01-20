@@ -273,6 +273,8 @@ div.active {
 .orange { background-color: #ffcc99; }
 .yellow { background-color: #ffff99; }
 .turquoise { background-color: #6fe8e0; }
+.pink { background-color: #ffb8e8; }
+.brown { background-color: #816040; }
 
 .map-version {
     cursor: pointer;

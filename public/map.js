@@ -1667,7 +1667,9 @@ $(function() {
     'purple':'#cc99ff',
     'orange':'#ffcc99',
     'yellow': '#ffff99',
-    'turquoise': '#6fe8e0'
+    'turquoise': '#6fe8e0',
+    'pink': '#ffb8e8',
+    'brown': '#816040'
   }
   var myHighlightColor = 'green';
 
