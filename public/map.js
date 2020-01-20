@@ -1428,8 +1428,8 @@ $(function() {
   function exportSpawn(logic, tile) {
     var color = (tile.topType == redSpawnType) ? 'red' : 'blue';
     logic.spawnPoints[color].push({x: tile.x, y: tile.y,
-      radius: tile.radius || defaultSpawnRadius,
-      weight: tile.weight || defaultSpawnWeight
+      radius: (tile.radius!=undefined) ? tile.radius : defaultSpawnRadius,
+      weight: (tile.weight!=undefined) ? tile.weight : defaultSpawnWeight
     });
   }
 
