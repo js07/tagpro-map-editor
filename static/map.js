@@ -770,15 +770,13 @@ $(function() {
     speculateUp: function(x,y) {
       var tile = tiles[x][y];
       var change = null;
-      if (tile.type == portalType) {
-        if (this.selectedSwitch && this.selectedSwitch.type == portalType) {
-          change = new TileState(this.selectedSwitch, {destination: tile})
-          console.log('making destination action to', xy(tile));
-          this.selectedSwitch = null;
-        } else {
-          this.selectedSwitch = tile;
-          console.log('selected ', xy(this.selectedSwitch));
-        }
+      if ((tile.type==portalType || tile.type==redPortalType || tile.type==bluePortalType) && this.selectedSwitch && (this.selectedSwitch.type == portalType || this.selectedSwitch.type == redPortalType || this.selectedSwitch.type == bluePortalType )) {
+        change = new TileState(this.selectedSwitch, {destination: tile})
+        console.log('making destination action to', xy(tile));
+        this.selectedSwitch = null;
+      } else if (tile.type==portalType || tile.type==redPortalType || tile.type==bluePortalType) {
+        this.selectedSwitch = tile;
+        console.log('selected ', xy(this.selectedSwitch));
       } else if (tile.type == switchType) {
         this.selectedSwitch = tile;
       } else if (this.selectedSwitch && this.selectedSwitch.type == switchType) {
@@ -1380,7 +1378,8 @@ $(function() {
   var floorType, emptyType, 
     wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType,
     blueFlagType, redFlagType, switchType, bombType, onFieldType, offFieldType,
-    redFieldType, blueFieldType, portalType, redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType,
+    redFieldType, blueFieldType, portalType, redPortalType, bluePortalType,
+    redSpawnType, blueSpawnType, redSpeedpadType, blueSpeedpadType, yellowFloorType, redFloorType, blueFloorType,
     spikeType, powerupType, speedpadType,
     yellowFlagType, redEndzoneType, blueEndzoneType;
   
@@ -1407,6 +1406,8 @@ $(function() {
     redFieldType = new TileType('redField', 14,3, 0,117,0, "Gate - Default Red", {logicFn: setFieldFn('red')}),
     blueFieldType = new TileType('blueField', 15,3, 0,117,0, "Gate - Default Blue", {logicFn: setFieldFn('blue')}),
     portalType = new TileType('portal', 0,0, 202, 192,0, "Portal - Link two portals using the wire tool.", {image: 'portal', logicFn: exportPortal}),
+    redPortalType = new TileType('redPortal', 0, 0, 204, 51, 0, "Red Portal - Can be used by red balls.", {image: 'portalred', logicFn: exportPortal}),
+    bluePortalType = new TileType('bluePortal', 0,0, 0, 102, 204, "Blue Portal - Can be used by blue balls.", {image: 'portalblue', logicFn: exportPortal}),
     redFlagType = new TileType('redFlag', 14,1, 255,0,0, "Red Flag"),
     blueFlagType = new TileType('blueFlag', 15,1, 0,0,255, "Blue Flag"),
     redSpawnType = new TileType('redSpawn', 14,0, 155,0,0, "Red Spawn Tile - Red balls will spawn within a certain radius of this tile.", {logicFn: exportSpawn}),
@@ -1442,6 +1443,7 @@ $(function() {
   areOpposites(redFlagType, blueFlagType);
   areOpposites(redSpawnType, blueSpawnType);
   areOpposites(redEndzoneType, blueEndzoneType);
+  areOpposites(redPortalType, bluePortalType);
   areHorizontalMirrors(wallBottomLeftType, wallBottomRightType);
   areHorizontalMirrors(wallTopLeftType, wallTopRightType);
   areVerticalMirrors(wallBottomLeftType, wallTopLeftType);
@@ -1883,7 +1885,7 @@ $(function() {
           var x = $(this).data('x');
           var y = $(this).data('y');
         
-          if (tiles[x][y].type == portalType) {
+          if (tiles[x][y].type == portalType || tiles[x][y].type == redPortalType || tiles[x][y].type == bluePortalType) {
             var cooldown = (tiles[x][y].cooldown!=undefined) ? tiles[x][y].cooldown : defaultPortalCooldown;
             $('#portalCooldown').val('').attr('placeholder',cooldown);
             $('#portalAll').hide();
@@ -2040,7 +2042,7 @@ $(function() {
       for (var x=0; x<width; x++) {
         var tile = tiles[x][y];
         var cell;
-        if (tile.type == portalType) {
+        if ((tile.type==portalType || tile.type==redPortalType || tile.type==bluePortalType)) {
           cell = {
             type: tile.type.name,
             destination: tile.destination ? [tile.destination.x, tile.destination.y] : [x,y]
@@ -2129,7 +2131,7 @@ $(function() {
 
   var paletteRows = [
     [wallType, wallTopLeftType, wallTopRightType, wallBottomLeftType, wallBottomRightType, floorType, emptyType], 
-    [spikeType, powerupType, portalType, gravityWellType, marsBallType],
+    [spikeType, powerupType, gravityWellType, marsBallType, portalType, redPortalType, bluePortalType],
     [yellowFlagType, redFlagType, blueFlagType, redSpawnType, blueSpawnType, redEndzoneType, blueEndzoneType],
     [speedpadType, redSpeedpadType, blueSpeedpadType, '', yellowFloorType, redFloorType, blueFloorType],
     [switchType, offFieldType, onFieldType, redFieldType, blueFieldType, '', bombType]
@@ -2167,7 +2169,7 @@ $(function() {
         setBrushTileType(type);
         if(e.shiftKey)
         {
-          if (type == portalType) {
+          if ((type==portalType || type==redPortalType || type==bluePortalType)) {
             var cooldown = defaultPortalCooldown;
             $('#portalCooldown').val('').attr('placeholder',cooldown);
             $('#portalAll').show();
@@ -2383,7 +2385,7 @@ $(function() {
         xy[0] = parseInt(xy[0])+deltaX;
         xy[1] = parseInt(xy[1])+deltaY;
         var tile = (tiles[xy[0]]||[])[xy[1]];
-        if (tile && tile.type==portalType) {
+        if (tile && (tile.type==portalType || tile.type==redPortalType || tile.type==bluePortalType)) {
           var dest = portals[key].destination||{};
           tile.destination = (tiles[dest.x]||[])[dest.y];
           tile.cooldown = (portals[key].cooldown!=undefined) ? portals[key].cooldown : undefined;
