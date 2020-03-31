@@ -1784,7 +1784,7 @@ $(function() {
   var shiftDown = false;
   var oldTitles = {};
   var toolTips = {toolPencil: '1', toolBrush: '2', toolLine: '3', toolRectFill: '4', toolRectOutline: '5', toolCircleFill: '6', toolCircleOutline: '7', toolFill: '8', toolWire: '9', toolClipboard: '0',
-  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 's', 8: 'p', 12: 'n', 13: 'v', 14: 'b', 15: 'j', 16: 'k', 17: 'n', 18: 'm', 19: 'a', 20: 'u', 21: 'i', 22: 'g', 23: 'h', 24: 'l', 25: 'x', 26: 'c', 29: 'd'};
+  0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'f', 7: 's', 8: 'p', 14: 'n', 15: 'v', 16: 'b', 17: 'j', 18: 'k', 19: 'n', 20: 'm', 21: 'a', 22: 'u', 23: 'i', 24: 'g', 25: 'h', 26: 'l', 27: 'x', 28: 'c', 31: 'd'};
   var tipsTools = {};
   var keys = {48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9', 65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z'};
   for(var id in toolTips) {
